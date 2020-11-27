@@ -1,0 +1,8 @@
+2020-11-18 观摩Application
+	下一步任务：
+	将Application分割为Application和DemoApplication两个层次，run改为virtual
+	window置于Application, 具体的顶点、纹理数据置于DemoApplication
+	
+	将glad.c加入CMake的build列表中！！
+	将所有glpp类加入namespace glpp中，
+	*所有文件改至glpp/文件夹下，再提供glpp.h头文件

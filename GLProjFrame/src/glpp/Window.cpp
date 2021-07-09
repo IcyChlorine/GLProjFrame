@@ -1,5 +1,5 @@
-#include "Window.h"
-#include "InputManager.h"
+#include "glpp/Window.h"
+#include "glpp/InputManager.h"
 
 //callback func when window is resized
 void glfw_resize_callback(GLFWwindow* window, int width, int height)

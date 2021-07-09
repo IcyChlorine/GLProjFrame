@@ -1,4 +1,4 @@
-#include "InputManager.h"
+#include "glpp/InputManager.h"
 InputManager* instance{ nullptr };
 
 void InputManager::glfw_key_callback(GLFWwindow * window, int key_num, int scancode, int action, int mods)

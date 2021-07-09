@@ -1,6 +1,6 @@
-#include "GameCamera.h"
-#include "Window.h"
-#include "Application.h"
+#include "glpp/GameCamera.h"
+#include "glpp/Window.h"
+#include "glpp/Application.h"
 
 
 GameCamera::GameCamera(AbsObject* father) :Camera{ father } {

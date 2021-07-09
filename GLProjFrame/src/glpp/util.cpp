@@ -1,4 +1,4 @@
-#include "util.h"
+#include "glpp/util.h"
 
 void SimpleMessageBox(string text, string caption) {
 	MessageBox(nullptr, text.c_str(), caption.c_str(), MB_OK);

@@ -1,4 +1,4 @@
-#include "Shader.h"
+#include "glpp/Shader.h"
 
 Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 {

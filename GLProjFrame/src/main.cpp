@@ -5,16 +5,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-//数学轮子，在项目自带的include中
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include "Shader.h"
-#include "Texture.h"
-#include "InputManager.h"
-#include "GameTransform.h"
-#include "Application.h"
+//glpp类库
+#include "glpp/glpp.h"
 
 using namespace std;
 using namespace glm;

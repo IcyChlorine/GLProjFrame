@@ -4,11 +4,11 @@
 #include <sstream>
 #include <conio.h>
 
-#include "Window.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "InputManager.h"
-#include "GameCamera.h"
+#include "glpp/Window.h"
+#include "glpp/Shader.h"
+#include "glpp/Texture.h"
+#include "glpp/InputManager.h"
+#include "glpp/GameCamera.h"
 
 class Application :public AbsObject
 {

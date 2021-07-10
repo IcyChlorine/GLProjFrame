@@ -2,6 +2,10 @@
 
 Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 {
+	
+	char buf[512];
+	sprintf_s(buf, 512u, "Loading shader from path %s, %s...",vertSrcPath, fragSrcPath);
+	Logging::info(buf);
 	// 1. retrieve the vertex/fragment source code from filePath
 	string vertSrc;
 	string fragSrc;
@@ -28,7 +32,13 @@ Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 	}
 	catch (std::ifstream::failure e)
 	{
-		cout << "Error: Fail to load shader src from file" << std::endl;
+		Logging::error("Fail to load shader src from file.");
+		//cout << "Error: Fail to load shader src from file" << std::endl;
+		return;
+	}
+	if(vertSrc=="" || fragSrc==""){
+		Logging::error("Fail to load shader src from file.");
+		return;
 	}
 	const char* pVertSrc = vertSrc.c_str();
 	const char* pFragSrc = fragSrc.c_str();
@@ -46,7 +56,10 @@ Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 	if (!success)
 	{
 		glGetShaderInfoLog(vertShaderID, 512, NULL, infoLog);
-		std::cout << "Error: Fail to compile vertex shader\n" << infoLog << std::endl;
+		sprintf_s(buf,512u,"Fail to compile vertex shader, with internal error msg:\n\t%s",infoLog);
+		//std::cout << "Error: Fail to compile vertex shader\n" << infoLog << std::endl;
+		Logging::error(buf);
+		return;
 	};
 	// fragment Shader
 	fragShaderID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -57,7 +70,10 @@ Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 	if (!success)
 	{
 		glGetShaderInfoLog(fragShaderID, 512, NULL, infoLog);
-		std::cout << "Error: Fail to compile fragment shader\n" << infoLog << std::endl;
+		//std::cout << "Error: Fail to compile fragment shader\n" << infoLog << std::endl;
+		sprintf_s(buf,512u,"Fail to compile fragment shader, with internal error msg:\n\t%s",infoLog);
+		Logging::error(buf);
+		return;
 	};
 	
 
@@ -71,7 +87,9 @@ Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 	if (!success)
 	{
 		glGetProgramInfoLog(m_shaderID, 512, NULL, infoLog);
-		std::cout << "Error: Fail to link vert&frag shaders\n" << infoLog << std::endl;
+		//std::cout << "Error: Fail to link vert&frag shaders\n" << infoLog << std::endl;
+		sprintf_s(buf,512u,"Fail to link vert&frag shaders, with internal error msg:\n\t%s",infoLog);
+		Logging::error(buf);
 	}
 
 	// delete the shaders as they're linked into our program now and no longer necessery

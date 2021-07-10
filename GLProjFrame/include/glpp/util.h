@@ -22,6 +22,11 @@ public:
 	void setFather(AbsObject* father_new) { father = father_new; }
 	AbsObject* getFather() { return father; }
 
+	//由于许多图形学库需要运行时手动加载/初始化，因此对象可能需要手动初始化，因此提供这两个接口
+	//虽然参数列表可能不符合实际需要，但表示有这种手动加载的可能
+	virtual void init() {}
+	virtual void terminate() {}
+
 	virtual void outputDebugInfo(ostream& out) {}
 };
 
@@ -92,5 +97,20 @@ public:
 };
 void SimpleMessageBox(string text, string caption);
 void HandleException(exception& e, const string& exTypeName = "exception");
+
+//预览版小logger
+class Logging
+{
+	public:
+	static void info(string msg){
+		cout<<"[INFO] "<<msg<<endl;
+	}
+	static void info(string tag, string msg){
+		printf("[%s] %s\n",tag.c_str(),msg.c_str());
+	}
+	static void error(string msg){
+		cerr<<"[ERROR] "<<msg<<endl;
+	}
+};
 
 #endif

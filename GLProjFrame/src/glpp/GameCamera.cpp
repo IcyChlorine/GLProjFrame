@@ -17,10 +17,6 @@ GameCamera::~GameCamera()
 void GameCamera::update(float dt)
 {
 	if (!enabled) return;
-	cumulated_time += dt;
-	//只有时间间隔足够大时才更新变换，避免因鼠标只移动了一两个像素造成的不平滑
-	if (cumulated_time < 0.01f)
-		return;
 
 	//旋转部分
 	auto window = ((Application*)father)->getWindow()->getInternalPointer();
@@ -28,12 +24,12 @@ void GameCamera::update(float dt)
 	double cursor_x, cursor_y;
 	glfwGetWindowSize(window, &width, &height);
 	glfwGetCursorPos(window, &cursor_x, &cursor_y);
-	//phi += (time - time_prev)*10;
-	phi += (cursor_x - width / 2)*phi_rate * 360;
+
+	phi += -(cursor_x - width / 2)*phi_rate * 360;
 	th += (cursor_y - height / 2)*th_rate * 90;
-	//th = 0.0f;
-	if (th >= 90.0f) th = 90.0f;
-	if (th <= -90.0f) th = -90.0f;
+	//截断
+	if (th >= 180.0f) th = 180.0f;
+	if (th <= 0.0f) th = 0.0f;
 
 	//平移部分
 	glm::vec4 dr = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -41,34 +37,95 @@ void GameCamera::update(float dt)
 		dr.x += dt*vx;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		dr.x -= dt*vx;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		dr.z += dt*vz;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		dr.z += dt*vz;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		dr.z -= dt*vz;
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		dr.y += dt*vy;
 	if (glfwGetKey(window, GLFW_KEY_CAPS_LOCK) == GLFW_PRESS)
 		dr.y -= dt*vy;
 
-	//要从本地坐标系变换到世界坐标系，变换是反着的，所以右乘
-	dr = dr * glm::rotate(glm::mat4(1.0f), glm::radians(phi), glm::vec3(0.0f, 1.0f, 0.0f));
-	x += dr.x;
-	y += dr.y;
-	z += dr.z;
+	float phi_rad = glm::radians(phi);
+	float th_rad = glm::radians(th);
 
+	const auto UP = glm::vec3(0.,1.,0.);
+	auto& vPos = cameraPos;
+	auto vFwd = glm::vec3(sin(phi_rad)*sin(th_rad),cos(th_rad),cos(phi_rad)*sin(th_rad));
+	auto vRight = glm::cross(vFwd, UP);
+
+	vPos += +dr.z*vFwd + dr.x*vRight + dr.y*UP;
 	//计算变换
-	auto transMat = glm::mat4(1.0f);
-	transMat = glm::rotate(transMat, glm::radians(th), glm::vec3(1.0f, 0.0f, 0.0f));
-	transMat = glm::rotate(transMat, glm::radians(phi), glm::vec3(0.0f, 1.0f, 0.0f));
-	transMat = glm::translate(transMat, glm::vec3(-x, -y, -z));
+	auto transMat = glm::lookAt(vPos, vPos+vFwd, UP);
+	
 	transform->setTransformMat(transMat);
 	glfwSetCursorPos(window, width / 2, height / 2);
 
 }
 
+void GameCamera::update(glm::vec3 dr_local, float d_th, float d_phi){
+	phi += d_phi;
+	th += d_th;
+	//截断
+	if (th >= 180.0f) th = 180.0f;
+	if (th <= 0.0f) th = 0.0f;
+
+	// 中间变量
+	float phi_rad = glm::radians(phi);
+	float th_rad = glm::radians(th);
+	const auto UP = glm::vec3(0.,1.,0.);
+	auto& vPos = cameraPos;
+	auto vFwd = glm::vec3(sin(phi_rad)*sin(th_rad),cos(th_rad),cos(phi_rad)*sin(th_rad));
+	auto vRight = glm::cross(vFwd, UP);
+
+	//计算变换 ——能用向量就不用矩阵 ——lcj
+	vPos += +dr_local.z*vFwd + dr_local.x*vRight + dr_local.y*UP;	
+	auto transMat = glm::lookAt(vPos, vPos+vFwd, UP);
+	
+	transform->setTransformMat(transMat);
+}
+
+void GameCamera::move(glm::vec3 dr_local){
+	// 中间变量
+	float phi_rad = glm::radians(phi);
+	float th_rad = glm::radians(th);
+	const auto UP = glm::vec3(0.,1.,0.);
+	auto& vPos = cameraPos;
+	auto vFwd = glm::vec3(sin(phi_rad)*sin(th_rad),cos(th_rad),cos(phi_rad)*sin(th_rad));
+	auto vRight = glm::cross(vFwd, UP);
+
+	//计算变换 ——能用向量就不用矩阵 ——lcj
+	vPos += +dr_local.z*vFwd + dr_local.x*vRight + dr_local.y*UP;	
+	auto transMat = glm::lookAt(vPos, vPos+vFwd, UP);
+	
+	transform->setTransformMat(transMat);
+}
+void GameCamera::rotate(float d_th, float d_phi){
+	phi += d_phi;
+	th += d_th;
+	//截断
+	if (th >= 180.0f) th = 180.0f;
+	if (th <= 0.0f) th = 0.0f;
+
+	// 中间变量
+	float phi_rad = glm::radians(phi);
+	float th_rad = glm::radians(th);
+	const auto UP = glm::vec3(0.,1.,0.);
+	auto& vPos = cameraPos;
+	auto vFwd = glm::vec3(sin(phi_rad)*sin(th_rad),cos(th_rad),cos(phi_rad)*sin(th_rad));
+	auto vRight = glm::cross(vFwd, UP);
+
+	//计算变换 ——能用向量就不用矩阵 ——lcj
+	auto transMat = glm::lookAt(vPos, vPos+vFwd, UP);
+	
+	transform->setTransformMat(transMat);
+}
+
 void GameCamera::outputDebugInfo(ostream & out)
 {
 	char str[100];
-	sprintf_s(str, 100, "(x, y, z) = (%.2f, %.2f, %.2f)\n(phi, th)=(%.2f, %.2f)\n", x, y, z, phi, th);
+	sprintf_s(str, 100, "(x, y, z) = (%.2f, %.2f, %.2f)\n(phi, th)=(%.2f, %.2f)\n", 
+		cameraPos.x, cameraPos.y, cameraPos.z,
+		phi, th);
 	out << str;
 }

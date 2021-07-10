@@ -15,6 +15,8 @@
 #include <iostream>
 using namespace std;
 
+#include "util.h"
+
 class Shader
 {
 public:

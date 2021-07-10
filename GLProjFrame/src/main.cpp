@@ -19,8 +19,9 @@ void handleEvents(GLFWwindow *window)
 
 int main() {
 	try {
-		Application theApp;
-		theApp.run();
+		Application* theApp = new Application;
+		theApp->run();
+		delete theApp;
 	}
 	catch (init_exception& e) {
 		HandleException(e, "init_exception");

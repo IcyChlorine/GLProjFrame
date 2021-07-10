@@ -1,33 +1,16 @@
 #include "glpp/InputManager.h"
-InputManager* instance{ nullptr };
+InputManager* InputManager::instance{ nullptr };
 
 void InputManager::glfw_key_callback(GLFWwindow * window, int key_num, int scancode, int action, int mods)
-{
-	if (key_num < 0 || key_num >= KEY_ARR_CAPACITY) {
-		cerr << "InputManager::glfw_key_callback: 无法处理的按键！" << endl;
-		return;
-	}
-	//										判断函数是否为空
-	if (action == GLFW_PRESS && instance->key_callback[key_num][0])
-		instance->key_callback[key_num][0]();
-	else if (action == GLFW_RELEASE && instance->key_callback[key_num][1])
-		instance->key_callback[key_num][1]();
+{										
+	if (instance->key_callback)//判断函数是否为空
+		instance->key_callback(key_num, action);
 }
 
 void InputManager::glfw_mouse_button_callback(GLFWwindow * window, int button, int action, int mods)
 {
-	if (action == GLFW_PRESS) {
-		if (button == GLFW_MOUSE_BUTTON_LEFT && instance->mouse_click_callback[0][0])
-			instance->mouse_click_callback[0][0]();
-		else if (button == GLFW_MOUSE_BUTTON_RIGHT && instance->mouse_click_callback[1][0])
-			instance->mouse_click_callback[1][0]();
-	}
-	else if (action == GLFW_RELEASE) {
-		if (button == GLFW_MOUSE_BUTTON_LEFT && instance->mouse_click_callback[0][1])
-			instance->mouse_click_callback[0][1]();
-		else if (button == GLFW_MOUSE_BUTTON_RIGHT && instance->mouse_click_callback[1][1])
-			instance->mouse_click_callback[1][1]();
-	}
+	if(instance->mouse_click_callback)
+		instance->mouse_click_callback(button, action);
 }
 
 void InputManager::glfw_mouse_move_callback(GLFWwindow * window, double x, double y)
@@ -58,22 +41,12 @@ InputManager::~InputManager()
 {
 }
 
-void InputManager::setMouseClickCallback(function<void()> func, int key, int action) {
-	if ((key != 0 && key != 1) ||
-		(action !=0 && action!=1)) {
-		cerr << "InputManager.setMouseClickCallback: Illegal Argument!";
-		return;
-	}
-	mouse_click_callback[key][action] = func;
+void InputManager::registerMouseClickCallback(function<void(int, int)> func) {
+	mouse_click_callback = func;
 }
-void InputManager::setMouseMoveCallback(function<void(float, float)> func) {
+void InputManager::registerMouseMoveCallback(function<void(float, float)> func) {
 	mouse_move_callback = func;
 }
-void InputManager::setKeyCallback(function<void()> func, int key, int action) {
-	if ((key < 0 || key>=KEY_ARR_CAPACITY) ||
-		(action != 0 && action != 1)) {
-		cerr << "InputManager.setKeyCallback: Illegal Argument!";
-		return;
-	}
-	key_callback[key][action] = func;
+void InputManager::registerKeyCallback(function<void(int, int)> func) {
+	key_callback = func;
 }

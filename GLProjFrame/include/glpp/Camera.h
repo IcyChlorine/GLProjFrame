@@ -13,6 +13,10 @@ public:
 	Camera(AbsObject* father);
 	virtual ~Camera();
 
+	inline void setTransformMat(const glm::mat4& transMat)
+		{transform->setTransformMat(transMat);}
+	inline glm::mat4 getTransformMat(){ return transform->getTransformMat(); }
+
 	virtual void applyCameraTransform(Shader& shader);
 };
 

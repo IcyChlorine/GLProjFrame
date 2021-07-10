@@ -2,7 +2,7 @@
 
 #include "common_t1.h"
 #include <sstream>
-#include <conio.h>
+#include <map>
 
 #include "glpp/Window.h"
 #include "glpp/Shader.h"
@@ -10,18 +10,42 @@
 #include "glpp/InputManager.h"
 #include "glpp/GameCamera.h"
 
-class Application :public AbsObject
+class GraphicApplicationBase: 
+	public AbsObject, public Singleton
 {
 private:
 	
 protected:
 	Window* window{ nullptr };
-	Shader* shader{ nullptr };
 	InputManager* inputManager{ nullptr };
-	GameCamera* camera{ nullptr };
-	Texture* texture{ nullptr };
-	//stringstream consoleOutput;
+	
+public:
+	static GraphicApplicationBase* instance;//implemtation of "Singleton"
+	GraphicApplicationBase();
+	~GraphicApplicationBase();
+	
+	virtual void run() {}
+	Window* getWindow() { return window; }
+};
 
+class Application :public GraphicApplicationBase
+{
+private:
+	
+protected:
+	//base class has hadled these for us
+	//Window* window{ nullptr };
+	//InputManager* inputManager{ nullptr };
+
+	Shader* shader{ nullptr };	
+	GameCamera* camera{ nullptr };
+	bool dragging{false};//相机控制相关
+	float prev_cursor_x{0.},prev_cursor_y{0.};
+	map<int, bool> key_pressed;
+
+	bool require_FPS_info{false};
+
+	Texture* texture{ nullptr };
 
 	//preparing vertex data and convey them to GPU
 	float vertices[32] = {

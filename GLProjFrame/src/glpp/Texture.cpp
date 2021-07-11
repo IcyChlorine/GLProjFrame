@@ -15,14 +15,26 @@ Texture::Texture(string filename)
 
 	// load and generate the texture
 	int width, height, nrChannels;
-	unsigned char *data = stbi_load("texture\\stone.bmp", &width, &height, &nrChannels, 0);
-	Logging::info("WARNING", "class Texture has not been customized yet.");
+	//unsigned char *data = stbi_load("texture\\stone.bmp", &width, &height, &nrChannels, 0);
+	//Logging::info("WARNING", "class Texture has not been customized yet.");
+	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
 	if (data == NULL)
 	{	
 		//std::cout << "Failed to load texture" << std::endl;
 		Logging::error("Failed to load texture.");
+	}else{
+		Logging::info(string("Successfully loaded texture from")+filename);
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(
+		GL_TEXTURE_2D, 
+		0,//mipmap level 
+		GL_RGB,//internal format 
+		width, height, //width and height
+		0, //legacy stuff
+		GL_RGB, //format to store
+		GL_UNSIGNED_BYTE,// data type
+		data//actual data
+	);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(data);
@@ -31,6 +43,7 @@ Texture::Texture(string filename)
 
 Texture::~Texture()
 {
+	glDeleteTextures(1,&texture);
 }
 
 

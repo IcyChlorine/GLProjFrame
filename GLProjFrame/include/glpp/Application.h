@@ -1,4 +1,6 @@
 #pragma once
+#ifndef _APPLICATION_H
+#define _APPLICATION_H
 
 #include "common_t1.h"
 #include <sstream>
@@ -84,3 +86,4 @@ public:
 	}*/
 };
 
+#endif //_APPLICATION_H

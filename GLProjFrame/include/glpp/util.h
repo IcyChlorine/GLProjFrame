@@ -110,6 +110,7 @@ class Logging
 	}
 	static void error(string msg){
 		cerr<<"[ERROR] "<<msg<<endl;
+		system("pause");
 	}
 };
 

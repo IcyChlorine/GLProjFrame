@@ -7,13 +7,20 @@ Graphic-oriented Programs based on OpenGL are usually tedious to make/build*(eve
 * Taking popular libraries within the project,such as `glfw`,`glm`,and`stb`,so as to exempt developers the trouble of downloading,building these libraries on their own. You can find them in `/GLProjFrame/[src,include,lib]`
 * Using CMake make scripts to achieve better portability.  Click `ClickMetoCMake.bat` to make project files.  Visual Studio 2010+ is recommended.
 
-**Current Version: beta.0.**
+## Latest Version
+
+**Current version**: `v1.0`
+
+**What's new**:
+
++ the famous mesh loading library `assimp` now incorporated! run `class MeshDemo` in `main.cpp` to check.
++ major revisions have been made to glpp, its now less obscure and more handy. Classes structure is now simpler and more de-coupled.
 
 ## Make
 
-Honestly I've only configured the project for VS in Windows. I intended to add support for more platforms/IDEs, but considering the complexity of building an OpenGL project, I still recommend Visual Studio as your first choice.
+Now I've only configured the project for VS in Windows. I intended to add support for more platforms/IDEs, but considering the complexity of building an OpenGL project, I still recommend Visual Studio as your first choice.
 
-Double click `ClickMetoCMake.bat`(or run it on command line) to make project files. All library and header files are already included in this repository. Visual Studio 2010+ is recommended.
+Use **CMake** to make project files. All library and header files are already included in this repository. Visual Studio 2010+ is recommended.
 
 The main project is `GLProjFrame` in the folder with the same name; Note that an auxiliary project `test` is also included, as a handy tool for developers to test any weird or interesting programming cases within the same solution.
 
@@ -25,17 +32,17 @@ The OpenGL was designed as a set of C-styled API, making some of its functions o
 
 + `class Shader` A wrapper class for OpenGL shaders. You can directly create a shader by `Shader shader("src\\shader\\vertex.glsl","src\\shader\\frag.glsl")` and the constructor will do all the file-reading, compiling, linking jobs for you by calling OpenGL libraries. Then you can use it by `shader.use()` and pass uniform variables to it by `shader.setUniform(...)`.
 
-+ `class Application` The ultimate abstraction of GL program, which makes the main function concise and easy to maintain. It 's recommended to derive a new class from `class Application` for your custom use. Generally, it functions like this:
++ `class GraphicApplicationBase` The ultimate abstraction of GL program, which makes the main function concise and easy to maintain. It 's recommended to derive a new class from `class GraphicApplicationBase` for your custom use. Generally, it functions like this:
 
 ```C++
 ...
-#include "Application.h"
+#include "glpp\glpp.h"
 ...
 
 int main() {
   	try {
-  		Application theApp;
-  		theApp.run();
+  		MyApplication *theApp;
+  		theApp->run();
   	}
   	catch (init_exception& e) {
   		HandleException(e, "init_exception");
@@ -46,6 +53,8 @@ int main() {
   	return 0;
 }
 ```
+
+Be aware that you need to override `virtual void GraphicApplicationBase::run()` function to customize the behaviour of your own application.
 
  ## Project Structure
 
@@ -58,8 +67,9 @@ With dependent libraries, glpp classes and util sources added to the project, th
 |   glpp Classes: Camera, Shader   |
 |     Transform, Shader, ...       |	Layer III:glpp wrapper classes as abstraction
 +--------------------+-------------+
-| External Lib: glfw | util: ...   |
-|   glad glad stb ...|  LogWriter  |	Layer II: Basic Dependencies&Extensions
+| External Lib:      | util: ...   |
+|   assimp std_image |   Logging   |	Layer II: Basic Dependencies&Extensions
+|   glad glfw glm    |             |
 +--------------------+-------------+	
 |  Basic GL Lib:     | Basic C Lib |
 |   gl.h, glut.h     |   STL, ...  |	Layer I:  Foundation

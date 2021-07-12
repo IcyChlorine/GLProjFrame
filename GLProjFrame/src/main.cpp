@@ -19,7 +19,8 @@ void handleEvents(GLFWwindow *window)
 
 int main() {
 	try {
-		Application* theApp = new Application;
+		//DemoApplication* theApp = new DemoApplication;
+		MeshDemo *theApp = new MeshDemo;
 		theApp->run();
 		delete theApp;
 	}

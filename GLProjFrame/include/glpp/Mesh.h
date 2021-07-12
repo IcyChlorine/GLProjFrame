@@ -15,20 +15,23 @@ using std::vector;
 
 
 class Mesh:public AbsObject{//internal class
+friend class Scene;
 public:
     Mesh(){}
     Mesh(const aiMesh* pAiMesh){init(pAiMesh);}
     ~Mesh();
 
     void init(const aiMesh* pAiMesh);
+    void render();
 private:
     int numVertices{0},numIndices{0};
     int materialIndex{-1};
-    //GLuint V
+
+    GLuint VAO;
     //顶点数据格式：(x,y,z),(nx,ny,nz),(s,t)=x,y,z,nx,ny,nz,s,t
     //顶点索引为vi的顶点，数据下标范围为[8*vi, 8*vi+7]=[8*vi,8*vi+8)
     float* vertices{nullptr};
-    int* indices{nullptr};
+    unsigned* indices{nullptr};
 };
 
 class Scene:public AbsObject
@@ -41,6 +44,8 @@ public:
 
     void init(const string& filename);
     void init(const aiScene* pAiScene, const string& filename="");
+
+    void render();
 private:
     bool loaded{false};
     void clear(){}//TODO: not implemented

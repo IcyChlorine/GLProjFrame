@@ -10,28 +10,32 @@ Texture::Texture(string filename)
 	// set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// load and generate the texture
 	int width, height, nrChannels;
 	//unsigned char *data = stbi_load("texture\\stone.bmp", &width, &height, &nrChannels, 0);
 	//Logging::info("WARNING", "class Texture has not been customized yet.");
+
+	char buf[100];
+	sprintf_s(buf, 100u, "Loading texture from file %s...",filename.c_str());
+	Logging::info(buf);
+	
 	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
 	if (data == NULL)
 	{	
 		//std::cout << "Failed to load texture" << std::endl;
 		Logging::error("Failed to load texture.");
-	}else{
-		Logging::info(string("Successfully loaded texture from")+filename);
 	}
+	auto format = (nrChannels==3)?GL_RGB:GL_RGBA;
 	glTexImage2D(
 		GL_TEXTURE_2D, 
 		0,//mipmap level 
-		GL_RGB,//internal format 
+		format,//internal format 
 		width, height, //width and height
 		0, //legacy stuff
-		GL_RGB, //format to store
+		format, //format to store
 		GL_UNSIGNED_BYTE,// data type
 		data//actual data
 	);

@@ -11,6 +11,7 @@
 #include "glpp/Texture.h"
 #include "glpp/InputManager.h"
 #include "glpp/GameCamera.h"
+#include "glpp/Mesh.h"
 
 class GraphicApplicationBase: 
 	public AbsObject, public Singleton
@@ -30,7 +31,7 @@ public:
 	Window* getWindow() { return window; }
 };
 
-class Application :public GraphicApplicationBase
+class DemoApplication :public GraphicApplicationBase
 {
 private:
 	
@@ -73,17 +74,45 @@ protected:
 
 	
 public:
-	Application();
-	~Application();
+	DemoApplication();
+	~DemoApplication();
 	
 	void run();
 	Window* getWindow() { return window; }
 
-	/*void flushConsoleOutput() { 
-		//cout << consoleOutput.str(); 
-		//consoleOutput.str("");//清空. ss不能用clear.
-		
-	}*/
 };
+
+
+class MeshDemo :public GraphicApplicationBase
+{
+private:
+	
+protected:
+	//base class has hadled these for us
+	//Window* window{ nullptr };
+	//InputManager* inputManager{ nullptr };
+
+	Shader* shader{ nullptr };	
+	GameCamera* camera{ nullptr };
+	bool dragging{false};//相机控制相关
+	float prev_cursor_x{0.},prev_cursor_y{0.};
+	map<int, bool> key_pressed;
+
+	bool require_FPS_info{false};
+
+	Scene* scene{nullptr};
+	float scale{0.01f};//很多模型太大，需要缩小
+	//Scene* skybox{nullptr};
+	bool render_skeleton{false};
+		
+public:
+	MeshDemo();
+	~MeshDemo();
+	
+	void run();
+	Window* getWindow() { return window; }
+
+};
+
 
 #endif //_APPLICATION_H

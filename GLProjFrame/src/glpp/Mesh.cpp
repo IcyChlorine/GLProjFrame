@@ -18,12 +18,12 @@ void Scene::init(const string& filename){
     );
 
     if (!pAiScene) {
-        char buf[100];
-        sprintf_s(buf,100u,"Error parsing '%s': '%s'\n", filename.c_str(), importer.GetErrorString());
+        char buf[512];
+        sprintf_s(buf,512u,"Error parsing '%s': '%s'\n", filename.c_str(), importer.GetErrorString());
         Logging::error(buf);
         return;
     }
-    this -> init(pAiScene);
+    this -> init(pAiScene, filename);
 }
 
 void Scene::init(const aiScene* pAiScene, const string& filename){
@@ -42,7 +42,8 @@ void Scene::init(const aiScene* pAiScene, const string& filename){
 
      //loading materials
     materials.resize(pAiScene->mNumMaterials);
-    std::string::size_type slashIndex = filename.find_last_of("/");
+    std::string::size_type slashIndex = filename.find_last_of("\\");//handle for both situations
+    if(slashIndex == string::npos) slashIndex = filename.find_last_of("/");
     std::string dir;
     if (slashIndex == std::string::npos) {
         dir = ".";
@@ -76,14 +77,22 @@ Scene::~Scene(){
     }
 }
 
+void Scene::render(){
+    for(int i=0;i<meshes.size();i++){
+        if(materials[meshes[i].materialIndex])
+            materials[meshes[i].materialIndex]->use();
+        meshes[i].render();
+    }
+}
+
 void Mesh::init(const aiMesh* pAiMesh){
     numVertices = pAiMesh->mNumVertices;
     numIndices = pAiMesh->mNumFaces*3;
 
     materialIndex = pAiMesh->mMaterialIndex;
 
-    vertices = new float(pAiMesh->mNumVertices*8);    
-    indices = new int(pAiMesh->mNumFaces*3);
+    vertices = new float[pAiMesh->mNumVertices*8];    
+    indices = new unsigned[pAiMesh->mNumFaces*3];
 
     for(int vi=0;vi<pAiMesh->mNumVertices;vi++){
         vertices[8*vi  ]=pAiMesh->mVertices[vi].x;
@@ -107,15 +116,44 @@ void Mesh::init(const aiMesh* pAiMesh){
         indices[fi*3  ]=face.mIndices[0];
         indices[fi*3+1]=face.mIndices[1];
         indices[fi*3+2]=face.mIndices[2];
-    }//2021-7-10: lcj: 只写完了从aiScene把大段数据弄出来的代码
-    //material index都没有加入mesh
-    //一个小问题，meterial index 使用AOS还是SOA存储呢？
+    }
 
-   
+    //generate VBO/EBO presets via VAO
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	// generate VBO
+	GLuint VBO;
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*8*numVertices, vertices, GL_STATIC_DRAW);
+	// clearify FORMAT of vertices array
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	// texture attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	//generate EBO
+	GLuint EBO;
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned)*numIndices, indices, GL_STATIC_DRAW);
 
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 Mesh::~Mesh(){
     delete[] vertices;
     delete[] indices;
+}
+
+void Mesh::render(){
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }

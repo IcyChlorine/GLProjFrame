@@ -3,7 +3,7 @@
 #include "Camera.h"
 #include "Loopable.h"
 class GameCamera :
-	public Camera,public Loopable
+	public Camera
 {
 protected:
 	bool enabled = true;
@@ -25,7 +25,7 @@ protected:
 	*th_rate:默认1/pixel，表示鼠标上下移动pixel像素时俯仰角旋转90度
 	*phi_rate:默认1/pixel，表示鼠标上下移动pixel像素时横向旋转360度
 	*/
-	float th_rate{ 1 / 1000.0f }, phi_rate{ 1 / 8000.0f };
+	float v_move{1.0f},v_rotate{1.0f};
 public:
 	GameCamera(AbsObject* father);
 	virtual ~GameCamera();
@@ -33,10 +33,12 @@ public:
 	void setEnabled(bool enabled) { this->enabled = enabled; }
 	bool getEnabled() { return enabled; }
 
-	virtual void update(float dt);
 	virtual void update(glm::vec3 dr_local, float d_th, float d_phi);
 	virtual void move(glm::vec3 dr_local);
 	virtual void rotate(float d_th, float d_phi);
+
+	void setMoveSpeed(float speed){v_move=speed;}
+	void setRotateSpeed(float speed){v_rotate=speed;}
 
 	virtual void outputDebugInfo(ostream& out);
 };

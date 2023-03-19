@@ -25,11 +25,10 @@ public:
 	virtual void outputDebugInfo(ostream& out) {}
 };
 
-class init_exception :public exception {
+class init_exception :public runtime_error {
 public:
-	init_exception() {}
-	init_exception(const char* message) :
-		exception(message) {}
+	init_exception(const char* message="") :
+		runtime_error(message) {}
 };
 /*
 	other useful & std-defined exception classes:

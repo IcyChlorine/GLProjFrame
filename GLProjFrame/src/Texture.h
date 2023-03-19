@@ -2,7 +2,7 @@
 
 #include "common_t1.h"
 
-//Ò»¸öTexture°ü×°Àà
+//ä¸€ä¸ªTextureåŒ…è£…ç±»
 class Texture
 {
 private:

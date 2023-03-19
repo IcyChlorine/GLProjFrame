@@ -39,12 +39,12 @@ public:
 
 class LogWriter {
 private:
-	//°ÑtmÀïµÄ±íÊ¾¸ÄµÃÑô¼äÒ»µã
-	//·¢ÏÖÁËĞÂµÄÉ§²Ù×÷...ÕâÀïÉá²»µÃÉ¾ ¾ÍÁô×Å°É
+	//æŠŠtmé‡Œçš„è¡¨ç¤ºæ”¹å¾—é˜³é—´ä¸€ç‚¹
+	//å‘ç°äº†æ–°çš„éªšæ“ä½œ...è¿™é‡Œèˆä¸å¾—åˆ  å°±ç•™ç€å§
 	//@Deprecated
 	void _adjust_tm(struct tm& gmtm) {
 		gmtm.tm_year += 1900;
-			//×ª»»Ê±»¹µÃ¿¼ÂÇ½øÎ»ÎÊÌâ...Í·´ó
+			//è½¬æ¢æ—¶è¿˜å¾—è€ƒè™‘è¿›ä½é—®é¢˜...å¤´å¤§
 		gmtm.tm_hour += 8;
 		int g = gmtm.tm_hour / 24;
 		gmtm.tm_hour %= 24;
@@ -73,7 +73,7 @@ private:
 	}
 public:
 		static void WriteErrLog(const exception& e, const string& exTypeName = "exception") {
-		time_t t = time(nullptr) + 8 * 3600;//»»ËãÊ±Çø
+		time_t t = time(nullptr) + 8 * 3600;//æ¢ç®—æ—¶åŒº
 		struct tm gmtm;
 		gmtime_s(&gmtm, &t);
 		char err_log_filename[40];

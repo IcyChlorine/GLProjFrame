@@ -1,25 +1,25 @@
 /*
-	TIER 1 µÄ¹«¹²ÒıÓÃÍ·ÎÄ¼ş
+	TIER 1 çš„å…¬å…±å¼•ç”¨å¤´æ–‡ä»¶
 	C,STL,
-	gl,glfw,glad,glmµÈ¿âµÄ¹«¹²ÒıÓÃÍ·ÎÄ¼ş
+	gl,glfw,glad,glmç­‰åº“çš„å…¬å…±å¼•ç”¨å¤´æ–‡ä»¶
 */
 
 #pragma once
 #ifndef _COMMON_TIER1_H
 #define _COMMON_TIER1_H
 
-//C±ê×¼¿â
+//Cæ ‡å‡†åº“
 #include <iostream>
 #include <string>
 using namespace std;
 
-//×Ô¼ºĞ´µÄutil¿â
+//è‡ªå·±å†™çš„utilåº“
 #include "util.h"
 
-//gl¼°gl¹¤¾ß¿â
+//glåŠglå·¥å…·åº“
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-//glÊıÑ§¿â
+//glæ•°å­¦åº“
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>

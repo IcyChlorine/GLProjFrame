@@ -55,7 +55,7 @@ public:
 
 	/*void flushConsoleOutput() { 
 		//cout << consoleOutput.str(); 
-		//consoleOutput.str("");//清空. ss不能用clear.
+		//consoleOutput.str("");//娓呯┖. ss涓嶈兘鐢╟lear.
 		
 	}*/
 };

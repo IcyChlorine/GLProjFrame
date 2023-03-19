@@ -1,5 +1,5 @@
 #pragma once
 
-class Singleton {//单例类，用于其它类继承以表示“这个类只应有一个实例”，仅作标记作用
+class Singleton {//鍗曚緥绫伙紝鐢ㄤ簬鍏跺畠绫荤户鎵夸互琛ㄧず鈥滆繖涓被鍙簲鏈変竴涓疄渚嬧�濓紝浠呬綔鏍囪浣滅敤
 
 };

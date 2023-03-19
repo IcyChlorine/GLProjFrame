@@ -8,7 +8,7 @@ Application::Application()
 	this->window = new Window(this);
 
 	//init GLAD
-	//ÒªÔÚ´´½¨´°¿ÚºóÔÙinit glad£¬²»È»»á³öbug
+	//è¦åœ¨åˆ›å»ºçª—å£åå†init gladï¼Œä¸ç„¶ä¼šå‡ºbug
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		throw init_exception("Error: Failed to initialize GLAD");
 
@@ -57,7 +57,7 @@ Application::Application()
 	//setup camera
 	camera = new GameCamera(this);
 
-	//°´ESCÊÍ·ÅÊó±ê
+	//æŒ‰ESCé‡Šæ”¾é¼ æ ‡
 	inputManager->setKeyCallback([&]() {
 		camera->setEnabled(!camera->getEnabled());
 		//cout << "key_released" << endl;
@@ -82,7 +82,7 @@ void Application::run() {
 	float time,time_prev,time_prev2;//time counters
 	time = time_prev = time_prev2 = glfwGetTime();
 
-	unsigned long frame_cnt{ 0 };//×ß¹ıµÄÖ¡Êı
+	unsigned long frame_cnt{ 0 };//èµ°è¿‡çš„å¸§æ•°
 
 	while (!window->shouldClose())
 	{
@@ -118,7 +118,7 @@ void Application::run() {
 		glfwSwapBuffers(window->getInternalPointer());
 		glfwPollEvents();
 
-		//¼«ÆäuglyµÄprofiler£¬µ«ÃãÇ¿ÄÜÓÃ
+		//æå…¶uglyçš„profilerï¼Œä½†å‹‰å¼ºèƒ½ç”¨
 		if (time-time_prev2>0.3f) {//update console output per 0.8sec
 			cout << "-----frame " << frame_cnt << "-----" << endl;
 			cout << "dt: " << dt * 1000 << "ms\n";

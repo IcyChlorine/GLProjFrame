@@ -13,26 +13,26 @@ private:
 
 	const float pi = 3.1415926f;
 	
-	//ÎªÁË¿ØÖÆ±ä»»µÄÊ±¼ä µ¥Î»£ºÃë
+	//ä¸ºäº†æŽ§åˆ¶å˜æ¢çš„æ—¶é—´ å•ä½ï¼šç§’
 	float time{ 0.0f }, time_prev{ 0.0f };
-	//µ±Ç°ÉãÏñ»úµÄÎ»ÖÃ(in WC) µ¥Î»£ºGL±ê×¼×ø±êÏµ
+	//å½“å‰æ‘„åƒæœºçš„ä½ç½®(in WC) å•ä½ï¼šGLæ ‡å‡†åæ ‡ç³»
 	float x{ 0.0f }, y{ 0.0f }, z{ 0.0f };
-	/*¹Ø¼ü£ºÐý×ª½Ç¶È¡£
-	*ÓÉÓÚ²ÉÓÃµÄÊÇÓÎÏ·ÖÐµÄ¾­µä×ø±ê±ä»»£¬Òò´ËÖ»ÓÐ×óÓÒÐý×ªºÍ¸©Ñö½ÇÁ½¸ö²ÎÊý
-	*	ÕâÒ²ÊÇÅ·À­½ÇÖÐµÄÇ°Á½¸ö½Ç¶È£¬Òò´Ë²»ÓÃÒýÈëËÄÔªÊý
-	*th(theta): ¸©Ñö½Ç£¬¸©ÊÓÎªÕý£¬ÑöÊÓÎª¸º£¬·¶Î§-90~+90
-	*phi: ×óÓÒÐý×ª½Ç£¬ÓÒ×ªÎªÕý£¬×ó×ªÎª¸º£¬·¶Î§²»ÉèÉÏÏÂÏÞ
-	*µ¥Î»£º½Ç¶ÈÖÆ
+	/*å…³é”®ï¼šæ—‹è½¬è§’åº¦ã€‚
+	*ç”±äºŽé‡‡ç”¨çš„æ˜¯æ¸¸æˆä¸­çš„ç»å…¸åæ ‡å˜æ¢ï¼Œå› æ­¤åªæœ‰å·¦å³æ—‹è½¬å’Œä¿¯ä»°è§’ä¸¤ä¸ªå‚æ•°
+	*	è¿™ä¹Ÿæ˜¯æ¬§æ‹‰è§’ä¸­çš„å‰ä¸¤ä¸ªè§’åº¦ï¼Œå› æ­¤ä¸ç”¨å¼•å…¥å››å…ƒæ•°
+	*th(theta): ä¿¯ä»°è§’ï¼Œä¿¯è§†ä¸ºæ­£ï¼Œä»°è§†ä¸ºè´Ÿï¼ŒèŒƒå›´-90~+90
+	*phi: å·¦å³æ—‹è½¬è§’ï¼Œå³è½¬ä¸ºæ­£ï¼Œå·¦è½¬ä¸ºè´Ÿï¼ŒèŒƒå›´ä¸è®¾ä¸Šä¸‹é™
+	*å•ä½ï¼šè§’åº¦åˆ¶
 	*/
 	float th{ 0.0f }, phi{ 0.0f };
-	//°´¼ü¿ØÖÆÊ±£¬Ïà»úÒÆ¶¯µÄËÙ¶È µ¥Î»£ºGL±ê×¼×ø±êÏµ/Ãë
+	//æŒ‰é”®æŽ§åˆ¶æ—¶ï¼Œç›¸æœºç§»åŠ¨çš„é€Ÿåº¦ å•ä½ï¼šGLæ ‡å‡†åæ ‡ç³»/ç§’
 	float vx{ 1.0f }, vy{ 1.0f }, vz{ 1.0f };
-	/*Êó±ê¿ØÖÆÊ±£¬Ïà»úÐý×ª½Ç¶ÈºÍÊó±êÒÆ¶¯¾àÀëµÄ±ÈµÄÁ¿¶È
-	*th_rate:Ä¬ÈÏ1/pixel£¬±íÊ¾Êó±êÉÏÏÂÒÆ¶¯pixelÏñËØÊ±¸©Ñö½ÇÐý×ª90¶È
-	*phi_rate:Ä¬ÈÏ1/pixel£¬±íÊ¾Êó±êÉÏÏÂÒÆ¶¯pixelÏñËØÊ±ºáÏòÐý×ª360¶È
+	/*é¼ æ ‡æŽ§åˆ¶æ—¶ï¼Œç›¸æœºæ—‹è½¬è§’åº¦å’Œé¼ æ ‡ç§»åŠ¨è·ç¦»çš„æ¯”çš„é‡åº¦
+	*th_rate:é»˜è®¤1/pixelï¼Œè¡¨ç¤ºé¼ æ ‡ä¸Šä¸‹ç§»åŠ¨pixelåƒç´ æ—¶ä¿¯ä»°è§’æ—‹è½¬90åº¦
+	*phi_rate:é»˜è®¤1/pixelï¼Œè¡¨ç¤ºé¼ æ ‡ä¸Šä¸‹ç§»åŠ¨pixelåƒç´ æ—¶æ¨ªå‘æ—‹è½¬360åº¦
 	*/
 	float th_rate{ 1 / 1000.0f }, phi_rate{ 1 / 8000.0f };
-	//±ä»»¾ØÕó
+	//å˜æ¢çŸ©é˜µ
 	glm::mat4 transMat{ glm::mat4(1.0f) };
 public:
 	GameTransform(GLFWwindow* window, InputManager& input);

@@ -2,8 +2,8 @@
 
 #include "common_t1.h"
 
-//����ѭ���б�ѭ�����õ���Ľӿ�
+//会在循环中被循环调用的类的接口
 class Loopable {
-	//dt��ʾ���ε��ü��ʱ�䣬��λΪs
+	//dt表示两次调用间的时间，单位为s
 	virtual void update(float dt) = 0;
 };

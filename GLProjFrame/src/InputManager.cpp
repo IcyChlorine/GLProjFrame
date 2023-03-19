@@ -4,10 +4,10 @@ InputManager* instance{ nullptr };
 void InputManager::glfw_key_callback(GLFWwindow * window, int key_num, int scancode, int action, int mods)
 {
 	if (key_num < 0 || key_num >= KEY_ARR_CAPACITY) {
-		cerr << "InputManager::glfw_key_callback: 无法处理的按键！" << endl;
+		cerr << "InputManager::glfw_key_callback: 鏃犳硶澶勭悊鐨勬寜閿紒" << endl;
 		return;
 	}
-	//										判断函数是否为空
+	//										鍒ゆ柇鍑芥暟鏄惁涓虹┖
 	if (action == GLFW_PRESS && instance->key_callback[key_num][0])
 		instance->key_callback[key_num][0]();
 	else if (action == GLFW_RELEASE && instance->key_callback[key_num][1])

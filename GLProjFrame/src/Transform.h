@@ -6,7 +6,7 @@
 class Transform:public AbsObject
 {
 protected:
-	//±ä»»¾ØÕó
+	//å˜æ¢çŸ©é˜µ
 	glm::mat4 transMat{ glm::mat4(1.0f) };
 public:
 	Transform();
@@ -17,7 +17,7 @@ public:
 
 	glm::mat4 getTransformMat() { return transMat; }
 	void setTransformMat(const glm::mat4& mat) { transMat = mat; }
-	void apply(Shader& shader, string uniVarName = "transform");//uniVarName:ÔÚShaderÖĞ±ä»»¾ØÕóµÄ±äÁ¿Ãû
+	void apply(Shader& shader, string uniVarName = "transform");//uniVarName:åœ¨Shaderä¸­å˜æ¢çŸ©é˜µçš„å˜é‡å
 	void enable(bool enabled) { this->enabled = enabled; }
 	void reset() { this->transMat = glm::mat4(1.0f); }
 };

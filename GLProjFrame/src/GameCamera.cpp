@@ -18,11 +18,11 @@ void GameCamera::update(float dt)
 {
 	if (!enabled) return;
 	cumulated_time += dt;
-	//Ö»ÓĞÊ±¼ä¼ä¸ô×ã¹»´óÊ±²Å¸üĞÂ±ä»»£¬±ÜÃâÒòÊó±êÖ»ÒÆ¶¯ÁËÒ»Á½¸öÏñËØÔì³ÉµÄ²»Æ½»¬
+	//åªæœ‰æ—¶é—´é—´éš”è¶³å¤Ÿå¤§æ—¶æ‰æ›´æ–°å˜æ¢ï¼Œé¿å…å› é¼ æ ‡åªç§»åŠ¨äº†ä¸€ä¸¤ä¸ªåƒç´ é€ æˆçš„ä¸å¹³æ»‘
 	if (cumulated_time < 0.01f)
 		return;
 
-	//Ğı×ª²¿·Ö
+	//æ—‹è½¬éƒ¨åˆ†
 	auto window = ((Application*)father)->getWindow()->getInternalPointer();
 	int width, height;
 	double cursor_x, cursor_y;
@@ -35,7 +35,7 @@ void GameCamera::update(float dt)
 	if (th >= 90.0f) th = 90.0f;
 	if (th <= -90.0f) th = -90.0f;
 
-	//Æ½ÒÆ²¿·Ö
+	//å¹³ç§»éƒ¨åˆ†
 	glm::vec4 dr = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		dr.x += dt*vx;
@@ -50,13 +50,13 @@ void GameCamera::update(float dt)
 	if (glfwGetKey(window, GLFW_KEY_CAPS_LOCK) == GLFW_PRESS)
 		dr.y -= dt*vy;
 
-	//Òª´Ó±¾µØ×ø±êÏµ±ä»»µ½ÊÀ½ç×ø±êÏµ£¬±ä»»ÊÇ·´×ÅµÄ£¬ËùÒÔÓÒ³Ë
+	//è¦ä»æœ¬åœ°åæ ‡ç³»å˜æ¢åˆ°ä¸–ç•Œåæ ‡ç³»ï¼Œå˜æ¢æ˜¯åç€çš„ï¼Œæ‰€ä»¥å³ä¹˜
 	dr = dr * glm::rotate(glm::mat4(1.0f), glm::radians(phi), glm::vec3(0.0f, 1.0f, 0.0f));
 	x += dr.x;
 	y += dr.y;
 	z += dr.z;
 
-	//¼ÆËã±ä»»
+	//è®¡ç®—å˜æ¢
 	auto transMat = glm::mat4(1.0f);
 	transMat = glm::rotate(transMat, glm::radians(th), glm::vec3(1.0f, 0.0f, 0.0f));
 	transMat = glm::rotate(transMat, glm::radians(phi), glm::vec3(0.0f, 1.0f, 0.0f));

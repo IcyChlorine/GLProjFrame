@@ -69,6 +69,6 @@ void GameCamera::update(float dt)
 void GameCamera::outputDebugInfo(ostream & out)
 {
 	char str[100];
-	sprintf_s(str, 100, "(x, y, z) = (%.2f, %.2f, %.2f)\n(phi, th)=(%.2f, %.2f)\n", x, y, z, phi, th);
+	sprintf(str, "(x, y, z) = (%.2f, %.2f, %.2f)\n(phi, th)=(%.2f, %.2f)\n", x, y, z, phi, th);
 	out << str;
 }

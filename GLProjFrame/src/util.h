@@ -74,18 +74,19 @@ private:
 public:
 		static void WriteErrLog(const exception& e, const string& exTypeName = "exception") {
 		time_t t = time(nullptr) + 8 * 3600;//换算时区
-		struct tm gmtm;
-		gmtime_s(&gmtm, &t);
+		struct tm* gmtm;
+		gmtm = gmtime(&t);
+		gmtime(&t);
 		char err_log_filename[40];
-		sprintf_s(err_log_filename, 40u, "err_log %d-%d-%d %dh%dm%ds.log",
-			gmtm.tm_year + 1900,
-			gmtm.tm_mon + 1,
-			gmtm.tm_mday,
-			gmtm.tm_hour,
-			gmtm.tm_min,
-			gmtm.tm_sec);
+		sprintf(err_log_filename, "err_log %d-%d-%d %dh%dm%ds.log",
+			gmtm->tm_year + 1900,
+			gmtm->tm_mon + 1,
+			gmtm->tm_mday,
+			gmtm->tm_hour,
+			gmtm->tm_min,
+			gmtm->tm_sec);
 			ofstream fout(err_log_filename);
-		fout << "Program crashed at " << gmtm.tm_hour << ":" << gmtm.tm_min << ":" << gmtm.tm_sec << " due to the following exception:" << endl;
+		fout << "Program crashed at " << gmtm->tm_hour << ":" << gmtm->tm_min << ":" << gmtm->tm_sec << " due to the following exception:" << endl;
 		fout << "\t" << exTypeName.c_str() << ": " << e.what() << endl;
 		fout.close();
 	}

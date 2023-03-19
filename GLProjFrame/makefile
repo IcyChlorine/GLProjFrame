@@ -18,8 +18,13 @@ ifeq ($(DEBUG), true)
 CXXFLAGS += -g
 endif
 
-main: $(SRC_FILES)
+main.exe: $(SRC_FILES)
 	$(CXX) $(CXXFLAGS) $(SRC_FILES) -o $(TARGET_FILENAME) -I $(INCLUDE_PATH) -L $(LIB_PATH) $(LIBRARIES)
+
+# macroscopic tasks #
+
+.PHONY: main
+main: main.exe
 
 all: main
 	#pass

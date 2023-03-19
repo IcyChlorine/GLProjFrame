@@ -1,0 +1,2 @@
+all:
+	(cd GLProjFrame; make)

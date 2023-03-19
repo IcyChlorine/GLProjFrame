@@ -376,5 +376,6 @@ CTestTestfile.cmake
 _deps
 build/
 
-## build result
+## build results
 *.exe
+*.o

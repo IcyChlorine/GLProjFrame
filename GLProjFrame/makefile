@@ -18,20 +18,30 @@ ifeq ($(DEBUG), true)
 CXXFLAGS += -g
 endif
 
-main.exe: $(SRC_FILES)
-	$(CXX) $(CXXFLAGS) $(SRC_FILES) -o $(TARGET_FILENAME) -I $(INCLUDE_PATH) -L $(LIB_PATH) $(LIBRARIES)
+# for incremental compilation #
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -I $(INCLUDE_PATH) -c $<  -o $@
+
+.c.o:
+	$(CXX) $(CXXFLAGS) -I $(INCLUDE_PATH) -c $<  -o $@
+
+OBJ_FILES = $(SRC_FILES:.cpp=.o)
+
+main.exe: $(OBJ_FILES)
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) -o $(TARGET_FILENAME) -I $(INCLUDE_PATH) -L $(LIB_PATH) $(LIBRARIES)
 
 # macroscopic tasks #
+.PHONY: main all clean run
 
-.PHONY: main
 main: main.exe
+# pass
 
 all: main
-	#pass
+# pass
 
-.PHONY: clean
 clean:
 	rm -f $(TARGET_FILENAME)
+	rm -f src/*.o
 
 run: all
 	./$(TARGET_FILENAME)

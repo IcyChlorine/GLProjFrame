@@ -1,16 +1,17 @@
 #include "Application.h"
 
-
+const int loglevel{DEFAULT_LOGLEVEL};
 
 Application::Application()
 {
-
 	this->window = new Window(this);
 
 	//init GLAD
 	//要在创建窗口后再init glad，不然会出bug
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
+		error("Failed to initialize GLAD!\n");
 		throw init_exception("Error: Failed to initialize GLAD");
+	}
 
 	//set viewport with respect to the window
 	int width, height;
@@ -118,6 +119,7 @@ void Application::run() {
 		glfwSwapBuffers(window->getInternalPointer());
 		glfwPollEvents();
 
+		/*
 		//极其ugly的profiler，但勉强能用
 		if (time-time_prev2>0.3f) {//update console output per 0.8sec
 			cout << "-----frame " << frame_cnt << "-----" << endl;
@@ -128,6 +130,7 @@ void Application::run() {
 			time_prev2 = time;
 			//this->flushConsoleOutput();
 		}
+		*/
 		
 		
 	}

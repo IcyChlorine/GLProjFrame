@@ -31,10 +31,10 @@ int main() {
 		theApp.run();
 	}
 	catch (init_exception& e) {
-		HandleException(e, "init_exception");
+		HandleExceptionOnline(e, "init_exception");
 	}
 	catch (exception& e) {
-		HandleException(e);
+		HandleExceptionOnline(e);
 	}
 
 	return 0;

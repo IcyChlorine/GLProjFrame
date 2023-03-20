@@ -3,10 +3,8 @@
 Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 {
 	// 1. retrieve the vertex/fragment source code from filePath
-	string vertSrc;
-	string fragSrc;
-	ifstream vertShaderFile;
-	ifstream fragShaderFile;
+	string vertSrc, fragSrc;
+	ifstream vertShaderFile, fragShaderFile;
 	// ensure ifstream objects can throw exceptions:
 	vertShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fragShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -26,14 +24,15 @@ Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 		vertSrc = ssVertShader.str();
 		fragSrc = ssFragShader.str();
 	}
-	catch (std::ifstream::failure e)
+	catch (ifstream::failure e)
 	{
-		cout << "Error: Fail to load shader src from file" << std::endl;
+		errorf("Fail to load shader src from file `%s`, `%s`.\n", vertSrcPath, fragSrcPath);
+		throw exception();
 	}
 	const char* pVertSrc = vertSrc.c_str();
 	const char* pFragSrc = fragSrc.c_str();
 
-	// 2. compile shaders
+	// 2. compile shaders via drivers provided to ogl
 	unsigned int vertShaderID, fragShaderID;
 	int success;
 	char infoLog[512];
@@ -46,7 +45,8 @@ Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 	if (!success)
 	{
 		glGetShaderInfoLog(vertShaderID, 512, NULL, infoLog);
-		std::cout << "Error: Fail to compile vertex shader\n" << infoLog << std::endl;
+		errorf("Fail to compile vertex shader, error info is as below:\n%s\n", infoLog);
+		throw exception();
 	};
 	// fragment Shader
 	fragShaderID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -57,9 +57,9 @@ Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 	if (!success)
 	{
 		glGetShaderInfoLog(fragShaderID, 512, NULL, infoLog);
-		std::cout << "Error: Fail to compile fragment shader\n" << infoLog << std::endl;
+		errorf("Fail to compile fragment shader, error info is as below:\n%s\n", infoLog);
+		throw exception();
 	};
-	
 
 	// shader Program
 	m_shaderID = glCreateProgram();
@@ -71,7 +71,8 @@ Shader::Shader(const char * vertSrcPath, const char * fragSrcPath)
 	if (!success)
 	{
 		glGetProgramInfoLog(m_shaderID, 512, NULL, infoLog);
-		std::cout << "Error: Fail to link vert&frag shaders\n" << infoLog << std::endl;
+		errorf("Fail to link vert&frag shaders\n%s\n", infoLog);
+		throw exception();
 	}
 
 	// delete the shaders as they're linked into our program now and no longer necessery

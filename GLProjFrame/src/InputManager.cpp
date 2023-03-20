@@ -4,7 +4,7 @@ InputManager* instance{ nullptr };
 void InputManager::glfw_key_callback(GLFWwindow * window, int key_num, int scancode, int action, int mods)
 {
 	if (key_num < 0 || key_num >= KEY_ARR_CAPACITY) {
-		cerr << "InputManager::glfw_key_callback: 无法处理的按键！" << endl;
+		warningf("key_callback: 无法处理的按键, key_num = %d\n", key_num);
 		return;
 	}
 	//										判断函数是否为空
@@ -46,8 +46,8 @@ void InputManager::init(GLFWwindow* window)
 InputManager::InputManager(GLFWwindow* window)
 {
 	if (instance) {
-		cerr << "InputManager.Constructor: Instance already exists!" << endl;
-		return;
+		error("InputManager.Constructor: Instance already exists!\n");
+		throw exception();
 	}
 	init(window);
 	instance = this;
@@ -61,8 +61,8 @@ InputManager::~InputManager()
 void InputManager::setMouseClickCallback(function<void()> func, int key, int action) {
 	if ((key != 0 && key != 1) ||
 		(action !=0 && action!=1)) {
-		cerr << "InputManager.setMouseClickCallback: Illegal Argument!";
-		return;
+		error("InputManager.setMouseClickCallback: Illegal Argument!\n");
+		throw exception();
 	}
 	mouse_click_callback[key][action] = func;
 }
@@ -72,8 +72,8 @@ void InputManager::setMouseMoveCallback(function<void(float, float)> func) {
 void InputManager::setKeyCallback(function<void()> func, int key, int action) {
 	if ((key < 0 || key>=KEY_ARR_CAPACITY) ||
 		(action != 0 && action != 1)) {
-		cerr << "InputManager.setKeyCallback: Illegal Argument!";
-		return;
+		error("InputManager.setKeyCallback: Illegal Argument!\n");
+		throw exception();
 	}
 	key_callback[key][action] = func;
 }

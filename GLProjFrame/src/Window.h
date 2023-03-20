@@ -2,8 +2,6 @@
 
 #include "common_t1.h"
 
-#include "util.h"
-
 class InputManager;
 
 class Window :

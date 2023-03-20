@@ -14,10 +14,11 @@ Texture::Texture(string filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	// load and generate the texture
 	int width, height, nrChannels;
-	unsigned char *data = stbi_load("texture\\stone.bmp", &width, &height, &nrChannels, 0);
+	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
 	if (data == NULL)
 	{
-		std::cout << "Failed to load texture" << std::endl;
+		errorf("Failed to load texture from file `%s`.\n", filename.c_str());
+		// recoverable, so no exception is thrown
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -57,6 +58,6 @@ void Texture::setParam(int texParam)
 		float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 	}else {
-		cout << "class Texture.setParam(): Unknown param!" << endl;
+		warning("class Texture.setParam(): Unknown param!\n");
 	}
 }

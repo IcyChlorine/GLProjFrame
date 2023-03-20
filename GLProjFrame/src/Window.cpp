@@ -21,12 +21,11 @@ Window::Window(AbsObject* father):
 	if (internal_wnd_pointer == NULL)
 	{
 		glfwTerminate();
+		error("Failed to create GLFW window!\n");
 		throw init_exception("Error: Failed to create GLFW window");
 	}
 
 	glfwMakeContextCurrent(internal_wnd_pointer);
-
-
 
 	//register RESIZE listener func
 	glfwSetFramebufferSizeCallback(internal_wnd_pointer, glfw_resize_callback);

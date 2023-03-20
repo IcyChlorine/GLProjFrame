@@ -7,12 +7,10 @@
 	Shader class from https://learnopengl.com/Getting-started/Shaders
 	Modified by StarSky@PKU
 */
-#include <glad/glad.h> // include glad to get all the required OpenGL headers
+#include "common_t1.h"
 
-#include <string>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 using namespace std;
 
 class Shader

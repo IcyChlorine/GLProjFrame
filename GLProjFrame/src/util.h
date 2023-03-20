@@ -91,6 +91,7 @@ public:
 	}
 };
 void SimpleMessageBox(string text, string caption);
-void HandleException(exception& e, const string& exTypeName = "exception");
+void HandleExceptionOffline(exception& e, const string& exTypeName = "exception");
+void HandleExceptionOnline(exception&e, const string& exTypeName = "exception");
 
 #endif

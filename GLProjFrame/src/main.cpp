@@ -25,10 +25,15 @@ void handleEvents(GLFWwindow *window)
 	//	glfwSetWindowShouldClose(window, true);
 }
 
+Application* theApp{nullptr};
+
 int main() {
 	try {
-		Application theApp;
-		theApp.run();
+		theApp = new Application();
+		theApp->run();
+		
+		delete theApp;
+		theApp = nullptr;
 	}
 	catch (init_exception& e) {
 		HandleExceptionOnline(e, "init_exception");

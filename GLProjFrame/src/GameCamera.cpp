@@ -72,3 +72,8 @@ void GameCamera::outputDebugInfo(ostream & out)
 	sprintf(str, "(x, y, z) = (%.2f, %.2f, %.2f)\n(phi, th)=(%.2f, %.2f)\n", x, y, z, phi, th);
 	out << str;
 }
+
+int GameCamera::outputDebugInfo(char* buf)
+{
+	return sprintf(buf, "(x,y,z) = (%.2f,%.2f,%.2f)\n(phi,th) = (%.2f,%.2f)\n", x, y, z, phi, th);
+}

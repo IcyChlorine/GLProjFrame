@@ -11,6 +11,7 @@
 //C标准库
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 //自己写的util库

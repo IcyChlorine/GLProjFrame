@@ -7,7 +7,7 @@ Application::Application()
 	this->window = new Window(this);
 
 	//init GLAD
-	//要在创建窗口后再init glad，不然会出bug
+	//要在创建窗口(glfw init)后再init glad，不然会出bug
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
 		error("Failed to initialize GLAD!\n");
 		throw init_exception("Error: Failed to initialize GLAD");
@@ -18,38 +18,12 @@ Application::Application()
 	window->getSize(&width, &height);
 	glViewport(0, 0, width, height);
 
-	//--------------->Begin of Rendering Init<----------------//
-	
-	//generate VBO/EBO presets via VAO
-	//unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-	// generate VBO
-	//unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// clearify FORMAT of vertices array
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	// texture attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-	//generate EBO
-	//unsigned int EBO;
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
 	//generating shaders dynamically
 	shader = new Shader("src\\shaders\\vertex.glsl", "src\\shaders\\frag.glsl");
+	
 
 	//load texture
-	texture = new Texture("texture\\stone.bmp");
+	//texture = new Texture("texture\\stone.bmp");
 
 	//setup UserInput
 	this->inputManager = window->getInputManager();
@@ -63,8 +37,17 @@ Application::Application()
 		camera->setEnabled(!camera->getEnabled());
 		//cout << "key_released" << endl;
 	}, GLFW_KEY_ESCAPE, 0);
+	
+	// 显示帧率
+	inputManager->setKeyCallback([&]() {
+		show_hud = !show_hud;
+	}, GLFW_KEY_F3, 0);	
 
-	//time_prev = (float)glfwGetTime();
+	inputManager->setKeyCallback([&]() {
+		line_mode = !line_mode;
+	}, GLFW_KEY_L, 0);	
+
+	auto t = Text();
 }
 
 
@@ -78,13 +61,22 @@ Application::~Application()
 
 //main loop
 void Application::run() {
-
 	float dt{ 0.0f };//time passed(in sed) between frames
-	float time,time_prev,time_prev2;//time counters
-	time = time_prev = time_prev2 = glfwGetTime();
-
+	float time,time_prev;//time counters
+	
 	unsigned long frame_cnt{ 0 };//走过的帧数
 
+	float time_prev2; 
+	unsigned long frame_cnt_prev{ 0 }; //计算fps用
+
+	time = time_prev = time_prev2 = glfwGetTime();
+
+	Transform proj;
+	proj.enable(true);
+
+	ColorfulStone* obj = new ColorfulStone();
+	obj->setShader(shader);
+	Text* text = new Text("<unknown>", glm::ivec2(0,0), 0.4f);
 	while (!window->shouldClose())
 	{
 		frame_cnt++;
@@ -94,44 +86,41 @@ void Application::run() {
 		//--------------->Begin of Rendering Codes<----------------//
 		//clearing
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-		shader->use();
-		texture->use();
-
+		shader->use(); // note that transform uniforms are set for the CURRENT shader
 		camera->update(dt);
 		camera->applyCameraTransform(*shader);
-
+		
 		//set perspective projection
 		int width, height;
 		window->getSize(&width, &height);
-		glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-		Transform projTrans;
-		projTrans.enable(true);
-		projTrans.setTransformMat(proj);
-		projTrans.apply(*shader,"proj");
+		proj.setTransformMat(glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f));
+		proj.apply(*shader,"proj");
 
 		//RENDER!
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
+		if(line_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		obj->render();
+		if(line_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		if(show_hud)
+			text->render();
+		
 		//---------------->End of Rendering Codes<----------------//
 		glfwSwapBuffers(window->getInternalPointer());
 		glfwPollEvents();
 
-		/*
-		//极其ugly的profiler，但勉强能用
+		// update hud info
 		if (time-time_prev2>0.3f) {//update console output per 0.8sec
-			cout << "-----frame " << frame_cnt << "-----" << endl;
-			cout << "dt: " << dt * 1000 << "ms\n";
-			this->camera->outputDebugInfo(cout);
-			cout << "\n\n";
+			char hud_text[256]; char* p = hud_text;
+
+			int fps = (frame_cnt-frame_cnt_prev)*1.0f/(time-time_prev2);
+			p += sprintf(p, "frame %d fps %d\n", frame_cnt, fps);
+			p += this->camera->outputDebugInfo(p);
+			text->setText(hud_text);
 
 			time_prev2 = time;
-			//this->flushConsoleOutput();
+			frame_cnt_prev = frame_cnt;
 		}
-		*/
-		
-		
 	}
 }

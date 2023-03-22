@@ -6,7 +6,7 @@
 class Texture
 {
 private:
-	unsigned int texture;
+	unsigned int texture{0};
 public:
 	static constexpr int PIXEL = 0;// GL_NEAREST;
 	static constexpr int SMOOTH = 1;// GL_LINEAR;

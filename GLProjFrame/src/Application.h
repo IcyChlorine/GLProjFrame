@@ -1,4 +1,6 @@
 #pragma once
+#ifndef _APP_H
+#define _APP_H
 
 #include "common_t1.h"
 #include <sstream>
@@ -7,13 +9,16 @@
 #include "Window.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Renderable.h"
+#include "Text.h"
 #include "InputManager.h"
 #include "GameCamera.h"
 
 class Application :public AbsObject
 {
 private:
-	
+	bool show_hud{ false };
+	bool line_mode{ false };
 protected:
 	Window* window{ nullptr };
 	Shader* shader{ nullptr };
@@ -60,3 +65,6 @@ public:
 	}*/
 };
 
+extern Application* theApp;
+
+#endif

@@ -40,5 +40,6 @@ public:
 	virtual void update(float dt);
 
 	virtual void outputDebugInfo(ostream& out);
+	virtual int outputDebugInfo(char* buf);
 };
 

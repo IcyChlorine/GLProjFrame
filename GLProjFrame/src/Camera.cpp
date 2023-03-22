@@ -1,7 +1,5 @@
 #include "Camera.h"
 
-
-
 Camera::Camera()
 {
 	this->transform = new Transform();

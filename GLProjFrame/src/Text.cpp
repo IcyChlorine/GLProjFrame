@@ -121,12 +121,10 @@ void init_freetype() {
 		GL_UNSIGNED_BYTE,
 		ch_blanket
 	);
+	simplifid_tex_image_func(ch_blanket, GL_RED, blanket_width, blanket_height);
 	// These parameters have to be set, or texture doesn't work in ogl.
 	// Seems there's no "default value" for these.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	set_texture_param(GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	delete[] ch_blanket;
 	
@@ -153,8 +151,8 @@ Text::Text(string text, glm::ivec2 pos, float scale):
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4 * 4, vert_data, GL_DYNAMIC_DRAW);
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+	int format[] = {4};
+	declare_interleaving_vert_data_layout(1, format);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0); 

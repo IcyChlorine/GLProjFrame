@@ -16,6 +16,7 @@ using namespace std;
 
 //自己写的util库
 #include "util.h"
+#include "gl_util.h"
 #include "logging.h"
 
 //gl及gl工具库

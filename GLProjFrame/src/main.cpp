@@ -25,6 +25,7 @@ void handleEvents(GLFWwindow *window)
 	//	glfwSetWindowShouldClose(window, true);
 }
 
+/* theApp should be accessible from any object, so make it global.*/
 Application* theApp{nullptr};
 
 int main() {

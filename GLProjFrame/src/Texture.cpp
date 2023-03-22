@@ -5,22 +5,20 @@
 Texture::Texture(string filename)
 {
 	//load texture
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	gen_and_bind_texture(&texture);
 	// set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	set_texture_param(GL_NEAREST);
 	// load and generate the texture
 	int width, height, nrChannels;
 	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
+	assert(nrChannels==3);
 	if (data == NULL)
 	{
 		errorf("Failed to load texture from file `%s`.\n", filename.c_str());
 		// recoverable, so no exception is thrown
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	simplifid_tex_image_func(data, GL_RGB, width, height);
+	
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(data);

@@ -57,9 +57,4 @@ public:
 	virtual void render();
 };
 
-void get_and_bind_vao(unsigned int * pVAO);
-void get_and_bind_vbo(unsigned int * pVBO);
-void get_and_bind_ibo(unsigned int * pIBO);
-
-
 #endif

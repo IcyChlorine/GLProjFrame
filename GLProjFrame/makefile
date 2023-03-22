@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -O2 -std=c++11# -Wall
+CXXFLAGS = -std=c++11
 DEBUG = false
 
 SRC_PATH = ./src
@@ -9,13 +9,15 @@ INCLUDE_PATH = ./include
 SRC_FILES = $(wildcard $(SRC_PATH)/*.cpp $(SRC_PATH)/*.c)
 # 链接glfw3时必须同时链接gdi32
 # 另外，注意依赖顺序。
-LIBRARIES = -lglad -lglfw3 -lgdi32
+LIBRARIES =  -lglad -lglfw3 -lgdi32 -lfreetyped
 
 TARGET_FILENAME = main.exe
 
 # some little matic
 ifeq ($(DEBUG), true)
-CXXFLAGS += -g
+CXXFLAGS += -Og -g
+else
+CXXFLAGS += -O2
 endif
 
 # for incremental compilation #

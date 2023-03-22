@@ -379,3 +379,5 @@ build/
 ## build results
 *.exe
 *.o
+
+/freetype-2.13.0

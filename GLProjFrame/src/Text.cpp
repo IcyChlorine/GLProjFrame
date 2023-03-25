@@ -174,9 +174,7 @@ void Text::setPosition(unsigned int x, unsigned int y) {
 }
 
 void Text::render() {
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	set_and_push_depth_test_status(false);	
 
 	text_shader->use();
 	glBindTexture(GL_TEXTURE_2D, font_texture);
@@ -238,6 +236,5 @@ void Text::render() {
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
+	pop_and_resume_depth_test_status();
 }

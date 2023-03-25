@@ -5,6 +5,10 @@
 #include <glad/glad.h>
 #include "logging.h"
 #include <exception>
+#include <stack>
+
+extern std::stack<bool> depth_stack;
+extern std::stack<bool> blend_stack;
 
 inline void get_and_bind_vao(unsigned int * pVAO) {
 	glGenVertexArrays(1, pVAO);
@@ -68,5 +72,12 @@ inline void simplifid_tex_image_func(
 	);
 }
 
+void set_and_push_depth_test_status(bool enabled);
+
+void pop_and_resume_depth_test_status();
+
+void set_and_push_blend_status(bool enabled);
+
+void pop_and_resume_blend_status();
 
 #endif /* _GL_UTIL_H */

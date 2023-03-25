@@ -2,12 +2,15 @@
 #include "Window.h"
 #include "Application.h"
 
+#include <glm/glm.hpp>
 
 GameCamera::GameCamera(AbsObject* father) :Camera{ father } {
 	int width, height;
 	auto window = ((Application*)father)->getWindow();
 	window->getSize(&width, &height);
 	window->setCursorPos(width / 2, height / 2);
+	
+	this->update(0);
 }
 
 GameCamera::~GameCamera()
@@ -21,7 +24,7 @@ void GameCamera::update(float dt)
 	//只有时间间隔足够大时才更新变换，避免因鼠标只移动了一两个像素造成的不平滑
 	if (cumulated_time < 0.01f)
 		return;
-
+	
 	//旋转部分
 	auto window = ((Application*)father)->getWindow()->getInternalPointer();
 	int width, height;
@@ -63,7 +66,11 @@ void GameCamera::update(float dt)
 	transMat = glm::translate(transMat, glm::vec3(-x, -y, -z));
 	transform->setTransformMat(transMat);
 	glfwSetCursorPos(window, width / 2, height / 2);
-
+	
+	// 透视投影变换
+	float vertical_fov = 45.0f;
+	float zNear = 0.1f, zFar = 100.0f;
+	proj->setTransformMat(glm::perspective(glm::radians(vertical_fov), (float)width / (float)height, zNear, zFar));
 }
 
 void GameCamera::outputDebugInfo(ostream & out)

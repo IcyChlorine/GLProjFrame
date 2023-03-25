@@ -57,6 +57,7 @@ public:
 	
 	void run();
 	Window* getWindow() { return window; }
+	Camera* getCamera() { return camera; }
 
 	/*void flushConsoleOutput() { 
 		//cout << consoleOutput.str(); 

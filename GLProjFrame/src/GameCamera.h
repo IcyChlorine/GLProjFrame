@@ -42,4 +42,3 @@ public:
 	virtual void outputDebugInfo(ostream& out);
 	virtual int outputDebugInfo(char* buf);
 };
-

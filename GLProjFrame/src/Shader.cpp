@@ -83,15 +83,27 @@ void Shader::use()
 {
 	glUseProgram(m_shaderID);
 }
-void Shader::setUniform(const string &varName, bool value) const
+void Shader::setUniform(const string &varName, bool value)
 {
-	glUniform1i(glGetUniformLocation(m_shaderID, varName.c_str()), (int)value);
+	auto uniform_loc = glGetUniformLocation(m_shaderID, varName.c_str());
+	glUniform1i(uniform_loc, (int)value);
 }
-void Shader::setUniform(const string &varName, int value) const
+void Shader::setUniform(const string &varName, int value)
 {
-	glUniform1i(glGetUniformLocation(m_shaderID, varName.c_str()), value);
+	auto uniform_loc = glGetUniformLocation(m_shaderID, varName.c_str());
+	glUniform1i(uniform_loc, value);
 }
-void Shader::setUniform(const string &varName, float value) const
+void Shader::setUniform(const string &varName, float value)
 {
-	glUniform1f(glGetUniformLocation(m_shaderID, varName.c_str()), value);
+	auto uniform_loc = glGetUniformLocation(m_shaderID, varName.c_str());
+	glUniform1f(uniform_loc, value);
+}
+
+void Shader::setUniformMatrix(const string & varName, const glm::mat4& mat) {
+	auto uniform_loc = glGetUniformLocation(m_shaderID, varName.c_str());
+	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, glm::value_ptr(mat));
+}
+void Shader::setUniformMatrix(const string & varName, const glm::mat3& mat) {
+	auto uniform_loc = glGetUniformLocation(m_shaderID, varName.c_str());
+	glUniformMatrix3fv(uniform_loc, 1, GL_FALSE, glm::value_ptr(mat));
 }

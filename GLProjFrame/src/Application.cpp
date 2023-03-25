@@ -18,13 +18,6 @@ Application::Application()
 	window->getSize(&width, &height);
 	glViewport(0, 0, width, height);
 
-	//generating shaders dynamically
-	shader = new Shader("src\\shaders\\vertex.glsl", "src\\shaders\\frag.glsl");
-	
-
-	//load texture
-	//texture = new Texture("texture\\stone.bmp");
-
 	//setup UserInput
 	this->inputManager = window->getInputManager();
 	//input.init(window);
@@ -71,12 +64,14 @@ void Application::run() {
 
 	time = time_prev = time_prev2 = glfwGetTime();
 
-	Transform proj;
-	proj.enable(true);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	ColorfulStone* obj = new ColorfulStone();
-	obj->setShader(shader);
 	Text* text = new Text("<unknown>", glm::ivec2(0,0), 0.4f);
+	Cube* cube = new Cube();
+
 	while (!window->shouldClose())
 	{
 		frame_cnt++;
@@ -88,21 +83,15 @@ void Application::run() {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-		shader->use(); // note that transform uniforms are set for the CURRENT shader
 		camera->update(dt);
-		camera->applyCameraTransform(*shader);
-		
-		//set perspective projection
-		int width, height;
-		window->getSize(&width, &height);
-		proj.setTransformMat(glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f));
-		proj.apply(*shader,"proj");
 
-		//RENDER!
+		// RENDER!
 		if(line_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//cube->render();
 		obj->render();
 		if(line_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+	
 		if(show_hud)
 			text->render();
 		

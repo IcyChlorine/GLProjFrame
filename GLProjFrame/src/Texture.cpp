@@ -9,14 +9,16 @@ Texture::Texture(string filename)
 	// set the texture wrapping/filtering options (on the currently bound texture object)
 	set_texture_param(GL_NEAREST);
 	// load and generate the texture
-	int width, height, nrChannels;
+	int width{0}, height{0}, nrChannels{0};
 	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
-	assert(nrChannels==3);
+	//infof("#channel of `%s` is %d.\n",filename.c_str(),nrChannels);
 	if (data == NULL)
 	{
 		errorf("Failed to load texture from file `%s`.\n", filename.c_str());
 		// recoverable, so no exception is thrown
 	}
+	assert(nrChannels==3);
+
 	simplifid_tex_image_func(data, GL_RGB, width, height);
 	
 	glGenerateMipmap(GL_TEXTURE_2D);

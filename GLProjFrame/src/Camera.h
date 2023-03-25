@@ -8,6 +8,7 @@ class Camera :
 {
 protected:
 	Transform* transform{ nullptr };
+	Transform* proj{ nullptr };
 public:
 	Camera();
 	Camera(AbsObject* father);

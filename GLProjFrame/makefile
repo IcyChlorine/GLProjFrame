@@ -9,7 +9,7 @@ INCLUDE_PATH = ./include
 SRC_FILES = $(wildcard $(SRC_PATH)/*.cpp $(SRC_PATH)/*.c)
 # 链接glfw3时必须同时链接gdi32
 # 另外，注意依赖顺序。
-LIBRARIES =  -lglad -lglfw3 -lgdi32 -lfreetyped
+LIBRARIES =  -lglad -lglfw3 -lgdi32 -lfreetyped -lassimpd.dll
 
 TARGET_FILENAME = main.exe
 
@@ -33,7 +33,7 @@ main.exe: $(OBJ_FILES)
 	$(CXX) $(CXXFLAGS) $(OBJ_FILES) -o $(TARGET_FILENAME) -I $(INCLUDE_PATH) -L $(LIB_PATH) $(LIBRARIES)
 
 # macroscopic tasks #
-.PHONY: main all clean run
+.PHONY: main all clean run count
 
 main: main.exe
 # pass
@@ -47,3 +47,7 @@ clean:
 
 run: all
 	./$(TARGET_FILENAME)
+
+AUXS = makefile
+count:
+	cloc $(SRC_FILES) $(AUXS)

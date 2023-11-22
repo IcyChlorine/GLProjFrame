@@ -27,6 +27,20 @@ inline void gen_and_bind_texture(unsigned int * pTex) {
 	glGenTextures(1, pTex);
 	glBindTexture(GL_TEXTURE_2D, *pTex);
 }
+/* mostly shortcuts */
+inline void unbind_vao() {
+	glBindVertexArray(0);
+}
+inline void unbind_vbo() {
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+inline void unbind_ibo() {
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+inline void unbind_texture() {
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 /* set texture param for the current bound GL_TEXTURE_2D texture */
 inline void set_texture_param(GLenum param) {
 	// these two are usually unused

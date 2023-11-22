@@ -20,6 +20,6 @@ public:
 	~Texture();
 
 	void use();
-	static void setParam(int texParam);
+	void setParam(int texParam);
 };
 

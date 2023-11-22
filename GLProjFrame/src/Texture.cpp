@@ -44,6 +44,11 @@ void Texture::use()
 
 void Texture::setParam(int texParam)
 {
+	GLint prev_tex;
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &prev_tex);
+	infof("(debug print) previous bound texture is %d\n", prev_tex);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
 	if (texParam == PIXEL) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -65,4 +70,6 @@ void Texture::setParam(int texParam)
 	}else {
 		warning("class Texture.setParam(): Unknown param!\n");
 	}
+
+	glBindTexture(GL_TEXTURE_2D, prev_tex);
 }

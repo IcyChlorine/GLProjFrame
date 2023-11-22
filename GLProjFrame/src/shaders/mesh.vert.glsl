@@ -14,7 +14,7 @@ uniform mat4 transform;
 uniform mat4 proj;
 
 void main() {
-	vec4 tmp = transform * vec4(0.01*v_pos, 1.0);
+	vec4 tmp = transform * vec4(v_pos, 1.0);
 	f_pos = tmp.xyz;
 	gl_Position = proj * tmp;
 	f_norm = v_norm;

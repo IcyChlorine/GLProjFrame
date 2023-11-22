@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Mesh.h"
 
 const int loglevel{DEFAULT_LOGLEVEL};
 
@@ -40,6 +41,11 @@ Application::Application()
 		line_mode = !line_mode;
 	}, GLFW_KEY_L, 0);	
 
+	inputManager->setKeyCallback([&]() {
+		GameCamera* p = (GameCamera*)camera;
+		p->accelerate = !p->accelerate;
+	}, GLFW_KEY_LEFT_SHIFT, 0);
+
 	auto t = Text();
 }
 
@@ -72,6 +78,9 @@ void Application::run() {
 	Text* text = new Text("<unknown>", glm::ivec2(0,0), 0.4f);
 	Cube* cube = new Cube();
 
+	Model* nanosuit = new Model("assets/nanosuit/nanosuit.obj");
+	//Model* nanosuit = new Model("assets/AstroMC/server_map_base.obj");
+
 	while (!window->shouldClose())
 	{
 		frame_cnt++;
@@ -88,6 +97,7 @@ void Application::run() {
 		// RENDER!
 		if(line_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		//cube->render();
+		nanosuit->render();
 		obj->render();
 		if(line_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 

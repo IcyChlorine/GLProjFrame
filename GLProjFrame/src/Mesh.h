@@ -20,9 +20,10 @@ class Model: public Renderable {
 public:
 	Model(const string& filepath); 
 	~Model(); 
-	void initMesh(const aiScene* scene, aiNode* node);
+	void initMesh(const aiScene* scene, aiNode* node, const vector<string>& loaded_tex);
 	void initShader();
-	void initMaterial(Mesh* my_mesh, aiMaterial* mat, vector<string>& loaded_tex);
+	void initMaterialTexture(const aiScene* scene, vector<string>& loaded_tex);
+	void bindMeshTexture(Mesh* my_mesh, aiMaterial* mat, const vector<string>& loaded_tex);
 
 	virtual void render();
 private:
@@ -37,7 +38,7 @@ public:
 	void setTextureIndex(int amb, int diff, int spcl, int norm);
 	virtual void render();
 private:
-	unsigned int VAO{0},VBO{0},EBO{0};
+	unsigned int VAO{0}, VBO{0}, EBO{0};
 
 	float* vert_data{nullptr};
 	

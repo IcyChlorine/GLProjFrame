@@ -14,16 +14,19 @@ Model::Model(const string& filepath) {
 	Assimp::Importer importer;
 	const aiScene* ai_scene = importer.ReadFile(filepath,
 		aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
-		if(!ai_scene || (ai_scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) || !ai_scene->mRootNode) {
+	
+	if(!ai_scene || (ai_scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) || !ai_scene->mRootNode) {
 		errorf("Assimp failed at importing `%s`:\n%s\n", filepath.c_str(), importer.GetErrorString());
 		throw exception();
 	}
 	//printHierachy(ai_scene->mRootNode);
 	//system("pause");
-	this->initMesh(ai_scene, ai_scene->mRootNode);
 
+	vector<string> loaded_tex;
+	this->initMaterialTexture(ai_scene, loaded_tex);
+	this->initMesh(ai_scene, ai_scene->mRootNode, loaded_tex);
+	// currently, all meshes share the same shader, a.k.a. share the same material model
 	this->initShader();
-
 }
 
 Model::~Model() {
@@ -39,67 +42,120 @@ void Model::initShader() {
 	}
 }
 
-void Model::initMesh(const aiScene* scene, aiNode* node) {
-	vector<string> loaded_tex;
-
-	for(int i=0; i<node->mNumMeshes; i++) {
-		aiMesh* ai_mesh = scene->mMeshes[node->mMeshes[i]];
-		Mesh* my_mesh = new Mesh(ai_mesh);
-		my_mesh->setFather((AbsObject*)this);
-		sons.push_back((Renderable*)my_mesh);
-		//load material textures related to my_mesh and specify texture index for if
-		//repeated textures are loaded only once by checkint `loaded_tex`.
-		initMaterial(my_mesh, scene->mMaterials[ai_mesh->mMaterialIndex], loaded_tex);
-	}
-	for(int i=0; i<node->mNumChildren; i++) {
-		initMesh(scene, node->mChildren[i]);
-	}
-}
-
-void Model::initMaterial(Mesh* my_mesh, aiMaterial* mat, vector<string>& loaded_tex) {
-
+// load all textures referenced by scene->mMaterials into this->textures
+void Model::initMaterialTexture(const aiScene* scene, vector<string>& loaded_tex) {
+	// supported texture types
+	// at most 1 texture per type
 	aiTextureType types[]={
 		aiTextureType_DIFFUSE, aiTextureType_SPECULAR, 
 		aiTextureType_HEIGHT, aiTextureType_AMBIENT
 	};
 
-	int tex_idx[] = {-1, -1, -1, -1};
+	// for all materials
+	for(int idx=0; idx<scene->mNumMaterials; idx++) {
+		aiMaterial* mat = scene->mMaterials[idx];
+		// for all supported texture types	
+		for (int t = 0; t < 4; t++) {
+			aiTextureType tex_type = types[t];
+			if (mat->GetTextureCount(tex_type) == 0) {
+				continue;
+			}
+			if (mat->GetTextureCount(tex_type) > 1) {
+				error("Mesh with more than 1 texture for a given texture type! We can't handle this.\n");
+				throw exception();
+			}
+			// exactly one texture for tex_type
 
-	for (int j = 0; j < 4; j++) {
-		auto type = types[j];
-		if (mat->GetTextureCount(type) == 0) {
-			continue;
-		}
-		if (mat->GetTextureCount(type) > 1) {
-			error("Mesh with more than 1 texture for a given texture type! We can't handle this.\n");
-			throw exception();
-		}
+			// get the filename of texture image file, like "stone.bmp"
+			aiString filename;
+			mat->GetTexture(tex_type, 0, &filename);
 
-		aiString filename;
-		mat->GetTexture(type, 0, &filename);
+			// check if texture has been loaded before
+			// if so, reuse the loaded texture, avoid re-loading
+			auto it = loaded_tex.begin();
+			if ((it=find(loaded_tex.begin(), loaded_tex.end(), filename.C_Str())) != loaded_tex.end()) {
+				infof("Find duplicate texture `%s` when loading materials.\n", filename.C_Str());
+				continue;
+			} 
 
-		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-		
-		auto it = loaded_tex.begin();
-		if ((it=find(loaded_tex.begin(), loaded_tex.end(), filename.C_Str())) != loaded_tex.end()) {
-			tex_idx[j] = it-loaded_tex.begin();
-		} else {
+			/* * finally load the texture! */	
 			Texture *texture = new Texture(directory + filename.C_Str());
-			texture->use();
+			// default texture parameters
 			texture->setParam(Texture::SMOOTH);
 			texture->setParam(Texture::REPEAT);
 			textures.push_back(texture);
-			tex_idx[j] = textures.size()-1;
+			
+			loaded_tex.push_back(filename.C_Str());
+		}
+	}
+}
+
+// init meshes referenced by `node` and its children
+void Model::initMesh(const aiScene* scene, aiNode* node, const vector<string>& loaded_tex) {
+
+	// 
+	for(int i=0; i<node->mNumMeshes; i++) {
+		aiMesh* ai_mesh = scene->mMeshes[node->mMeshes[i]];
+		Mesh* my_mesh = new Mesh(ai_mesh);
+		my_mesh->setFather((AbsObject*)this);
+		sons.push_back((Renderable*)my_mesh);
+		// bind textures referenced by ai_mesh.material to my_mesh
+		bindMeshTexture(my_mesh, scene->mMaterials[ai_mesh->mMaterialIndex], loaded_tex);
+	}
+	for(int i=0; i<node->mNumChildren; i++) {
+		initMesh(scene, node->mChildren[i], loaded_tex);
+	}
+}
+
+// bind textures referenced by `mat` to `my_mesh`.
+void Model::bindMeshTexture(Mesh* my_mesh, aiMaterial* mat, const vector<string>& loaded_tex) {
+	
+	// The following texture types are supported/considered,
+	aiTextureType types[]={
+		aiTextureType_DIFFUSE, aiTextureType_SPECULAR, 
+		aiTextureType_HEIGHT, aiTextureType_AMBIENT
+	};
+
+	// the index of texture in Model.textures, to be found by filename
+	int tex_idx[] = {-1, -1, -1, -1};
+
+	for (int t = 0; t < 4; t++) {
+		aiTextureType tex_type = types[t];
+		if (mat->GetTextureCount(tex_type) == 0) {
+			continue;
+		}
+		if (mat->GetTextureCount(tex_type) > 1) {
+			error("Mesh with more than 1 texture for a given texture type! We can't handle this.\n");
+			throw exception();
+		}
+		// exactly one texture for tex_type
+
+		// get the filename of texture image file, like "stone.bmp"
+		aiString filename;
+		mat->GetTexture(tex_type, 0, &filename);
+
+		auto it = loaded_tex.begin();
+		if ((it=find(loaded_tex.begin(), loaded_tex.end(), filename.C_Str())) != loaded_tex.end()) {
+			infof("Find duplicate texture `%s`.\n", filename.C_Str());
+			tex_idx[t] = it-loaded_tex.begin();
+		} else {
+			errorf("Texture `%s` not found in loaded textures.\n", filename.C_Str());
+			throw exception();
 		}
 
-		loaded_tex.push_back(filename.C_Str());
+		for(auto s : loaded_tex){
+			cout << s << ", ";
+		}
+		cout << endl;
 	}
-	my_mesh->setTextureIndex(tex_idx[0],tex_idx[1],tex_idx[2],tex_idx[3]);
+
+	// bind to my_mesh
+	my_mesh->setTextureIndex(tex_idx[0], tex_idx[1], tex_idx[2], tex_idx[3]);
 }
 
 void Model::render() {
-	for(auto it=sons.begin(); it!=sons.end(); it++){
-		(*it)->render();
+	for(auto mesh : sons){
+		mesh->render();
 	}
 }
 

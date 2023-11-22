@@ -43,4 +43,5 @@ void main() {
 	float spec_fac = pow(max(dot(view_dir, reflect_dir), 0.0), 16);
 	FragColor += light_color * spec_fac * texture(specular, f_texcoord);
 	
+	FragColor.a = 1.0f;
 }

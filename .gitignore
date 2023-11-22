@@ -383,3 +383,5 @@ build/
 /GLProjFrame/assets/
 
 /freetype-2.13.0
+
+*.zip

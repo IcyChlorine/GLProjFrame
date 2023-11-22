@@ -52,6 +52,7 @@ void GameCamera::update(float dt)
 		dr.y += dt*vy;
 	if (glfwGetKey(window, GLFW_KEY_CAPS_LOCK) == GLFW_PRESS)
 		dr.y -= dt*vy;
+	if(accelerate) dr *= 3;
 
 	//要从本地坐标系变换到世界坐标系，变换是反着的，所以右乘
 	dr = dr * glm::rotate(glm::mat4(1.0f), glm::radians(phi), glm::vec3(0.0f, 1.0f, 0.0f));

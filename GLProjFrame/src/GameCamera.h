@@ -25,17 +25,22 @@ private:
 	float th{ 0.0f }, phi{ 0.0f };
 	//按键控制时，相机移动的速度 单位：GL标准坐标系/秒
 	float vx{ 1.0f }, vy{ 1.0f }, vz{ 1.0f };
+	
 	/*鼠标控制时，相机旋转角度和鼠标移动距离的比的量度
 	*th_rate:默认1/pixel，表示鼠标上下移动pixel像素时俯仰角旋转90度
 	*phi_rate:默认1/pixel，表示鼠标上下移动pixel像素时横向旋转360度
 	*/
 	float th_rate{ 1 / 1000.0f }, phi_rate{ 1 / 8000.0f };
 public:
+	bool accelerate{ false };
+
 	GameCamera(AbsObject* father);
 	virtual ~GameCamera();
 
 	void setEnabled(bool enabled) { this->enabled = enabled; }
 	bool getEnabled() { return enabled; }
+
+	glm::vec3 getPosition() { return glm::vec3(x,y,z); }
 
 	virtual void update(float dt);
 

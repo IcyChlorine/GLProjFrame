@@ -65,10 +65,10 @@ void Application::run() {
 	
 	unsigned long frame_cnt{ 0 };//走过的帧数
 
-	float time_prev2; 
+	float time_fps_updated; 
 	unsigned long frame_cnt_prev{ 0 }; //计算fps用
 
-	time = time_prev = time_prev2 = glfwGetTime();
+	time = time_prev = time_fps_updated = glfwGetTime();
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -78,8 +78,13 @@ void Application::run() {
 	Text* text = new Text("<unknown>", glm::ivec2(0,0), 0.4f);
 	Cube* cube = new Cube();
 
-	Model* nanosuit = new Model("assets/nanosuit/nanosuit.obj");
-	//Model* nanosuit = new Model("assets/AstroMC/server_map_base.obj");
+	//Model *nanosuit = new Model("assets/backpack/backpack.obj");
+	Model *nanosuit = new Model("assets/nanosuit/nanosuit.obj");
+	// Model* nanosuit = new Model("assets/AstroMC/server_map_base.obj");
+
+	double fps{0.0f};
+	char hud_text[256];
+	char* hud_printhead = hud_text;
 
 	while (!window->shouldClose())
 	{
@@ -110,16 +115,17 @@ void Application::run() {
 		glfwPollEvents();
 
 		// update hud info
-		if (time-time_prev2>0.3f) {//update console output per 0.8sec
-			char hud_text[256]; char* p = hud_text;
-
-			int fps = (frame_cnt-frame_cnt_prev)*1.0f/(time-time_prev2);
-			p += sprintf(p, "frame %d fps %d\n", frame_cnt, fps);
-			p += this->camera->outputDebugInfo(p);
-			text->setText(hud_text);
-
-			time_prev2 = time;
+		if (time-time_fps_updated>0.3f) {//update console output per 0.8sec
+			hud_printhead = hud_text;
+			fps = (frame_cnt-frame_cnt_prev)*1.0f/(time-time_fps_updated);
+			hud_printhead += sprintf(hud_printhead, "frame %d fps %d\n", frame_cnt, (int)fps);
+			
+			time_fps_updated = time;
 			frame_cnt_prev = frame_cnt;
 		}
+		this->camera->outputDebugInfo(hud_printhead);
+		text->setText(hud_text);
+
+		frame_cnt++;
 	}
 }

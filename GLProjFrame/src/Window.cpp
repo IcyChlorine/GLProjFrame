@@ -26,6 +26,13 @@ Window::Window(AbsObject* father):
 	}
 
 	glfwMakeContextCurrent(internal_wnd_pointer);
+	// Set swap inteval to 0 effectively removes the 60 fps cap,
+	// which is, caused by the limited rate of window repaint
+	// event issued by windows os.
+	// If you want *test performance*, set the inteval to 0.
+	// However, if you want to *keep your GPU quiet*, comment the 
+	// following line out.
+	glfwSwapInterval(0); 
 
 	//register RESIZE listener func
 	glfwSetFramebufferSizeCallback(internal_wnd_pointer, glfw_resize_callback);

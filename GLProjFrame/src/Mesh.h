@@ -2,15 +2,19 @@
 #ifndef _MESH_H
 #define _MESH_H
 
+#include <vector>
+using namespace std;
+
+#include "assimp/Importer.hpp"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
+#include "assimp/material.h"
+
 #include "common_t1.h"
 #include "Renderable.h"
 #include "Shader.h"
 #include "Texture.h"
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include "assimp/material.h"
+#include "Material.h"
 
 extern Shader* mesh_shader;
 
@@ -38,6 +42,7 @@ public:
 	virtual void render();
 private:
 	vector<Texture*> textures;
+	vector<Material*> materials;
 	string directory;
 };
 
@@ -64,6 +69,7 @@ private:
 	int normal_tex_idx{-1};
 };
 
+// utils for print assimp stuff and debug
 void print_aiScene_basics(ostream& out, const aiScene* scene, unsigned int verbose_level=0);
 void print_aiMesh_basics(ostream& out, const aiMesh* mesh, unsigned int verbose_level=0);
 void print_aiMaterial_basics(ostream& out, const aiMaterial* mat, unsigned int verbose_level=0);

@@ -430,7 +430,7 @@ void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsi
 			out << "value = " << *(float*)prop->mData;
 			break;
 		case aiPTI_Double:
-			out << "value = " << *(double*)prop->mData;
+			out << "value = " << *(double*)prop->mData << "(double)";
 			break;
 		case aiPTI_Integer:
 			out << "value = " << *(int*)prop->mData << "(int)";

@@ -1,6 +1,11 @@
 #include "Mesh.h"
 #include "Application.h"
+
+// for utf-8 to gbk conversion
+#include <iconv.h>
+
 #define VERT_PER_TRIG 3
+#define STR_EQ 0
 
 Shader* mesh_shader{nullptr};
 
@@ -22,11 +27,24 @@ Model::Model(const string& filepath) {
 	//printHierachy(ai_scene->mRootNode);
 	//system("pause");
 
+	// try inspecting the aiScene
+	//print_aiScene_basics(cout, ai_scene, 1);
+	for(int i=0; i<ai_scene->mNumMaterials; i++) {
+		printf("(%d/%d)", i+1, ai_scene->mNumMaterials);
+		print_aiMaterial_basics(cout, ai_scene->mMaterials[i]);
+	}
+	ai_scene->mNumTextures;
+	exit(0);
+	//system("pause");
+
 	vector<string> loaded_tex;
 	this->initMaterialTexture(ai_scene, loaded_tex);
 	this->initMesh(ai_scene, ai_scene->mRootNode, loaded_tex);
 	// currently, all meshes share the same shader, a.k.a. share the same material model
 	this->initShader();
+
+	// the ai_scene(and all the attached resources) will be destroyed
+	// upon de-construction of Assimp::Importer
 }
 
 Model::~Model() {
@@ -54,6 +72,8 @@ void Model::initMaterialTexture(const aiScene* scene, vector<string>& loaded_tex
 	// for all materials
 	for(int idx=0; idx<scene->mNumMaterials; idx++) {
 		aiMaterial* mat = scene->mMaterials[idx];
+		//mat->Get(AI_MATKEY_SHININESS, )
+		
 		// for all supported texture types	
 		for (int t = 0; t < 4; t++) {
 			aiTextureType tex_type = types[t];
@@ -280,4 +300,193 @@ void Mesh::render() {
 	glBindVertexArray(0);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+inline string mk_idt(unsigned int indent=1) {
+    return std::string(indent*4, ' ');
+}
+
+void print_aiMesh_basics(ostream& out, const aiMesh* mesh, unsigned int verbose_level) {
+	out << "aiMesh basic info:" << endl;
+	out << mk_idt() << "#Vertices: " << mesh->mNumVertices << endl;
+	out << mk_idt() << "#Faces: " << mesh->mNumFaces << endl;
+	if(!verbose_level--) return;
+
+	out << mk_idt() << "Has normals";
+	out << (mesh->HasNormals() ? "true" : "false") << endl;
+	out << mk_idt() << "Has tangents and bitangents: ";
+	out << (mesh->HasTangentsAndBitangents() ? "true" : "false") << endl;
+
+	out << mk_idt() << "#UVChannels: " << mesh->GetNumUVChannels() << endl;
+
+	if(!verbose_level--) return;
+
+	if(mesh->mNumBones > 0)
+		out << mk_idt() << "#Bones: " << mesh->mNumBones << endl;
+	if(mesh->mNumAnimMeshes > 0)
+		out << mk_idt() << "#AnimMeshes: " << mesh->mNumAnimMeshes << endl;
+}
+
+inline void _tmp(ostream& out, aiString str) {
+	for(int i=0; i<str.length; i++) {
+		out << (int)str.data[i] << ",";
+	}
+}
+
+// thanks copilot's favor
+std::string utf8_to_gbk(const std::string& utf8_str) {
+    std::string gbk_str;
+    char gbk_buf[1024] = {0};
+    size_t in_len = utf8_str.size();
+    size_t out_len = sizeof(gbk_buf);
+    char* in_ptr = (char*)utf8_str.c_str();
+    char* out_ptr = gbk_buf;
+
+    iconv_t cd = iconv_open("GBK", "UTF-8");
+    if (cd != (iconv_t)-1) {
+        if (iconv(cd, &in_ptr, &in_len, &out_ptr, &out_len) != (size_t)-1) {
+            gbk_str = gbk_buf;
+        }
+        iconv_close(cd);
+    }
+
+    return gbk_str;
+}
+
+void print_aiScene_basics(ostream& out, const aiScene* scene, unsigned int verbose_level) {
+	out << "aiScene basic info:" << endl;
+	out << mk_idt() << "#Meshes: " << scene->mNumMeshes << endl;
+	out << mk_idt() << "#Materials: " << scene->mNumMaterials << endl;
+
+	// traverse among all nodes to get statistics about nodes hierarchy
+	vector<int> nr_nodes_per_level;
+	int nr_nodes {0};
+	function<void(aiNode*, int)> dfs_count = [&](aiNode* node, int level) {
+		if(level >= nr_nodes_per_level.size()) {
+			nr_nodes_per_level.push_back(0);
+		}
+		nr_nodes_per_level[level]++;
+		nr_nodes++;
+		for(int i=0; i<node->mNumChildren; i++) {
+			dfs_count(node->mChildren[i], level+1);
+		}
+	};
+	dfs_count(scene->mRootNode, 0);
+
+	out << mk_idt() << "#Nodes: " << nr_nodes << " = ";
+	for(int lv=0; lv<nr_nodes_per_level.size(); lv++) {
+		if(lv) out << " + ";
+		out << nr_nodes_per_level[lv];
+	}
+	out << endl;
+
+	if(!verbose_level--) return;
+	out << mk_idt() << "#Animations: " << scene->mNumAnimations << endl;
+	out << mk_idt() << "#(embedded)Textures: " << scene->mNumTextures << endl;
+	out << mk_idt() << "#Lights: " << scene->mNumLights << endl;
+	out << mk_idt() << "#Cameras: " << scene->mNumCameras << endl;
+
+	// Note: some times you get a utf-8 encoding string for node name,
+	//       but consoles' default encoding is gbk for Chinese, so you'll
+	//       need to convert the encoding. Thanks copilot for the convert
+	//       function, which uses libiconv under the hood.
+	function<void(aiNode*, int, int)> dfs_print = [&](aiNode* node, int level, int idx) {
+		out << mk_idt(level);
+		if(level==0) out << "Root: ";
+		else         out << "Node " << idx << ": ";
+		out << utf8_to_gbk(node->mName.C_Str())
+		    << "(" << node->mNumMeshes << " meshes)" << endl;
+
+		for(int i=0; i<node->mNumChildren; i++) {
+			dfs_print(node->mChildren[i], level+1, i);
+		}
+	};
+	out << "Node hierarchy:" << endl;
+	dfs_print(scene->mRootNode, 0, 0);
+}
+
+static string ai_texture_semantic_to_string(unsigned int mSemantic) {
+	
+}
+
+void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsigned int verbose_level=0) {
+	const char* textype_names[] = {
+		"aiTextureType_NONE", "aiTextureType_DIFFUSE", "aiTextureType_SPECULAR", 
+		"aiTextureType_AMBIENT", "aiTextureType_EMISSIVE", "aiTextureType_HEIGHT", 
+		"aiTextureType_NORMALS", "aiTextureType_SHININESS", "aiTextureType_OPACITY", 
+		"aiTextureType_DISPLACEMENT", "aiTextureType_LIGHTMAP", "aiTextureType_REFLECTION", // till assimp 3.3
+		//"aiTextureType_BASE_COLOR", "aiTextureType_NORMAL_CAMERA", "aiTextureType_EMISSION_COLOR", 
+		//"aiTextureType_METALNESS", "aiTextureType_DIFFUSE_ROUGHNESS", "aiTextureType_AMBIENT_OCCLUSION", 
+		"aiTextureType_UNKNOWN"
+	};
+
+	const char* datatype_names[] = {
+		"Error dtype!", "aiPTI_Float", "aiPTI_Double", "aiPTI_String", "aiPTI_Integer", "aiPTI_Buffer"
+	};
+
+	out << "key=" << prop->mKey.C_Str() << ",\t";
+	switch(prop->mType) {
+		case aiPTI_Float:
+			out << "value = " << *(float*)prop->mData;
+			break;
+		case aiPTI_Double:
+			out << "value = " << *(double*)prop->mData;
+			break;
+		case aiPTI_Integer:
+			out << "value = " << *(int*)prop->mData << "(int)";
+			break;
+		case aiPTI_String:
+		{
+			/* There's a bug in old version of assimp:
+			 * On one hand, aiString.data is 8 bytes after aiString.length when compiled on machine
+			 * where size_t is 8 bytes.
+			 * On the other hand, most of the time, assimp function takes it for granted that aiString.data
+			 * is 4 bytes after aiString.length, accessing it using prop->mData+4, as they assume size_t
+			 * must be 4 bytes long.
+			 * => So to print the aiString in prop->mData correctly, just print prop->mData+4.
+			*/
+
+			//string str{ ((aiString*)prop->mData)->data };
+			  string str{             prop->mData+4 };
+
+			// if key starts with _AI_MATKEY_TEXTURE_BASE
+			if(strncmp(prop->mKey.C_Str(), _AI_MATKEY_TEXTURE_BASE, 
+			                       sizeof(_AI_MATKEY_TEXTURE_BASE)-1) == STR_EQ) {
+				// identify a texture in file
+				out << "texture [type = " << textype_names[prop->mSemantic] << ","
+				                          << prop->mIndex << ", ";
+				out << "path = \"" << utf8_to_gbk(str) << "\"]";
+			} else {
+				// otherwise, the string is a value
+				out << "\tvalue = \"" << utf8_to_gbk(str) << "\"";
+			}
+			
+			break;
+			
+		}
+		case aiPTI_Buffer:
+			out << "value = " << "(binary data)";
+			break;
+		default:
+			out << "value = " << "(Unknown type)";
+			break;
+	}
+	//out << "semantic=" << textype_names[prop->mSemantic] << ", ";
+	//out << "type=" << datatype_names[prop->mType] << ", ";
+	//out << "texture index=" << prop->mIndex << ", ";
+	out << endl;
+}
+
+void print_aiMaterial_basics(ostream& out, const aiMaterial* mat, unsigned int verbose_level) {
+	aiString name;
+	mat->Get(AI_MATKEY_NAME, name);
+	out << "basic info of aiMaterial \"" << utf8_to_gbk(name.C_Str()) << "\":" << endl;
+	out << mk_idt() << "#Properties = " << mat->mNumProperties << endl;
+
+	for(int i=0; i<mat->mNumProperties; i++) {
+		const aiMaterialProperty* prop = mat->mProperties[i];
+		out << mk_idt() << "Property " << i << ": ";
+		print_aiMaterialProperty(out, prop);
+		//out << endl;
+	}
 }

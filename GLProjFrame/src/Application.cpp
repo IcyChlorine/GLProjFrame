@@ -78,14 +78,17 @@ void Application::run() {
 	Text* text = new Text("<unknown>", glm::ivec2(0,0), 0.4f);
 	Cube* cube = new Cube();
 
-	//Model *nanosuit = new Model("assets/backpack/backpack.obj");
-	Model *nanosuit = new Model("assets/nanosuit/nanosuit.obj");
-	// Model* nanosuit = new Model("assets/AstroMC/server_map_base.obj");
+	//Model *model = new Model("assets/Lumine.obj");
+	//Model *model = new Model("assets/HuTao/HuTao.pmx");
+	//Model *model = new Model("assets/backpack/backpack.obj");
+	//Model *model = new Model("assets/nanosuit/nanosuit.obj");
+	Model* model = new Model("assets/AstroMC/server_map_base.obj");
+	exit(0);
 
 	double fps{0.0f};
 	char hud_text[256];
 	char* hud_printhead = hud_text;
-
+	
 	while (!window->shouldClose())
 	{
 		frame_cnt++;
@@ -102,7 +105,7 @@ void Application::run() {
 		// RENDER!
 		if(line_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		//cube->render();
-		nanosuit->render();
+		model->render();
 		obj->render();
 		if(line_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 

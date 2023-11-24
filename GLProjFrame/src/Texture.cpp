@@ -8,6 +8,7 @@ Texture::Texture(string filename)
 	gen_and_bind_texture(&texture);
 	// set the texture wrapping/filtering options (on the currently bound texture object)
 	set_texture_param(GL_NEAREST);
+
 	// load and generate the texture
 	int width{0}, height{0}, nrChannels{0};
 	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
@@ -18,7 +19,7 @@ Texture::Texture(string filename)
 		// recoverable, so no exception is thrown
 	}
 	GLenum format;
-	if(nrChannels==1) format=GL_RED;
+	if     (nrChannels==1) format=GL_RED;
 	else if(nrChannels==3) format=GL_RGB;
 	else if(nrChannels==4) format=GL_RGBA;
 	else {error("Unsupported #channel!\n"); throw exception();}

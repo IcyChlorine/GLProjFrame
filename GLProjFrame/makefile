@@ -10,7 +10,7 @@ HEADERS = $(wildcard $(SRC_PATH)/*.h)
 SRCS = $(wildcard $(SRC_PATH)/*.cpp $(SRC_PATH)/*.c)
 # 链接glfw3时必须同时链接gdi32
 # 另外，注意依赖顺序。
-LIBS = -lglfw3 -lgdi32 -lfreetype -lassimp.dll
+LIBS = -lglfw3 -lgdi32 -lfreetype -lassimp.dll -liconv
 
 TARGET_FILENAME = main.exe
 

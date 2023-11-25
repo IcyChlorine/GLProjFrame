@@ -54,3 +54,51 @@ SHADERS = $(wildcard $(SHADER_PATH)/*.*)
 AUXS = makefile
 count:
 	cloc $(HEADERS) $(SRCS) $(SHADERS) $(AUXS)
+
+.PHONY: dep assimp
+dep: assimp
+	@echo "Building dependencies..."
+
+.PHONY: assimp
+assimp: libassimp.a
+	@echo "Building assimp..."
+
+	mkdir dependencies
+	cd dependencies
+	git clone https://github.com/assimp/assimp.git
+	cd assimp
+	cmake -B build -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=OFF
+	cd build
+	make -j 12
+	# ->assimp->dependencies->GLProjFrame/GLProjFrame
+	cd ../../..
+	rm lib/libassimp.a
+	cp dependencies/assimp/build/lib/libassimp.a lib/libassimp.a
+	rm -rf include/assimp
+	cp dependencies/assimp/build/include/assimp include/assimp -r
+
+dependencies:
+	mkdir dependencies
+
+ASSIMP_VERSION = v5.2.3 # some versions, such as v5.0.0, can't build
+dependencies/assimp: dependencies
+	cd dependencies && git clone https://github.com/assimp/assimp.git
+	cd dependencies/assimp && git checkout $(ASSIMP_VERSION)
+
+ASSIMP_CMAKE_ARGS = -B build -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=OFF
+dependencies/assimp/build: dependencies/assimp
+	cd dependencies/assimp && \
+	cmake $(ASSIMP_CMAKE_ARGS)
+
+NUM_WORKERS = 12
+dependencies/assimp/build/lib/libassimp.a: dependencies/assimp/build
+	cd dependencies/assimp/build && \
+	make -j $(NUM_WORKERS)
+
+.PHONY: assimp_install
+assimp_install:
+	rm lib/libassimp.a
+	cp dependencies/assimp/build/lib/libassimp.a lib/libassimp.a
+	rm -rf include/assimp
+	cp dependencies/assimp/build/include/assimp include/assimp -r
+

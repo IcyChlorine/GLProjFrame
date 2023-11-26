@@ -376,9 +376,11 @@ CTestTestfile.cmake
 _deps
 build/
 
-## build results
+## binaries
 *.exe
 *.o
+
+/GLProjFrame/dependencies/
 
 /GLProjFrame/assets/
 

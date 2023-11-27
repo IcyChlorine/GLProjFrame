@@ -381,6 +381,12 @@ build/
 *.o
 
 /GLProjFrame/dependencies/
+/GLProjFrame/include/assimp/
+
+# ignore only a small proportion of libs for the time being
+# should be able to ignore all libs in the future
+/GLProjFrame/lib/libassimp.a
+/GLProjFrame/lib/libzlibstatic.a
 
 /GLProjFrame/assets/
 

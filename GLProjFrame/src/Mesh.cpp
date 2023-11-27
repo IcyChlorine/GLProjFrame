@@ -304,7 +304,7 @@ void Mesh::render() {
 }
 
 inline string mk_idt(unsigned int indent=1) {
-    return std::string(indent*4, ' ');
+    return string(indent*4, ' ');
 }
 
 void print_aiMesh_basics(ostream& out, const aiMesh* mesh, unsigned int verbose_level) {
@@ -328,11 +328,6 @@ void print_aiMesh_basics(ostream& out, const aiMesh* mesh, unsigned int verbose_
 		out << mk_idt() << "#AnimMeshes: " << mesh->mNumAnimMeshes << endl;
 }
 
-inline void _tmp(ostream& out, aiString str) {
-	for(int i=0; i<str.length; i++) {
-		out << (int)str.data[i] << ",";
-	}
-}
 
 // thanks copilot's favor
 std::string utf8_to_gbk(const std::string& utf8_str) {
@@ -410,6 +405,9 @@ static string ai_texture_semantic_to_string(unsigned int mSemantic) {
 	
 }
 
+// Note: size_t extends to unsigned long long. So don't use -1 to initialize it.
+static size_t max_matkey_len = 0;
+
 void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsigned int verbose_level=0) {
 	const unsigned int MAX_TEXTYPE_ENUM = (unsigned int)aiTextureType_UNKNOWN;
 	const char* textype_names[MAX_TEXTYPE_ENUM+1];
@@ -453,15 +451,15 @@ void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsi
 	shadingmode_names[aiShadingMode_CookTorrance]="aiShadingMode_CookTorrance";
 	shadingmode_names[aiShadingMode_NoShading]  ="aiShadingMode_NoShading";
 	shadingmode_names[aiShadingMode_Fresnel]    = "aiShadingMode_Fresnel";
-
-	out << "key=" << prop->mKey.C_Str() << ",\t";
+	
+	out << "key=" << prop->mKey.C_Str() << "," << string(max_matkey_len-strlen(prop->mKey.C_Str())+1, ' ');
 	switch(prop->mType) {
 		case aiPTI_Float:
 			out << "value = " << *(float*)prop->mData;
 			break;
-		//case aiPTI_Double:
-		//	out << "value = " << *(double*)prop->mData << "(double)";
-		//	break;
+		case aiPTI_Double:
+			out << "value = " << *(double*)prop->mData << "(double)";
+			break;
 		case aiPTI_Integer:
 		{
 			if(!strcmp(prop->mKey.C_Str(), "$mat.shadingm")) {
@@ -484,8 +482,8 @@ void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsi
 			 * => So to print the aiString in prop->mData correctly, just print prop->mData+4.
 			*/
 
-			//string str{ ((aiString*)prop->mData)->data };
-			  string str{             prop->mData+4 };
+			string str{ ((aiString*)prop->mData)->data };
+			//string str{             prop->mData+4 };
 
 			// if key starts with _AI_MATKEY_TEXTURE_BASE
 			if(strncmp(prop->mKey.C_Str(), _AI_MATKEY_TEXTURE_BASE, 
@@ -496,7 +494,7 @@ void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsi
 				out << "path = \"" << utf8_to_gbk(str) << "\"]";
 			} else {
 				// otherwise, the string is a value
-				out << "\tvalue = \"" << utf8_to_gbk(str) << "\"";
+				out << "value = \"" << utf8_to_gbk(str) << "\"";
 			}
 			
 			break;
@@ -522,10 +520,22 @@ void print_aiMaterial_basics(ostream& out, const aiMaterial* mat, unsigned int v
 	out << "basic info of aiMaterial \"" << utf8_to_gbk(name.C_Str()) << "\":" << endl;
 	out << mk_idt() << "#Properties = " << mat->mNumProperties << endl;
 
+	// pre-compute the max length of aiMaterialProperty::mKey, for better printing
+	// Note: the dependency on max_matkey_len makes this function not thread-safe.
+	max_matkey_len = 0;
+	for(int i=0; i<mat->mNumProperties; i++) {
+		const aiMaterialProperty* prop = mat->mProperties[i];
+		if(strlen(prop->mKey.C_Str()) > max_matkey_len) {
+			max_matkey_len = strlen(prop->mKey.C_Str());
+		}
+	}
+
 	for(int i=0; i<mat->mNumProperties; i++) {
 		const aiMaterialProperty* prop = mat->mProperties[i];
 		out << mk_idt() << "Property " << i << ": ";
 		print_aiMaterialProperty(out, prop);
 		//out << endl;
 	}
+
+	max_matkey_len = 0;
 }

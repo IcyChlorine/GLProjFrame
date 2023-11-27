@@ -32,9 +32,10 @@ Model::Model(const string& filepath) {
 	for(int i=0; i<ai_scene->mNumMaterials; i++) {
 		printf("(%d/%d)", i+1, ai_scene->mNumMaterials);
 		print_aiMaterial_basics(cout, ai_scene->mMaterials[i]);
+		//aiShadingMode
 	}
 	ai_scene->mNumTextures;
-	exit(0);
+	//exit(0);
 	//system("pause");
 
 	vector<string> loaded_tex;
@@ -410,31 +411,68 @@ static string ai_texture_semantic_to_string(unsigned int mSemantic) {
 }
 
 void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsigned int verbose_level=0) {
-	const char* textype_names[] = {
-		"aiTextureType_NONE", "aiTextureType_DIFFUSE", "aiTextureType_SPECULAR", 
-		"aiTextureType_AMBIENT", "aiTextureType_EMISSIVE", "aiTextureType_HEIGHT", 
-		"aiTextureType_NORMALS", "aiTextureType_SHININESS", "aiTextureType_OPACITY", 
-		"aiTextureType_DISPLACEMENT", "aiTextureType_LIGHTMAP", "aiTextureType_REFLECTION", // till assimp 3.3
-		//"aiTextureType_BASE_COLOR", "aiTextureType_NORMAL_CAMERA", "aiTextureType_EMISSION_COLOR", 
-		//"aiTextureType_METALNESS", "aiTextureType_DIFFUSE_ROUGHNESS", "aiTextureType_AMBIENT_OCCLUSION", 
-		"aiTextureType_UNKNOWN"
-	};
+	const unsigned int MAX_TEXTYPE_ENUM = (unsigned int)aiTextureType_UNKNOWN;
+	const char* textype_names[MAX_TEXTYPE_ENUM+1];
+	for(int i=0; i<=MAX_TEXTYPE_ENUM; i++) 
+		textype_names[i] = "Unknown aiTextureType!";
+	textype_names[aiTextureType_NONE]       = "aiTextureType_NONE";
+	textype_names[aiTextureType_DIFFUSE]    = "aiTextureType_DIFFUSE";
+	textype_names[aiTextureType_SPECULAR]   = "aiTextureType_SPECULAR";
+	textype_names[aiTextureType_AMBIENT]    = "aiTextureType_AMBIENT";
+	textype_names[aiTextureType_EMISSIVE]   = "aiTextureType_EMISSIVE";
+	textype_names[aiTextureType_HEIGHT]     = "aiTextureType_HEIGHT";
+	textype_names[aiTextureType_NORMALS]    = "aiTextureType_NORMALS";
+	textype_names[aiTextureType_SHININESS]  = "aiTextureType_SHININESS";
+	textype_names[aiTextureType_OPACITY]    = "aiTextureType_OPACITY";
+	textype_names[aiTextureType_DISPLACEMENT]="aiTextureType_DISPLACEMENT";
+	textype_names[aiTextureType_LIGHTMAP]   = "aiTextureType_LIGHTMAP";
+	textype_names[aiTextureType_REFLECTION] = "aiTextureType_REFLECTION";
+	textype_names[aiTextureType_UNKNOWN]    = "aiTextureType_UNKNOWN";
+	
+	const unsigned int MAX_DATATYPE_ENUM = (unsigned int)aiPTI_Buffer;
+	const char* datatype_names[MAX_DATATYPE_ENUM+1];
+	for(int i=0; i<=MAX_DATATYPE_ENUM; i++)
+		datatype_names[i] = "Unknown dtype!";
+	datatype_names[aiPTI_Float]   = "aiPTI_Float";
+	//datatype_names[aiPTI_Double]  = "aiPTI_Double";
+	datatype_names[aiPTI_String]  = "aiPTI_String";
+	datatype_names[aiPTI_Integer] = "aiPTI_Integer";
+	datatype_names[aiPTI_Buffer]  = "aiPTI_Buffer";
 
-	const char* datatype_names[] = {
-		"Error dtype!", "aiPTI_Float", "aiPTI_Double", "aiPTI_String", "aiPTI_Integer", "aiPTI_Buffer"
-	};
+	const unsigned int MAX_SHADINGMODE_ENUM = (unsigned int)aiShadingMode_Fresnel;
+	const char* shadingmode_names[MAX_SHADINGMODE_ENUM+1];
+	for(int i=0; i<=MAX_SHADINGMODE_ENUM; i++)
+		shadingmode_names[i] = "Unknown shading mode!";
+	shadingmode_names[aiShadingMode_Flat]       = "aiShadingMode_Flat";
+	shadingmode_names[aiShadingMode_Gouraud]    = "aiShadingMode_Gouraud";
+	shadingmode_names[aiShadingMode_Phong]      = "aiShadingMode_Phong";
+	shadingmode_names[aiShadingMode_Blinn]      = "aiShadingMode_Blinn";
+	shadingmode_names[aiShadingMode_Toon]       = "aiShadingMode_Toon";
+	shadingmode_names[aiShadingMode_OrenNayar]  ="aiShadingMode_OrenNayar";
+	shadingmode_names[aiShadingMode_Minnaert]   = "aiShadingMode_Minnaert";
+	shadingmode_names[aiShadingMode_CookTorrance]="aiShadingMode_CookTorrance";
+	shadingmode_names[aiShadingMode_NoShading]  ="aiShadingMode_NoShading";
+	shadingmode_names[aiShadingMode_Fresnel]    = "aiShadingMode_Fresnel";
 
 	out << "key=" << prop->mKey.C_Str() << ",\t";
 	switch(prop->mType) {
 		case aiPTI_Float:
 			out << "value = " << *(float*)prop->mData;
 			break;
-		case aiPTI_Double:
-			out << "value = " << *(double*)prop->mData << "(double)";
-			break;
+		//case aiPTI_Double:
+		//	out << "value = " << *(double*)prop->mData << "(double)";
+		//	break;
 		case aiPTI_Integer:
+		{
+			if(!strcmp(prop->mKey.C_Str(), "$mat.shadingm")) {
+				out << "value = " << shadingmode_names[*(int*)prop->mData];
+				out << "(" << *(int*)prop->mData << ")";
+				break;
+			}
+			// else
 			out << "value = " << *(int*)prop->mData << "(int)";
 			break;
+		}
 		case aiPTI_String:
 		{
 			/* There's a bug in old version of assimp:
@@ -468,8 +506,9 @@ void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsi
 			out << "value = " << "(binary data)";
 			break;
 		default:
-			out << "value = " << "(Unknown type)";
+			out << "value = " << "(Unknown type: " << prop->mType << ")";
 			break;
+		
 	}
 	//out << "semantic=" << textype_names[prop->mSemantic] << ", ";
 	//out << "type=" << datatype_names[prop->mType] << ", ";

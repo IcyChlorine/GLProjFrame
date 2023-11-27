@@ -10,7 +10,7 @@ HEADERS = $(wildcard $(SRC_PATH)/*.h)
 SRCS = $(wildcard $(SRC_PATH)/*.cpp $(SRC_PATH)/*.c)
 # 链接glfw3时必须同时链接gdi32
 # 另外，注意依赖顺序。
-LIBS = -lglfw3 -lgdi32 -lfreetype -lassimp -liconv
+LIBS = -lglfw3 -lgdi32 -lfreetype -lassimp -liconv -lzlibstatic
 
 TARGET_FILENAME = main.exe
 
@@ -83,12 +83,16 @@ dependencies:
 assimp_download: dep_dir dependencies/assimp # pre-requisites; true-target
 
 ASSIMP_URL = https://github.com/assimp/assimp.git
-# the latest version that works
-# higher versions either fail to build (like v5.0.0)
-#                 or have weird bugs(most elements of aiMaterialProperty are placed
-#                                    with wrong memory layout)
-#                 when built in my env(>=v5.2.0)
-ASSIMP_VERSION = v4.1.0 
+# The reason for choosing such an obsolete version:
+#     1. latest versions(v5.2.3+) have a weird bug when built in my environment,
+#        the memory layout of aiMaterialProperty will be wrong, which is fatal
+#        for retrieving material properties later.
+#     2. slightly-earlier versions(v5.0.0) fail to build in my environment
+#     3. versions before that(v4.0.0 and v4.1.0) generate humougous binaries(~200MB)
+#        which is a not good for a small project like this.
+# So I finally went back to v3.3.1, which have none of the above problems.
+# Note: the location of files needed to be copied for installation may differ from version to version.
+ASSIMP_VERSION = v3.3.1
 dependencies/assimp: dependencies
 	cd dependencies && git clone $(ASSIMP_URL)
 	cd dependencies/assimp
@@ -106,17 +110,23 @@ dependencies/assimp/build: assimp_download
 NUM_WORKERS = 12
 dependencies/assimp/build/code/libassimp.a: dependencies/assimp/build
 	cd dependencies/assimp/build && \
-	make assimp -j $(NUM_WORKERS)
+	make -j $(NUM_WORKERS)
 
 # install of assimp - always redo the copy
+# higher versions need this:
+#   cp dependencies/assimp/build/lib/libassimp.a lib/libassimp.a
+#   cp dependencies/assimp/include/assimp include/assimp -r
+#   cp dependencies/assimp/build/include/assimp/config.h include/assimp/config.h
+# TODO: make this indenpendent of the exact path
 .PHONY: assimp_install
 assimp_install: assimp_build
 	rm -f lib/libassimp.a
 	cp dependencies/assimp/build/code/libassimp.a lib/libassimp.a
+	rm -f lib/libzlibstatic.a
+	cp dependencies/assimp/build/contrib/zlib/libzlibstatic.a lib/libzlibstatic.a
 	rm -rf include/assimp
 	cp dependencies/assimp/include/assimp include/assimp -r
-	cp dependencies/assimp/build/include/assimp/config.h include/assimp/config.h
-
+	
 .PHONY: assimp_clean
 assimp_clean:
 	rm -rf dependencies/assimp/build

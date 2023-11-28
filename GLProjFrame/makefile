@@ -63,7 +63,11 @@ count:
 # 2. build. Build the binaries from source code, if necessary,
 #           like "cmake -B build ... && cd build && make"
 # 3. install. Copy the binaries just built and headers required into proper directories,
-#           like "cp .../build/code/libxxx.a lib/libxxx.a"
+#           like "cp .../build/lib/libxxx.a lib/libxxx.a"
+
+# Note: .PHONY targets should only work as FINAL wrappers.
+#       If a (real) target depends on a .PHONY target, then the target will ALWAYS be executed,
+#       even if the target itself is not PHONY.
 
 .PHONY: dep assimp
 dep: dep_dir assimp
@@ -83,49 +87,44 @@ dependencies:
 assimp_download: dep_dir dependencies/assimp # pre-requisites; true-target
 
 ASSIMP_URL = https://github.com/assimp/assimp.git
-# The reason for choosing such an obsolete version:
-#     1. latest versions(v5.2.3+) have a weird bug when built in my environment,
-#        the memory layout of aiMaterialProperty will be wrong, which is fatal
-#        for retrieving material properties later.
-#     2. slightly-earlier versions(v5.0.0) fail to build in my environment
-#     3. versions before that(v4.0.0 and v4.1.0) generate humougous binaries(~200MB)
-#        which is a not good for a small project like this.
-# So I finally went back to v3.3.1, which have none of the above problems.
-# Note: the location of files needed to be copied for installation may differ from version to version.
-ASSIMP_VERSION = v3.3.1
+ASSIMP_VERSION = v5.2.3
 dependencies/assimp: dependencies
 	cd dependencies && git clone $(ASSIMP_URL)
 	cd dependencies/assimp
 
 # build of assimp
 .PHONY: assimp_build
-assimp_build: assimp_download dependencies/assimp/build dependencies/assimp/build/code/libassimp.a
+assimp_build: dependencies/assimp/build/lib/libassimp.a
 
 ASSIMP_CMAKE_ARGS = -B build -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=OFF
-dependencies/assimp/build: assimp_download
+dependencies/assimp/build: dependencies/assimp
 	cd dependencies/assimp && \
 	git checkout $(ASSIMP_VERSION) && \
 	cmake $(ASSIMP_CMAKE_ARGS)
 
 NUM_WORKERS = 12
-dependencies/assimp/build/code/libassimp.a: dependencies/assimp/build
+dependencies/assimp/build/lib/libassimp.a: dependencies/assimp/build
 	cd dependencies/assimp/build && \
-	make -j $(NUM_WORKERS)
+	make assimp -j $(NUM_WORKERS)
 
 # install of assimp - always redo the copy
-# higher versions need this:
-#   cp dependencies/assimp/build/lib/libassimp.a lib/libassimp.a
-#   cp dependencies/assimp/include/assimp include/assimp -r
-#   cp dependencies/assimp/build/include/assimp/config.h include/assimp/config.h
+# for v3.3.1
+#   rm -f lib/libzlibstatic.a
+#	cp dependencies/assimp/build/contrib/zlib/libzlibstatic.a lib/libzlibstatic.a
+#	rm -rf include/assimp
+#	cp dependencies/assimp/include/assimp include/assimp -r
 # TODO: make this indenpendent of the exact path
 .PHONY: assimp_install
-assimp_install: assimp_build
+# depend on assimp_build
+assimp_install: dependencies/assimp/build/lib/libassimp.a
 	rm -f lib/libassimp.a
-	cp dependencies/assimp/build/code/libassimp.a lib/libassimp.a
+	cp dependencies/assimp/build/lib/libassimp.a lib/libassimp.a
 	rm -f lib/libzlibstatic.a
 	cp dependencies/assimp/build/contrib/zlib/libzlibstatic.a lib/libzlibstatic.a
 	rm -rf include/assimp
 	cp dependencies/assimp/include/assimp include/assimp -r
+	cp dependencies/assimp/build/include/assimp/config.h include/assimp/config.h
+	
 	
 .PHONY: assimp_clean
 assimp_clean:

@@ -35,7 +35,6 @@ Model::Model(const string& filepath) {
 		print_aiMaterial_basics(cout, ai_scene->mMaterials[i]);
 		//aiShadingMode
 	}
-	ai_scene->mNumTextures;
 	//exit(0);
 	//system("pause");
 	
@@ -125,7 +124,7 @@ void Model::initMesh(const aiScene* scene, aiNode* node) {
 		my_mesh->setFather(this);
 		this->sons.push_back((Renderable*)my_mesh);
 		// bind textures referenced by ai_mesh.material to my_mesh
-		bindMeshTexture(my_mesh, scene->mMaterials[ai_mesh->mMaterialIndex]);
+		//bindMeshTexture(my_mesh, scene->mMaterials[ai_mesh->mMaterialIndex]);
 	}
 	// for sons
 	for(int i=0; i<node->mNumChildren; i++) {
@@ -437,20 +436,35 @@ void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsi
 	out << "key=" << prop->mKey.C_Str() << "," << string(max_matkey_len-strlen(prop->mKey.C_Str())+1, ' ');
 	switch(prop->mType) {
 		case aiPTI_Float:
-			out << "value = " << *(float*)prop->mData;
+			out << "value = ";
+			for(int i=0; i<prop->mDataLength/sizeof(float); i++) {
+				if(i) out << ",";
+				out << ((float*)prop->mData)[i];
+			}
 			break;
 		case aiPTI_Double:
-			out << "value = " << *(double*)prop->mData << "(double)";
+			out << "value = ";
+			for(int i=0; i<prop->mDataLength/sizeof(double); i++) {
+				if(i) out << ",";
+				out << ((double*)prop->mData)[i];
+			}
+			out << "(double)";
 			break;
 		case aiPTI_Integer:
 		{
+			out << "value = ";
 			if(!strcmp(prop->mKey.C_Str(), "$mat.shadingm")) {
-				out << "value = " << shadingmode_names[*(int*)prop->mData];
+				assert(prop->mDataLength == sizeof(int));
+				out << shadingmode_names[*(int*)prop->mData];
 				out << "(" << *(int*)prop->mData << ")";
 				break;
 			}
 			// else
-			out << "value = " << *(int*)prop->mData << "(int)";
+			for(int i=0; i<prop->mDataLength/sizeof(int); i++) {
+				if(i) out << ",";
+				out << ((int*)prop->mData)[i];
+			}
+			out << "(int)";
 			break;
 		}
 		case aiPTI_String:

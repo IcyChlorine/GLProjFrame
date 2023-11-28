@@ -19,9 +19,13 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	
 	//assert(shading_mode == aiShadingMode_Phong);
 	// load parameters
-	ai_chk( mat->Get(AI_MATKEY_COLOR_AMBIENT, fac_ambient) );
-	ai_chk( mat->Get(AI_MATKEY_COLOR_DIFFUSE, fac_diffuse) );
-	ai_chk( mat->Get(AI_MATKEY_COLOR_SPECULAR, fac_specular) );
+	aiColor4D tmp;
+	ai_chk( mat->Get(AI_MATKEY_COLOR_AMBIENT, tmp) );
+	assert(tmp.r == tmp.g && tmp.g == tmp.b); fac_ambient = tmp.r;
+	ai_chk( mat->Get(AI_MATKEY_COLOR_DIFFUSE, tmp) );
+	assert(tmp.r == tmp.g && tmp.g == tmp.b); fac_diffuse = tmp.r;
+	ai_chk( mat->Get(AI_MATKEY_COLOR_SPECULAR, tmp) );
+	assert(tmp.r == tmp.g && tmp.g == tmp.b); fac_specular = tmp.r;
 	ai_chk( mat->Get(AI_MATKEY_SHININESS, shininess) );
 
 	const int nr_types = 4;

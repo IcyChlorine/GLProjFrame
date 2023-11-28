@@ -94,6 +94,10 @@ void Material::use() {
 	const char* sampler_names[] = 
 		{ "tex_ambient", "tex_diffuse", "tex_specular", "tex_normal" };
 
+	// 保护现场
+	GLint prev_active_tex;
+	glGetIntegerv(GL_ACTIVE_TEXTURE, &prev_active_tex);
+
 	for(int t=0; t<4; t++) {
 		glActiveTexture(GL_TEXTURE0 + t);
 
@@ -106,4 +110,7 @@ void Material::use() {
 			shader->setUniform(sampler_names[t], t);
 		}
 	}
+
+	// 恢复现场
+	glActiveTexture(prev_active_tex);
 }

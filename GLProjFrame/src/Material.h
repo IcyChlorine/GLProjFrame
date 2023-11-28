@@ -11,8 +11,32 @@ using namespace std;
 #include "common_t1.h"
 #include "Texture.h"
 #include "Shader.h"
+#include "Mesh.h"
 
 // the most basic bling-phong material
+class mesh_loading_err :public runtime_error {
+public:
+	mesh_loading_err(const char* message="") :
+		runtime_error(message) {}
+};
+inline void ai_chk(aiReturn res) {
+    if (res != aiReturn_SUCCESS) {
+        error("aiReturn is not aiReturn_SUCCESS");
+        throw mesh_loading_err("Error: aiReturn is not aiReturn_SUCCESS");
+    }
+}
+
+/* 
+ * Some subtlty here with circular reference:
+ * Suppose Mesh.h include Material.h, and Material.h tries to include Mesh.h
+ *   to get definition of class Model. This will FAIL because _MESH_H has been
+ *   already been defined in Mesh.h first place, and Material.h will LOSE sight
+ *   on definition of class Model. 
+ * If we remove the _MESH_H macro, there will be redifinition errors when linking.
+ * So define class Model here again.
+ */
+class Model;
+
 class Material: AbsObject {
 private:
     float fac_ambient  { 1.0f };
@@ -29,14 +53,19 @@ private:
     Texture* tex_specular { nullptr };
     Texture* tex_normal   { nullptr };
 
-    Shader* shader { nullptr };
+    static int nr_instances;
+    static Shader* shader;
 public:
     // all not implemented yet :-)
     //Material() = default;
-    Material(aiMaterial* mat) {}
-    ~Material() {}
+    Material(Model* father, const aiMaterial* mat);
+    //Material(float fac_ambient, float fac_diffuse, float fac_specular, float shininess) {}**
+    ~Material();
 
-    void apply() {}
+    void use();
 };
+
+
+
 
 #endif // !_MATERIAL_H_

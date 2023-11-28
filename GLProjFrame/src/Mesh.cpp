@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Material.h"
 #include "Application.h"
 
 // for utf-8 to gbk conversion
@@ -37,10 +38,14 @@ Model::Model(const string& filepath) {
 	ai_scene->mNumTextures;
 	//exit(0);
 	//system("pause");
+	
+	// load materials
+	for(int m=0; m<ai_scene->mNumMaterials; m++) {
+		Material* mat = new Material(this, ai_scene->mMaterials[m]);
+		materials.push_back(mat);
+	}
 
-	vector<string> loaded_tex;
-	this->initMaterialTexture(ai_scene, loaded_tex);
-	this->initMesh(ai_scene, ai_scene->mRootNode, loaded_tex);
+	this->initMesh(ai_scene, ai_scene->mRootNode);
 	// currently, all meshes share the same shader, a.k.a. share the same material model
 	this->initShader();
 
@@ -112,19 +117,19 @@ void Model::initMaterialTexture(const aiScene* scene, vector<string>& loaded_tex
 }
 
 // init meshes referenced by `node` and its children
-void Model::initMesh(const aiScene* scene, aiNode* node, const vector<string>& loaded_tex) {
-
-	// 
+void Model::initMesh(const aiScene* scene, aiNode* node) {
+	// for the current node
 	for(int i=0; i<node->mNumMeshes; i++) {
 		aiMesh* ai_mesh = scene->mMeshes[node->mMeshes[i]];
 		Mesh* my_mesh = new Mesh(ai_mesh);
-		my_mesh->setFather((AbsObject*)this);
-		sons.push_back((Renderable*)my_mesh);
+		my_mesh->setFather(this);
+		this->sons.push_back((Renderable*)my_mesh);
 		// bind textures referenced by ai_mesh.material to my_mesh
-		bindMeshTexture(my_mesh, scene->mMaterials[ai_mesh->mMaterialIndex], loaded_tex);
+		bindMeshTexture(my_mesh, scene->mMaterials[ai_mesh->mMaterialIndex]);
 	}
+	// for sons
 	for(int i=0; i<node->mNumChildren; i++) {
-		initMesh(scene, node->mChildren[i], loaded_tex);
+		initMesh(scene, node->mChildren[i]);
 	}
 }
 
@@ -181,8 +186,13 @@ void Model::render() {
 }
 
 Mesh::Mesh(aiMesh* ai_mesh) {
-	// load data from ai_mesh, and convert them to fit our format and memory layout
+	// get the material
+	Model* env = (Model*)this->father;
+	// so far, the material index are the same between ai and our objects
+	mat = env->materials[ai_mesh->mMaterialIndex];
 
+
+	// load data from ai_mesh, and convert them to fit our format and memory layout
 	nr_vert = ai_mesh->mNumVertices;
 	//TODO: It's bug-proning to use these hard-coded expressions to calculate 
 	// the stride of data of verteces. Replace them when possible.
@@ -193,7 +203,6 @@ Mesh::Mesh(aiMesh* ai_mesh) {
 	nr_indices = ai_mesh->mNumFaces * VERT_PER_TRIG;
 	indices = new unsigned int[nr_indices];
 	memset(indices, 0, nr_indices*sizeof(unsigned int));
-
 	
 	for(int i=0; i<nr_vert; i++) {
 		vert_data[i*14+0] = ai_mesh->mVertices[i].x;
@@ -249,45 +258,18 @@ Mesh::~Mesh() {
 }
 
 void Mesh::setTextureIndex(int amb, int diff, int spcl, int norm) {
-	ambient_tex_idx = amb;
+
+	/*ambient_tex_idx = amb;
 	diffuse_tex_idx = diff;
 	specular_tex_idx = spcl;
-	normal_tex_idx = norm;
+	normal_tex_idx = norm;*/
 }
 
 void Mesh::render() {
 	mesh_shader->use();
 	Model* model = (Model*)this->father;
 	//printf("%d in %d\n",diffuse_tex_idx, model->textures.size());
-	glActiveTexture(GL_TEXTURE0);
-	mesh_shader->setUniform("ambient",0);
-	if(ambient_tex_idx!=-1) {
-		model->textures[ambient_tex_idx]->use();
-	} else {
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-	glActiveTexture(GL_TEXTURE1);
-	mesh_shader->setUniform("diffuse",1);
-	if(diffuse_tex_idx!=-1) {
-		model->textures[diffuse_tex_idx]->use();
-	} else {
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-	glActiveTexture(GL_TEXTURE2);
-	mesh_shader->setUniform("specular",2);
-	if(specular_tex_idx!=-1) {
-		model->textures[specular_tex_idx]->use();
-	} else {
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-	glActiveTexture(GL_TEXTURE3);
-	mesh_shader->setUniform("normal",3);
-	if(normal_tex_idx!=-1) {
-		model->textures[normal_tex_idx]->use();
-	} else {
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-	glActiveTexture(GL_TEXTURE0);
+
 
 	Camera* camera = theApp->getCamera();
 	camera->applyCameraTransform(*mesh_shader);

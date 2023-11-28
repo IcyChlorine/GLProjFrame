@@ -3,6 +3,7 @@
 #define _MESH_H
 
 #include <vector>
+#include <map>
 using namespace std;
 
 #include "assimp/Importer.hpp"
@@ -18,6 +19,9 @@ using namespace std;
 
 extern Shader* mesh_shader;
 
+// extra declaration(other than including Material.h) here
+// for circular reference. See Material.h for more explanation.
+class Material;
 class Mesh;
 
 /*
@@ -34,13 +38,33 @@ class Model: public Renderable {
 public:
 	Model(const string& filepath); 
 	~Model(); 
-	void initMesh(const aiScene* scene, aiNode* node, const vector<string>& loaded_tex);
+	void initMesh(const aiScene* scene, aiNode* node);
 	void initShader();
 	void initMaterialTexture(const aiScene* scene, vector<string>& loaded_tex);
 	void bindMeshTexture(Mesh* my_mesh, aiMaterial* mat, const vector<string>& loaded_tex);
 
+	const Texture* getTexture(const string& name) const {
+		return textures[tex_name_to_idx.at(name)];
+	}
+	const Texture* getTexture(int idx) const {
+		return textures[idx];
+		//TODO: add check
+	}
+	Texture* loadTexture(const string& name) {
+		// if texture `name` already loaded
+		if (tex_name_to_idx.find(name) != tex_name_to_idx.end()) {
+			return textures[tex_name_to_idx.at(name)];
+		}
+		else { // new texture
+			Texture* tex = new Texture(name);
+			textures.push_back(tex);
+			tex_name_to_idx[name] = textures.size() - 1;
+		}
+	}
+
 	virtual void render();
 private:
+	map<string, int> tex_name_to_idx;
 	vector<Texture*> textures;
 	vector<Material*> materials;
 	string directory;
@@ -61,12 +85,7 @@ private:
 	unsigned int* indices{nullptr};
 	size_t nr_indices{0};
 
-	// 纹理在父对象textures数组中的下标
-	// -1表示该类纹理不可用
-	int ambient_tex_idx{-1};
-	int diffuse_tex_idx{-1};
-	int specular_tex_idx{-1};
-	int normal_tex_idx{-1};
+	Material* mat {nullptr};
 };
 
 // utils for print assimp stuff and debug

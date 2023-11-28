@@ -56,9 +56,12 @@ public:
 			return textures[tex_name_to_idx.at(name)];
 		}
 		else { // new texture
-			Texture* tex = new Texture(name);
+			Texture* tex = new Texture(directory+name);
+			tex->setParam(Texture::SMOOTH);
+			tex->setParam(Texture::REPEAT);
 			textures.push_back(tex);
 			tex_name_to_idx[name] = textures.size() - 1;
+			return tex;
 		}
 	}
 
@@ -72,7 +75,7 @@ private:
 
 class Mesh: public Renderable {
 public:
-	Mesh(aiMesh* ai_mesh);
+	Mesh(Model* father, aiMesh* ai_mesh);
 	~Mesh();
 	void setTextureIndex(int amb, int diff, int spcl, int norm);
 	virtual void render();

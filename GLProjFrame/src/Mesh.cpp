@@ -33,7 +33,6 @@ Model::Model(const string& filepath) {
 	for(int i=0; i<ai_scene->mNumMaterials; i++) {
 		printf("(%d/%d)", i+1, ai_scene->mNumMaterials);
 		print_aiMaterial_basics(cout, ai_scene->mMaterials[i]);
-		//aiShadingMode
 	}
 	//exit(0);
 	//system("pause");
@@ -120,7 +119,7 @@ void Model::initMesh(const aiScene* scene, aiNode* node) {
 	// for the current node
 	for(int i=0; i<node->mNumMeshes; i++) {
 		aiMesh* ai_mesh = scene->mMeshes[node->mMeshes[i]];
-		Mesh* my_mesh = new Mesh(ai_mesh);
+		Mesh* my_mesh = new Mesh(this, ai_mesh);
 		my_mesh->setFather(this);
 		this->sons.push_back((Renderable*)my_mesh);
 		// bind textures referenced by ai_mesh.material to my_mesh
@@ -184,9 +183,10 @@ void Model::render() {
 	}
 }
 
-Mesh::Mesh(aiMesh* ai_mesh) {
+Mesh::Mesh(Model* father, aiMesh* ai_mesh) {
 	// get the material
-	Model* env = (Model*)this->father;
+	this->setFather(father);
+	Model* env = father;
 	// so far, the material index are the same between ai and our objects
 	mat = env->materials[ai_mesh->mMaterialIndex];
 

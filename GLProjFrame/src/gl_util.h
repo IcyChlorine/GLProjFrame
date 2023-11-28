@@ -2,7 +2,7 @@
 #ifndef _GL_UTIL_H
 #define _GL_UTIL_H
 
-#include <glad/glad.h>
+#include "glad/glad.h"
 #include "logging.h"
 #include <exception>
 #include <stack>

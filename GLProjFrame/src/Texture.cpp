@@ -47,7 +47,6 @@ void Texture::setParam(int texParam)
 {
 	GLint prev_tex;
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &prev_tex);
-	infof("(debug print) previous bound texture is %d\n", prev_tex);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	if (texParam == PIXEL) {

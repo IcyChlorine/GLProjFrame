@@ -14,7 +14,7 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	int shading_mode;
 	ai_chk( mat->Get(AI_MATKEY_SHADING_MODEL, shading_mode) );
 	if(shading_mode != aiShadingMode_Phong) {
-		warningf("Shading mode is %d, not aiShadingMode_Phong", shading_mode);
+		warningf("Shading mode is %d, not aiShadingMode_Phong\n", shading_mode);
 	}
 	
 	//assert(shading_mode == aiShadingMode_Phong);
@@ -45,7 +45,7 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	for (int t = 0; t < nr_types; t++) {
 		int nr_tex = mat->GetTextureCount(types[t]);
 		if (nr_tex > 1) {
-			errorf("More than 1 texture for type %s, not supported", type_names[t]);
+			errorf("More than 1 texture for type %s, not supported\n", type_names[t]);
 			throw mesh_loading_err("Error: nr_tex > 1");
 		}
 		if (nr_tex == 0) {

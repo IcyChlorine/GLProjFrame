@@ -74,8 +74,8 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 Material::~Material() {
 	nr_instances--;
 	if(nr_instances == 0) {
-		delete shader;
-		shader = nullptr;
+		//delete shader;
+		//shader = nullptr;
 	}
 }
 
@@ -95,10 +95,15 @@ void Material::use() {
 		{ "tex_ambient", "tex_diffuse", "tex_specular", "tex_normal" };
 
 	for(int t=0; t<4; t++) {
-		if(not textures[t])
-			continue;
 		glActiveTexture(GL_TEXTURE0 + t);
-		textures[t]->use();
-		shader->setUniform(sampler_names[t], t);
+
+		if(not textures[t]) {
+			glBindTexture(GL_TEXTURE_2D, 0);
+			continue;
+		}
+		else {
+			textures[t]->use();
+			shader->setUniform(sampler_names[t], t);
+		}
 	}
 }

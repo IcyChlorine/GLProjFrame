@@ -37,6 +37,10 @@ Model::Model(const string& filepath) {
 	//exit(0);
 	//system("pause");
 	
+	// for the time being, shader needs to be initiated first(before loading materials)
+	// currently, all meshes share the same shader, a.k.a. share the same material model
+	this->initShader();
+
 	// load materials
 	for(int m=0; m<ai_scene->mNumMaterials; m++) {
 		Material* mat = new Material(this, ai_scene->mMaterials[m]);
@@ -44,8 +48,6 @@ Model::Model(const string& filepath) {
 	}
 
 	this->initMesh(ai_scene, ai_scene->mRootNode);
-	// currently, all meshes share the same shader, a.k.a. share the same material model
-	this->initShader();
 
 	// the ai_scene(and all the attached resources) will be destroyed
 	// upon de-construction of Assimp::Importer
@@ -266,8 +268,9 @@ void Mesh::setTextureIndex(int amb, int diff, int spcl, int norm) {
 
 void Mesh::render() {
 	mesh_shader->use();
-	Model* model = (Model*)this->father;
+	//Model* model = (Model*)this->father;
 	//printf("%d in %d\n",diffuse_tex_idx, model->textures.size());
+	mat->use();
 
 
 	Camera* camera = theApp->getCamera();

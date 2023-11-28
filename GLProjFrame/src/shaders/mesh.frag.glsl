@@ -5,6 +5,12 @@ in vec2 f_texcoord;
 
 out vec4 FragColor;
 
+uniform float fac_ambient;
+uniform float fac_diffuse;
+uniform float fac_specular;
+uniform float shininess;
+
+//uniform vec3 environment_color = clear color = 0.2f, 0.3f, 0.3f
 uniform vec3 f_camera_pos;
 
 uniform sampler2D tex_ambient;
@@ -23,26 +29,28 @@ float linearize_depth(float depth, float zNear, float zFar)
 	return (d-zNear) / (zFar-zNear);
 }
 
-vec3 ambient_component(float fac_ambient, sampler2D tex_ambient, vec2 texcoord)
+vec3 ambient_component(float fac_ambient, vec3 ambient_color)
 {
-	return fac_ambient * texture(tex_ambient, texcoord).rgb;
+	return fac_ambient * ambient_color;
 }
-vec3 diffuse_component(float fac_diffuse, 
-					sampler2D tex_diffuse, vec2 texcoord, vec3 normal, vec3 light_dir)
+vec3 diffuse_component(float fac_diffuse, vec3 diffuse_color,
+						vec3 normal, vec3 light_dir)
 {
 	float direction_fac = dot(normalize(normal), normalize(light_dir));
 	      direction_fac = max(direction_fac, 0.0);
-	return fac_diffuse * direction_fac * texture(tex_diffuse, texcoord).rgb;
+	return fac_diffuse * direction_fac * diffuse_color;
 }
 vec3 specular_component(float fac_specular, float shininess,
-					sampler2D tex_specular, vec2 texcoord, 
-					vec3 normal, vec3 light_dir, vec3 view_dir)
+						vec3 specular_color, 
+						vec3 normal, vec3 light_dir, vec3 view_dir)
 {
+	// shiniess += eps to avoid NaN arise from 0^0 - this is done by Material
+	// to avoid redundant calculations
 	vec3 reflect_dir = reflect(-light_dir, normal);
 	float direction_fac = dot(normalize(view_dir), normalize(reflect_dir));
 	      direction_fac = max(direction_fac, 0.0);
 		  direction_fac = pow(direction_fac, shininess);
-	return fac_specular * direction_fac * texture(tex_specular, texcoord).rgb;
+	return fac_specular * direction_fac * specular_color;
 }
 
 void main() {
@@ -53,18 +61,24 @@ void main() {
 	//vec4 gray_color = vec4(0.2,0.2,0.2,1.0);
 
 	// ambient
-	FragColor = light_color * texture(tex_ambient, f_texcoord);
+	FragColor.rgb = ambient_component(fac_ambient, texture(tex_ambient, f_texcoord).rgb);
+	//FragColor = vec4(0);
 
 	// diffuse
-	float diff_fac = max(dot(normalize(f_normal), normalize(light_dir)), 0);
-	vec4 diff_color = texture(tex_diffuse, f_texcoord);
-	FragColor += light_color * diff_fac * diff_color;
+	//float diff_fac = max(dot(normalize(f_normal), normalize(light_dir)), 0);
+	//vec4 diff_color = texture(tex_diffuse, f_texcoord);
+	//FragColor += light_color * diff_fac * diff_color;
+	FragColor.rgb += diffuse_component(fac_diffuse, texture(tex_diffuse, f_texcoord).rgb, f_normal, light_dir);
 	
 	// specular
+	//vec3 view_dir = normalize(f_camera_pos - f_pos);
+	//vec3 reflect_dir = reflect(-light_dir, f_normal);
+	//float spec_fac = pow(max(dot(view_dir, reflect_dir), 0.0), 16);
+	//FragColor += light_color * spec_fac * texture(tex_specular, f_texcoord);
 	vec3 view_dir = normalize(f_camera_pos - f_pos);
-	vec3 reflect_dir = reflect(-light_dir, f_normal);
-	float spec_fac = pow(max(dot(view_dir, reflect_dir), 0.0), 16);
-	FragColor += light_color * spec_fac * texture(tex_specular, f_texcoord);
+	FragColor.rgb += specular_component(fac_specular, shininess, 
+									texture(tex_specular, f_texcoord).rgb,
+									f_normal, light_dir, view_dir); 
 	
 	FragColor.a = 1.0f;
 	//FragColor.a = texture(tex_opacity, f_texcoord).r;

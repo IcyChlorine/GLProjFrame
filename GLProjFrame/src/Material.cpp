@@ -27,6 +27,8 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	ai_chk( mat->Get(AI_MATKEY_COLOR_SPECULAR, tmp) );
 	assert(tmp.r == tmp.g && tmp.g == tmp.b); fac_specular = tmp.r;
 	ai_chk( mat->Get(AI_MATKEY_SHININESS, shininess) );
+	// avoid NaN when calculating spec_tex^shininess->0^0->NaN.
+	shininess = max(shininess, (float)1e-6);
 
 	const int nr_types = 4;
 

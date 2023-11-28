@@ -25,17 +25,10 @@ Model::Model(const string& filepath) {
 		errorf("Assimp failed at importing `%s`:\n%s\n", filepath.c_str(), importer.GetErrorString());
 		throw exception();
 	}
-	//printHierachy(ai_scene->mRootNode);
-	//system("pause");
-
+	
 	// try inspecting the aiScene
+	//printHierachy(ai_scene->mRootNode);
 	//print_aiScene_basics(cout, ai_scene, 1);
-	for(int i=0; i<ai_scene->mNumMaterials; i++) {
-		printf("(%d/%d)", i+1, ai_scene->mNumMaterials);
-		print_aiMaterial_basics(cout, ai_scene->mMaterials[i]);
-	}
-	//exit(0);
-	//system("pause");
 	
 	// for the time being, shader needs to be initiated first(before loading materials)
 	// currently, all meshes share the same shader, a.k.a. share the same material model
@@ -43,6 +36,10 @@ Model::Model(const string& filepath) {
 
 	// load materials
 	for(int m=0; m<ai_scene->mNumMaterials; m++) {
+		printf("\rLoading materials...(%d/%d)", m+1, ai_scene->mNumMaterials);
+		
+		if(m<10) print_aiMaterial_basics(cout, ai_scene->mMaterials[m]);
+
 		Material* mat = new Material(this, ai_scene->mMaterials[m]);
 		materials.push_back(mat);
 	}

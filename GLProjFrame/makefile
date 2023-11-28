@@ -22,10 +22,10 @@ else
 endif
 
 # for incremental compilation #
-.cpp.o:
+.cpp.o: $(HEADERS)
 	$(CXX) $(CXXFLAGS) -I $(INCLUDE_PATH) -c $<  -o $@
 
-.c.o:
+.c.o: $(HEADERS)
 	$(CXX) $(CXXFLAGS) -I $(INCLUDE_PATH) -c $<  -o $@
 
 OBJ_FILES = $(SRCS:.cpp=.o)

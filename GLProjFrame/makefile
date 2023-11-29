@@ -69,8 +69,8 @@ count:
 #       If a (real) target depends on a .PHONY target, then the target will ALWAYS be executed,
 #       even if the target itself is not PHONY.
 
-.PHONY: dep assimp
-dep: dep_dir assimp
+.PHONY: dep assimp freetype
+dep: dep_dir assimp freetype
 	@echo "Building dependencies..."
 
 .PHONY: assimp
@@ -87,7 +87,7 @@ dependencies:
 assimp_download: dep_dir dependencies/assimp # pre-requisites; true-target
 
 ASSIMP_URL = https://github.com/assimp/assimp.git
-ASSIMP_VERSION = v5.2.3
+ASSIMP_VER = v5.2.3
 dependencies/assimp: dependencies
 	cd dependencies && git clone $(ASSIMP_URL)
 	cd dependencies/assimp
@@ -99,7 +99,7 @@ assimp_build: dependencies/assimp/build/lib/libassimp.a
 ASSIMP_CMAKE_ARGS = -B build -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=OFF
 dependencies/assimp/build: dependencies/assimp
 	cd dependencies/assimp && \
-	git checkout $(ASSIMP_VERSION) && \
+	git checkout $(ASSIMP_VER) && \
 	cmake $(ASSIMP_CMAKE_ARGS)
 
 NUM_WORKERS = 12
@@ -129,3 +129,34 @@ assimp_install: dependencies/assimp/build/lib/libassimp.a
 .PHONY: assimp_clean
 assimp_clean:
 	rm -rf dependencies/assimp/build
+
+FREETYPE_URL = https://gitlab.freedesktop.org/freetype/freetype.git
+FREETYPE_VER = VER-2-13-0
+dependencies/freetype: dependencies
+	cd dependencies && git clone $(FREETYPE_URL)
+	cd dependencies/freetype
+
+.PHONY: freetype_download
+freetype_download: dep_dir dependencies/freetype
+
+FREETYPE_CMAKE_ARGS = -B build -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=Release
+.PHONY: freetype_build
+freetype_build: dependencies/freetype/build/libfreetype.a
+
+dependencies/freetype/build: dependencies/freetype
+	cd dependencies/freetype && \
+	git checkout $(FREETYPE_VER) && \
+	cmake $(FREETYPE_CMAKE_ARGS)
+
+dependencies/freetype/build/libfreetype.a: dependencies/freetype/build
+	cd dependencies/freetype/build && \
+	make -j $(NUM_WORKERS)
+
+.PHONY: freetype_install
+freetype_install: dependencies/freetype/build/libfreetype.a
+	rm -f lib/libfreetype.a
+	cp dependencies/freetype/build/libfreetype.a lib/libfreetype.a
+	rm -f include/ft2build.h
+	cp dependencies/freetype/include/ft2build.h include/ft2build.h
+	rm -rf include/freetype
+	cp dependencies/freetype/include/freetype include/freetype -r

@@ -382,11 +382,14 @@ build/
 
 /GLProjFrame/dependencies/
 /GLProjFrame/include/assimp/
+/GLProjFrame/include/freetype/
+/GLProjFrame/include/ft2build.h
 
 # ignore only a small proportion of libs for the time being
 # should be able to ignore all libs in the future
 /GLProjFrame/lib/libassimp.a
 /GLProjFrame/lib/libzlibstatic.a
+/GLProjFrame/lib/libfreetype.a
 
 /GLProjFrame/assets/
 

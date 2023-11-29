@@ -17,7 +17,9 @@ uniform sampler2D tex_ambient;
 uniform sampler2D tex_diffuse;
 uniform sampler2D tex_specular;
 uniform sampler2D tex_normal;
-//uniform sampler2D tex_opacity;
+uniform sampler2D tex_opacity;
+
+uniform int flags;
 
 // assume depth == gl_Position.z/gl_Position.w in [-1, 1] is the 
 // unlinear depth: linear_depth(depth, ...)
@@ -38,6 +40,12 @@ vec3 diffuse_component(float fac_diffuse, vec3 diffuse_color,
 {
 	float direction_fac = dot(normalize(normal), normalize(light_dir));
 	      direction_fac = max(direction_fac, 0.0);
+	/* A trick for rendering translucent objects(wheat, fire, etc.) in mc map
+	if((flags & 0x1) != 0) {
+		direction_fac = abs(direction_fac);
+	} else {
+		direction_fac = max(direction_fac, 0.0);
+	}*/
 	return fac_diffuse * direction_fac * diffuse_color;
 }
 vec3 specular_component(float fac_specular, float shininess,
@@ -80,6 +88,11 @@ void main() {
 									texture(tex_specular, f_texcoord).rgb,
 									f_normal, light_dir, view_dir); 
 	
-	FragColor.a = 1.0f;
-	//FragColor.a = texture(tex_opacity, f_texcoord).r;
+	// 0x1 == USE_OPACITY_TEXTURE
+	if((flags & 0x1) != 0){ // use opacity texture
+		FragColor.a = texture(tex_opacity, f_texcoord).r;
+		if(FragColor.a==0.0f) discard;
+	}
+	else
+		FragColor.a = 1.0f;
 }

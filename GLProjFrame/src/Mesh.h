@@ -96,5 +96,6 @@ void print_aiScene_basics(ostream& out, const aiScene* scene, unsigned int verbo
 void print_aiMesh_basics(ostream& out, const aiMesh* mesh, unsigned int verbose_level=0);
 void print_aiMaterial_basics(ostream& out, const aiMaterial* mat, unsigned int verbose_level=0);
 
+string utf8_to_gbk(const std::string& utf8_str);
 
 #endif /* _MESH_H */

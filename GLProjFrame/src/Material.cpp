@@ -1,8 +1,16 @@
 #include "Material.h"
 #include "Mesh.h"
 
+// why I need to declare them again?
+constexpr int Material::nr_supported_textypes;
+constexpr aiTextureType Material::supported_textypes[Material::nr_supported_textypes];
+
+#define USE_OPACITY_MAP  (1<<0)
+
 int Material::nr_instances { 0 };
 Shader* Material::shader { nullptr };
+
+std::string utf8_to_gbk(const std::string& utf8_str);
 
 Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	// Note: AI_MATKEY_XXX are macros defined like "balabala",0,0
@@ -12,7 +20,7 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	//        you should pass a int obj instead.
 	
 	int shading_mode;
-	ai_chk( mat->Get(AI_MATKEY_SHADING_MODEL, shading_mode) );
+	//ai_chk( mat->Get(AI_MATKEY_SHADING_MODEL, shading_mode) );
 	if(shading_mode != aiShadingMode_Phong) {
 		warningf("Shading mode is %d, not aiShadingMode_Phong\n", shading_mode);
 	}
@@ -26,22 +34,21 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	assert(tmp.r == tmp.g && tmp.g == tmp.b); fac_diffuse = tmp.r;
 	ai_chk( mat->Get(AI_MATKEY_COLOR_SPECULAR, tmp) );
 	assert(tmp.r == tmp.g && tmp.g == tmp.b); fac_specular = tmp.r;
-	ai_chk( mat->Get(AI_MATKEY_SHININESS, shininess) );
+	//ai_chk( mat->Get(AI_MATKEY_SHININESS, shininess) );
 	// avoid NaN when calculating spec_tex^shininess->0^0->NaN.
+	shininess = 1e-6;
 	shininess = max(shininess, (float)1e-6);
 
-	const int nr_types = 4;
-
 	// load textures
-	aiTextureType types[nr_types]={
-		aiTextureType_AMBIENT, aiTextureType_DIFFUSE, 
-		aiTextureType_SPECULAR, aiTextureType_NORMALS
-	};
+	//TODO: Normal maps are not working properly, to be fixed
+	// See: https://learnopengl.com/Advanced-Lighting/Normal-Mapping
+	const int nr_types = nr_supported_textypes; 
+	const aiTextureType* types = supported_textypes;
 	const char* type_names[nr_types] = {
-		"ambient", "diffuse", "specular", "normal"
+		"ambient", "diffuse", "specular", "normal", "opacity"
 	};
 	Texture* texs[nr_types] = {
-		nullptr, nullptr, nullptr, nullptr
+		nullptr, nullptr, nullptr, nullptr, nullptr
 	};
 
 	for (int t = 0; t < nr_types; t++) {
@@ -57,12 +64,13 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 		aiString path;
 		ai_chk( mat->GetTexture(types[t], 0, &path) );
 		string path_str = path.C_Str();
-		texs[t] = env->loadTexture(path_str);
+		texs[t] = env->loadTexture(utf8_to_gbk(path_str));
 	}
 	tex_ambient  = texs[0];
 	tex_diffuse  = texs[1];
-	tex_normal   = texs[2];
-	tex_specular = texs[3];
+	tex_specular = texs[2];
+	tex_normal   = texs[3];
+	tex_opacity  = texs[4];
 
 	// load shader
 	if(!shader) {
@@ -90,17 +98,22 @@ void Material::use() {
 	shader->setUniform("fac_specular", fac_specular);
 	shader->setUniform("shininess", shininess);
 
+	int flags = 0;
+	if (tex_opacity) flags |= USE_OPACITY_MAP;
+	shader->setUniform("flags", flags);
+
 	// set textures
+	const int nr_types = nr_supported_textypes;
 	Texture* textures[] = 
-		{ tex_ambient, tex_diffuse, tex_specular, tex_normal };
+		{ tex_ambient, tex_diffuse, tex_specular, tex_normal, tex_opacity };
 	const char* sampler_names[] = 
-		{ "tex_ambient", "tex_diffuse", "tex_specular", "tex_normal" };
+		{ "tex_ambient", "tex_diffuse", "tex_specular", "tex_normal", "tex_opacity"};
 
 	// 保护现场
 	GLint prev_active_tex;
 	glGetIntegerv(GL_ACTIVE_TEXTURE, &prev_active_tex);
 
-	for(int t=0; t<4; t++) {
+	for(int t=0; t<nr_types; t++) {
 		glActiveTexture(GL_TEXTURE0 + t);
 
 		if(not textures[t]) {

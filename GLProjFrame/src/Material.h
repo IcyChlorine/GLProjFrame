@@ -52,6 +52,17 @@ private:
     Texture* tex_diffuse  { nullptr };
     Texture* tex_specular { nullptr };
     Texture* tex_normal   { nullptr };
+    Texture* tex_opacity  { nullptr };
+
+    // for in-class initialization of static members, constexpr is required (const is not enough)
+    static constexpr int nr_supported_textypes = 5;
+    //TODO: Normal maps are not working properly, to be fixed
+	// See: https://learnopengl.com/Advanced-Lighting/Normal-Mapping
+    static constexpr aiTextureType supported_textypes[nr_supported_textypes] = {
+        aiTextureType_AMBIENT, aiTextureType_DIFFUSE, 
+        aiTextureType_SPECULAR, aiTextureType_HEIGHT,
+        aiTextureType_OPACITY
+    };
 
     static int nr_instances;
     static Shader* shader;

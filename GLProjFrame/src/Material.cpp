@@ -19,24 +19,28 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	//        otherwise you get an AI_FAILURE and wrong results.
 	//        you should pass a int obj instead.
 	
+	aiReturn res;
 	int shading_mode;
-	//ai_chk( mat->Get(AI_MATKEY_SHADING_MODEL, shading_mode) );
-	if(shading_mode != aiShadingMode_Phong) {
+	res = mat->Get(AI_MATKEY_SHADING_MODEL, shading_mode);
+	if(res != aiReturn_SUCCESS) {
+		warning("Can't find shading mode\n");
+	} else if(shading_mode != aiShadingMode_Phong) {
 		warningf("Shading mode is %d, not aiShadingMode_Phong\n", shading_mode);
 	}
 	
-	//assert(shading_mode == aiShadingMode_Phong);
 	// load parameters
 	aiColor4D tmp;
 	ai_chk( mat->Get(AI_MATKEY_COLOR_AMBIENT, tmp) );
 	assert(tmp.r == tmp.g && tmp.g == tmp.b); fac_ambient = tmp.r;
 	ai_chk( mat->Get(AI_MATKEY_COLOR_DIFFUSE, tmp) );
 	assert(tmp.r == tmp.g && tmp.g == tmp.b); fac_diffuse = tmp.r;
-	ai_chk( mat->Get(AI_MATKEY_COLOR_SPECULAR, tmp) );
+	res = ai_chk( mat->Get(AI_MATKEY_COLOR_SPECULAR, tmp) );
 	assert(tmp.r == tmp.g && tmp.g == tmp.b); fac_specular = tmp.r;
-	//ai_chk( mat->Get(AI_MATKEY_SHININESS, shininess) );
+	ai_chk( mat->Get(AI_MATKEY_SHININESS, shininess) );
+	
+	// prevent model from being too dark
+	fac_ambient = max(fac_ambient,  0.4f);
 	// avoid NaN when calculating spec_tex^shininess->0^0->NaN.
-	shininess = 1e-6;
 	shininess = max(shininess, (float)1e-6);
 
 	// load textures

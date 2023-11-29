@@ -17,7 +17,7 @@ Window::Window(AbsObject* father):
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	//create window object through glfw
-	this->internal_wnd_pointer = glfwCreateWindow(800, 600, "OpenGL Framework v1.5", NULL, NULL);
+	this->internal_wnd_pointer = glfwCreateWindow(800, 600, "OpenGL Framework beta", NULL, NULL);
 	if (internal_wnd_pointer == NULL)
 	{
 		glfwTerminate();

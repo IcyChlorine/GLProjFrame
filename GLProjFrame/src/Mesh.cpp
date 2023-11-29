@@ -38,7 +38,7 @@ Model::Model(const string& filepath) {
 	for(int m=0; m<ai_scene->mNumMaterials; m++) {
 		printf("\rLoading materials...(%d/%d)", m+1, ai_scene->mNumMaterials);
 		
-		if(m<10) print_aiMaterial_basics(cout, ai_scene->mMaterials[m]);
+		if(m<1000) print_aiMaterial_basics(cout, ai_scene->mMaterials[m]);
 
 		Material* mat = new Material(this, ai_scene->mMaterials[m]);
 		materials.push_back(mat);

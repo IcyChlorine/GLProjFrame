@@ -19,11 +19,12 @@ public:
 	mesh_loading_err(const char* message="") :
 		runtime_error(message) {}
 };
-inline void ai_chk(aiReturn res) {
+inline aiReturn ai_chk(aiReturn res) {
     if (res != aiReturn_SUCCESS) {
-        error("aiReturn is not aiReturn_SUCCESS");
-        throw mesh_loading_err("Error: aiReturn is not aiReturn_SUCCESS");
+        warning("aiReturn is not aiReturn_SUCCESS\n");
+        //throw mesh_loading_err("Error: aiReturn is not aiReturn_SUCCESS");
     }
+    return res;
 }
 
 /* 

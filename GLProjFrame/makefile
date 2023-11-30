@@ -76,19 +76,17 @@ dep: dep_dir assimp freetype
 .PHONY: assimp
 assimp: libassimp.a
 
-.PHONY: dep_dir	
-dep_dir: dependencies
-
 dependencies:
 	mkdir dependencies
 
 # download of assimp
 .PHONY: assimp_download
-assimp_download: dep_dir dependencies/assimp # pre-requisites; true-target
+assimp_download: dependencies/assimp # pre-requisites; true-target
 
 ASSIMP_URL = https://github.com/assimp/assimp.git
 ASSIMP_VER = v5.2.3
-dependencies/assimp: dependencies
+dependencies/assimp:
+	mkdir -p dependencies
 	cd dependencies && git clone $(ASSIMP_URL)
 	cd dependencies/assimp
 
@@ -132,12 +130,13 @@ assimp_clean:
 
 FREETYPE_URL = https://gitlab.freedesktop.org/freetype/freetype.git
 FREETYPE_VER = VER-2-13-0
-dependencies/freetype: dependencies
+dependencies/freetype:
+	mkdir -p dependencies
 	cd dependencies && git clone $(FREETYPE_URL)
 	cd dependencies/freetype
 
 .PHONY: freetype_download
-freetype_download: dep_dir dependencies/freetype
+freetype_download: dependencies/freetype
 
 FREETYPE_CMAKE_ARGS = -B build -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=Release
 .PHONY: freetype_build

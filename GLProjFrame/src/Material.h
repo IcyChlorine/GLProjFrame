@@ -74,7 +74,7 @@ public:
     //Material(float fac_ambient, float fac_diffuse, float fac_specular, float shininess) {}**
     ~Material();
 
-    void use();
+    void use(Shader* shader);
 };
 
 

@@ -59,6 +59,8 @@ public:
 	Window* getWindow() { return window; }
 	Camera* getCamera() { return camera; }
 
+	InputManager* getInputManager() { return inputManager; }
+
 	/*void flushConsoleOutput() { 
 		//cout << consoleOutput.str(); 
 		//consoleOutput.str("");//清空. ss不能用clear.

@@ -64,6 +64,18 @@ void Model::initShader() {
 	if(!mesh_shader) {
 		mesh_shader = new Shader("src/shaders/mesh.vert.glsl","src/shaders/mesh.frag.glsl");
 	}
+	InputManager* input = theApp->getInputManager();
+	input->setKeyCallback([&]() {
+		info("Reloading mesh shader...\n");
+		try {
+			Shader* new_shader = new Shader("src/shaders/mesh.vert.glsl","src/shaders/mesh.frag.glsl");
+			if(mesh_shader) delete mesh_shader;
+			mesh_shader = new_shader;
+		} catch(exception& e) {
+			warning("Shader reloading failed, continue to use old shader.\n");
+			return;
+		}
+	}, GLFW_KEY_R, 0);
 }
 
 // load all textures referenced by scene->mMaterials into this->textures
@@ -270,7 +282,7 @@ void Mesh::render() {
 	mesh_shader->use();
 	//Model* model = (Model*)this->father;
 	//printf("%d in %d\n",diffuse_tex_idx, model->textures.size());
-	mat->use();
+	mat->use(mesh_shader);
 
 
 	Camera* camera = theApp->getCamera();

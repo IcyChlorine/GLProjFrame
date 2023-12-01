@@ -89,7 +89,7 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	if(!shader) {
 		//shader = new Shader("shader/Phong.vert", "shader/Phong.frag");
 		// use the same shader as mesh for the time being
-		shader = mesh_shader;
+		// shader = mesh_shader;
 	}
 	nr_instances++;
 }
@@ -104,8 +104,14 @@ Material::~Material() {
 	// so we don't need to free them here.
 }
 
-void Material::use() {
-	shader->use();
+void Material::use(Shader* shader) {
+	if(!shader) {
+		error("Shader is nullptr\n");
+		throw runtime_error("Error: Shader is nullptr");
+	}
+
+	//TODO: add check for whether a uniform has been successfully set
+	//      - in case the shader has no such uniform
 
 	// set real-valued parameters
 	shader->setUniform("fac_ambient", fac_ambient);

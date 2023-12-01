@@ -30,21 +30,21 @@ Application::Application()
 	inputManager->setKeyCallback([&]() {
 		camera->setEnabled(!camera->getEnabled());
 		//cout << "key_released" << endl;
-	}, GLFW_KEY_ESCAPE, 0);
+	}, GLFW_KEY_ESCAPE, InputManager::KEY_PRESS);
 	
 	// 显示帧率
 	inputManager->setKeyCallback([&]() {
 		show_hud = !show_hud;
-	}, GLFW_KEY_F3, 0);	
+	}, GLFW_KEY_F3, InputManager::KEY_PRESS);	
 
 	inputManager->setKeyCallback([&]() {
 		line_mode = !line_mode;
-	}, GLFW_KEY_L, 0);	
+	}, GLFW_KEY_L, InputManager::KEY_PRESS);	
 
 	inputManager->setKeyCallback([&]() {
 		GameCamera* p = (GameCamera*)camera;
 		p->accelerate = !p->accelerate;
-	}, GLFW_KEY_LEFT_SHIFT, 0);
+	}, GLFW_KEY_LEFT_SHIFT, InputManager::KEY_PRESS);
 
 	auto t = Text();
 }

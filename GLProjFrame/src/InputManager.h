@@ -16,6 +16,9 @@ class InputManager://not fully implemented.
 public:
 	static constexpr int KEY_ARR_CAPACITY = 512;
 
+	static constexpr int KEY_PRESS = 0;
+	static constexpr int KEY_RELEASE = 1;
+
 	//UserInput* input;
 	function<void()> mouse_click_callback[2][2];//[0|1][0|1]表示[左键|右键][按下|抬起]时调用的函数
 	function<void(float, float)> mouse_move_callback;

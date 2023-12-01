@@ -75,7 +75,7 @@ void Model::initShader() {
 			warning("Shader reloading failed, continue to use old shader.\n");
 			return;
 		}
-	}, GLFW_KEY_R, 0);
+	}, GLFW_KEY_R, InputManager::KEY_PRESS);
 }
 
 // load all textures referenced by scene->mMaterials into this->textures

@@ -37,8 +37,7 @@ float linearize_depth(float depth, float zNear, float zFar)
 
 vec3 ambient_component(float fac_ambient, vec3 ambient_color)
 {
-	return vec3(0.0);
-	//return fac_ambient * ambient_color;
+	return fac_ambient * ambient_color;
 }
 vec3 diffuse_component(float fac_diffuse, vec3 diffuse_color,
 						vec3 normal, vec3 light_dir)
@@ -57,8 +56,8 @@ vec3 specular_component(float fac_specular, float shininess,
 						vec3 specular_color, 
 						vec3 normal, vec3 light_dir, vec3 view_dir)
 {
-	// shiniess += eps to avoid NaN arise from 0^0 - this is done by Material
-	// to avoid redundant calculations
+	// shiniess += eps to avoid NaN arise from 0^0 - this is done in class Material
+	// to avoid repeated calculations
 	vec3 reflect_dir = reflect(-light_dir, normal);
 	float direction_fac = dot(normalize(view_dir), normalize(reflect_dir));
 	      direction_fac = max(direction_fac, 0.0);
@@ -74,14 +73,13 @@ void main() {
 	//vec4 gray_color = vec4(0.2,0.2,0.2,1.0);
 
 	// ambient
-	//FragColor.rgb = ambient_component(fac_ambient, texture(tex_ambient, f_texcoord).rgb);
-	//FragColor = vec4(0);
+	FragColor.rgb = ambient_component(fac_ambient, texture(tex_ambient, f_texcoord).rgb);
 
 	// diffuse
 	//float diff_fac = max(dot(normalize(f_normal), normalize(light_dir)), 0);
 	//vec4 diff_color = texture(tex_diffuse, f_texcoord);
 	//FragColor += light_color * diff_fac * diff_color;
-	FragColor.rgb = diffuse_component(fac_diffuse, texture(tex_diffuse, f_texcoord).rgb, f_normal, light_dir);
+	FragColor.rgb += diffuse_component(fac_diffuse, texture(tex_diffuse, f_texcoord).rgb, f_normal, light_dir);
 	
 	// specular
 	//vec3 view_dir = normalize(f_camera_pos - f_pos);
@@ -89,17 +87,11 @@ void main() {
 	//float spec_fac = pow(max(dot(view_dir, reflect_dir), 0.0), 16);
 	//FragColor += light_color * spec_fac * texture(tex_specular, f_texcoord);
 	vec3 view_dir = normalize(f_camera_pos - f_pos);
-	/*FragColor.rgb += specular_component(fac_specular, shininess, 
+	FragColor.rgb += specular_component(fac_specular, shininess, 
 									texture(tex_specular, f_texcoord).rgb,
-									f_normal, light_dir, view_dir); */
+									f_normal, light_dir, view_dir); 
 	
-	// add the following line when debugging, so none of the samplers will be optimized out
-	FragColor.rgb += 0.001f* (
-		texture(tex_ambient, f_texcoord).rgb + 
-		texture(tex_diffuse, f_texcoord).rgb + 
-		texture(tex_specular,f_texcoord).rgb + 
-		texture(tex_normal,  f_texcoord).rgb + 
-		texture(tex_opacity, f_texcoord).rgb);
+	
 	// 0x1 == USE_OPACITY_TEXTURE
 	if((flags & 0x1) != 0){ // use opacity texture
 		FragColor.a = texture(tex_opacity, f_texcoord).r;
@@ -107,4 +99,13 @@ void main() {
 	}
 	else
 		FragColor.a = 1.0f;
+
+	// add the following line when debugging, so no samplers will be optimized out
+	/*FragColor.rgb += 0.001f* (
+		texture(tex_ambient, f_texcoord).rgb + 
+		texture(tex_diffuse, f_texcoord).rgb + 
+		texture(tex_specular,f_texcoord).rgb + 
+		texture(tex_normal,  f_texcoord).rgb + 
+		texture(tex_opacity, f_texcoord).rgb); */
+	
 }

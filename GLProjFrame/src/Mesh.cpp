@@ -442,10 +442,10 @@ void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsi
 	shadingmode_names[aiShadingMode_Phong]      = "aiShadingMode_Phong";
 	shadingmode_names[aiShadingMode_Blinn]      = "aiShadingMode_Blinn";
 	shadingmode_names[aiShadingMode_Toon]       = "aiShadingMode_Toon";
-	shadingmode_names[aiShadingMode_OrenNayar]  ="aiShadingMode_OrenNayar";
+	shadingmode_names[aiShadingMode_OrenNayar]  = "aiShadingMode_OrenNayar";
 	shadingmode_names[aiShadingMode_Minnaert]   = "aiShadingMode_Minnaert";
 	shadingmode_names[aiShadingMode_CookTorrance]="aiShadingMode_CookTorrance";
-	shadingmode_names[aiShadingMode_NoShading]  ="aiShadingMode_NoShading";
+	shadingmode_names[aiShadingMode_NoShading]  = "aiShadingMode_NoShading";
 	shadingmode_names[aiShadingMode_Fresnel]    = "aiShadingMode_Fresnel";
 	
 	out << "key=" << prop->mKey.C_Str() << "," << string(max_matkey_len-strlen(prop->mKey.C_Str())+1, ' ');

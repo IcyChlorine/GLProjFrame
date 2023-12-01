@@ -17,6 +17,8 @@ void main() {
 	vec4 tmp = transform * vec4(v_pos, 1.0);
 	f_pos = tmp.xyz;
 	gl_Position = proj * tmp;
+
 	f_norm = v_norm;
+	
 	f_texcoord = v_texcoord;
 }

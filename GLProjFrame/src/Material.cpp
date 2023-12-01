@@ -78,10 +78,10 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	// heuristic zone - the following treatments are not theoretically justified, 
 	// but they enhance shading in most practical cases.
 	// 1. prevent model from being too dark
-	fac_ambient = 0.0f; //max(fac_ambient,  0.0f);
+	fac_ambient = max(fac_ambient,  0.15f);
 	// 2. most models have the same color for ambient and diffuse lights. 
 	//    so if ambient texture is not specified, use diffuse texture instead.
-	//if(!tex_ambient && tex_diffuse)
+	if(!tex_ambient && tex_diffuse)
 		tex_ambient = tex_diffuse;
 
 

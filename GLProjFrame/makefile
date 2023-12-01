@@ -5,14 +5,17 @@ DEBUG = false
 SRC_PATH = ./src
 LIB_PATH = ./lib
 INCLUDE_PATH = ./include
+BUILD_PATH = ./build
 
 HEADERS = $(wildcard $(SRC_PATH)/*.h)
 SRCS = $(wildcard $(SRC_PATH)/*.cpp $(SRC_PATH)/*.c)
 # 链接glfw3时必须同时链接gdi32
 # 另外，注意依赖顺序。
 LIBS = -lglfw3 -lgdi32 -lfreetype -lassimp -liconv -lzlibstatic
+OBJS = $(patsubst $(SRC_PATH)/%.cpp, $(BUILD_PATH)/%.o, $(wildcard $(SRC_PATH)/*.cpp))
+OBJS+= $(patsubst $(SRC_PATH)/%.c,  $(BUILD_PATH)/%.o, $(wildcard $(SRC_PATH)/*.c))
 
-TARGET_FILENAME = main.exe
+TARGET_EXEC = main.exe
 
 # some little matic
 ifeq ($(DEBUG), true)
@@ -22,16 +25,15 @@ else
 endif
 
 # for incremental compilation #
-.cpp.o: $(HEADERS)
+$(BUILD_PATH)/%.o: $(SRC_PATH)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -I $(INCLUDE_PATH) -c $<  -o $@
 
-.c.o: $(HEADERS)
+$(BUILD_PATH)/%.o: $(SRC_PATH)/%.c $(HEADERS)
 	$(CXX) $(CXXFLAGS) -I $(INCLUDE_PATH) -c $<  -o $@
 
-OBJ_FILES = $(SRCS:.cpp=.o)
-
-main.exe: $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) $(OBJ_FILES) -o $(TARGET_FILENAME) -I $(INCLUDE_PATH) -L $(LIB_PATH) $(LIBS)
+$(TARGET_EXEC): $(OBJS)
+	@echo $(LIB_PATH)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(TARGET_EXEC) -I $(INCLUDE_PATH) -L $(LIB_PATH) $(LIBS)
 
 # macroscopic tasks #
 .PHONY: main all clean run count
@@ -43,8 +45,8 @@ all: main
 # pass
 
 clean:
-	rm -f $(TARGET_FILENAME)
-	rm -f src/*.o
+	rm -f $(TARGET_EXEC)
+	rm -f build/*.o
 
 run: all
 	./$(TARGET_FILENAME)

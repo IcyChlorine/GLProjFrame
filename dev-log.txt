@@ -1,0 +1,52 @@
+**以下所有的v1.x本本现均改为v0.1.x, 现版本为v0.1.1.**
+
+2020-11-18 观摩Application
+	下一步任务：
+	将Application分割为Application和DemoApplication两个层次，run改为virtual
+	window置于Application, 具体的顶点、纹理数据置于DemoApplication
+	
+	将glad.c加入CMake的build列表中！！
+	将所有glpp类加入namespace glpp中，
+	*所有文件改至glpp/文件夹下，再提供glpp.h头文件
+
+**之前在开发alpha版本时留下的一些readme和改动信息**
+
+**以下所有版本现均改为alpha(~v1.8)，现版本为beta.0.**
+
+一个openGL程序的框架
+包含一些基本类:
+class Shader;
+class Texture;
+class Console;
+	保存键鼠信息
+class GameTransform;
+	让你在3D世界中用键鼠控制视角，方便debug
+	
+自带了一些常用的库和头文件
+	glfw3,glad,glm
+并且在项目中配置好了。
+
+在VS2015中创建项目。
+
+2020-10-2 note
+	粗略完成了v2(目前我称之为v1.8).还有一些可以改进的小部分：
+	class Transform.enable(bool)的问题
+	在场景下加入地表坐标格和坐标轴
+	在窗口加入HUD
+	InputManager加入registerListener(允许多个监听器)和clearListener
+		并将GameCamera中的glfw..也加入
+	一些语法的修正
+	一些文件尚未删除，文件夹结构待优化的空间
+	升级到64位
+	最后，改造成可以用cmake一键生成项目的样子
+	
+v1.8
+	加入了AbsObject-一个可以设置父类指针father的基类，便于实现层次结构
+	优化了头文件引用，现在从c，stl到gl类库都由common_t1.h包含
+	加入了init_exception, LogWriter等类，现在终于有一个上台面的错误处理系统了
+	对类的结构进行了大量优化，比第一代有更强的“高内聚，低耦合”的特性；
+		充分运用了java中的程序设计思想，用继承使类间结构更清晰
+	=>现在有一个比较完善的C++-styled gl封装层了
+	一些新老类名对照：
+	GameTransform-> Camera & Transform
+	GLFWwindow* -> Window

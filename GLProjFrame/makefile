@@ -32,7 +32,6 @@ $(BUILD_PATH)/%.o: $(SRC_PATH)/%.c $(HEADERS)
 	$(CXX) $(CXXFLAGS) -I $(INCLUDE_PATH) -c $<  -o $@
 
 $(TARGET_EXEC): $(OBJS)
-	@echo $(LIB_PATH)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(TARGET_EXEC) -I $(INCLUDE_PATH) -L $(LIB_PATH) $(LIBS)
 
 # macroscopic tasks #
@@ -49,7 +48,7 @@ clean:
 	rm -f build/*.o
 
 run: all
-	./$(TARGET_FILENAME)
+	./$(TARGET_EXEC)
 
 SHADER_PATH = $(SRC_PATH)/shaders
 SHADERS = $(wildcard $(SHADER_PATH)/*.*)

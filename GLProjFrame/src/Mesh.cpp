@@ -1,9 +1,10 @@
 #include "Mesh.h"
-#include "Material.h"
-#include "Application.h"
 
 // for utf-8 to gbk conversion
 #include <iconv.h>
+
+#include "Application.h"
+#include "Material.h"
 
 #define VERT_PER_TRIG 3
 #define STR_EQ 0
@@ -11,10 +12,12 @@
 Shader* mesh_shader{nullptr};
 
 Model::Model(const string& filepath) {		
-	// TODO: always '/' and no '\\'?
 	infof("filepath of model is %s\n", filepath.c_str());
 	
-	directory = filepath.substr(0, filepath.find_last_of('/')+1);
+	auto slash_idx = filepath.find_last_of("\\");//handle both situations
+    if(slash_idx == string::npos) slash_idx = filepath.find_last_of("/");
+
+	directory = filepath.substr(0, slash_idx+1);
 	printf("%s\n",directory.c_str());
 
 	Assimp::Importer importer;
@@ -26,7 +29,7 @@ Model::Model(const string& filepath) {
 		throw exception();
 	}
 	
-	// try inspecting the aiScene
+	// try to inspect the aiScene
 	//printHierachy(ai_scene->mRootNode);
 	//print_aiScene_basics(cout, ai_scene, 1);
 	

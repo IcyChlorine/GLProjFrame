@@ -83,7 +83,7 @@ dependencies:
 
 # download of assimp
 .PHONY: assimp_download
-assimp_download: dep_dir dependencies/assimp # pre-requisites; true-target
+assimp_download: dependencies/assimp # pre-requisites; true-target
 
 ASSIMP_URL = https://github.com/assimp/assimp.git
 ASSIMP_VER = v5.2.3
@@ -138,7 +138,7 @@ dependencies/freetype:
 	cd dependencies/freetype
 
 .PHONY: freetype_download
-freetype_download: dep_dir dependencies/freetype
+freetype_download: dependencies/freetype
 
 FREETYPE_CMAKE_ARGS = -B build -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=Release
 .PHONY: freetype_build

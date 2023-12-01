@@ -5,14 +5,17 @@ DEBUG = false
 SRC_PATH = ./src
 LIB_PATH = ./lib
 INCLUDE_PATH = ./include
+BUILD_PATH = ./build
 
 HEADERS = $(wildcard $(SRC_PATH)/*.h)
 SRCS = $(wildcard $(SRC_PATH)/*.cpp $(SRC_PATH)/*.c)
 # 链接glfw3时必须同时链接gdi32
 # 另外，注意依赖顺序。
 LIBS = -lglfw3 -lgdi32 -lfreetype -lassimp -liconv -lzlibstatic
+OBJS = $(patsubst $(SRC_PATH)/%.cpp, $(BUILD_PATH)/%.o, $(wildcard $(SRC_PATH)/*.cpp))
+OBJS+= $(patsubst $(SRC_PATH)/%.c,  $(BUILD_PATH)/%.o, $(wildcard $(SRC_PATH)/*.c))
 
-TARGET_FILENAME = main.exe
+TARGET_EXEC = main.exe
 
 # some little matic
 ifeq ($(DEBUG), true)
@@ -22,16 +25,15 @@ else
 endif
 
 # for incremental compilation #
-.cpp.o: $(HEADERS)
+$(BUILD_PATH)/%.o: $(SRC_PATH)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -I $(INCLUDE_PATH) -c $<  -o $@
 
-.c.o: $(HEADERS)
+$(BUILD_PATH)/%.o: $(SRC_PATH)/%.c $(HEADERS)
 	$(CXX) $(CXXFLAGS) -I $(INCLUDE_PATH) -c $<  -o $@
 
-OBJ_FILES = $(SRCS:.cpp=.o)
-
-main.exe: $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) $(OBJ_FILES) -o $(TARGET_FILENAME) -I $(INCLUDE_PATH) -L $(LIB_PATH) $(LIBS)
+$(TARGET_EXEC): $(OBJS)
+	@echo $(LIB_PATH)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(TARGET_EXEC) -I $(INCLUDE_PATH) -L $(LIB_PATH) $(LIBS)
 
 # macroscopic tasks #
 .PHONY: main all clean run count
@@ -43,8 +45,8 @@ all: main
 # pass
 
 clean:
-	rm -f $(TARGET_FILENAME)
-	rm -f src/*.o
+	rm -f $(TARGET_EXEC)
+	rm -f build/*.o
 
 run: all
 	./$(TARGET_FILENAME)
@@ -76,9 +78,6 @@ dep: dep_dir assimp freetype
 .PHONY: assimp
 assimp: libassimp.a
 
-.PHONY: dep_dir	
-dep_dir: dependencies
-
 dependencies:
 	mkdir dependencies
 
@@ -88,7 +87,8 @@ assimp_download: dep_dir dependencies/assimp # pre-requisites; true-target
 
 ASSIMP_URL = https://github.com/assimp/assimp.git
 ASSIMP_VER = v5.2.3
-dependencies/assimp: dependencies
+dependencies/assimp:
+	mkdir -p dependencies
 	cd dependencies && git clone $(ASSIMP_URL)
 	cd dependencies/assimp
 
@@ -132,7 +132,8 @@ assimp_clean:
 
 FREETYPE_URL = https://gitlab.freedesktop.org/freetype/freetype.git
 FREETYPE_VER = VER-2-13-0
-dependencies/freetype: dependencies
+dependencies/freetype:
+	mkdir -p dependencies
 	cd dependencies && git clone $(FREETYPE_URL)
 	cd dependencies/freetype
 

@@ -83,6 +83,7 @@ void Application::run() {
 	//Model *model = new Model("assets/backpack/backpack.obj");
 	Model *model = new Model("assets/nanosuit/nanosuit.obj");
 	//Model* model = new Model("assets/AstroMC/server_map_base.obj");
+	//Model* model = new Model("assets/AstroMC/server_map_base.obj");
 	//exit(0);
 
 	double fps{0.0f};

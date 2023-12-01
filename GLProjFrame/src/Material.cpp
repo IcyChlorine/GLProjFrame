@@ -38,8 +38,7 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	assert(tmp.r == tmp.g && tmp.g == tmp.b); fac_specular = tmp.r;
 	ai_chk( mat->Get(AI_MATKEY_SHININESS, shininess) );
 	
-	// prevent model from being too dark
-	fac_ambient = max(fac_ambient,  0.4f);
+	
 	// avoid NaN when calculating spec_tex^shininess->0^0->NaN.
 	shininess = max(shininess, (float)1e-6);
 
@@ -76,6 +75,16 @@ Material::Material(Model* env, const aiMaterial* mat): AbsObject(env) {
 	tex_normal   = texs[3];
 	tex_opacity  = texs[4];
 
+	// heuristic zone - the following treatments are not theoretically justified, 
+	// but they enhance shading in most practical cases.
+	// 1. prevent model from being too dark
+	fac_ambient = 0.0f; //max(fac_ambient,  0.0f);
+	// 2. most models have the same color for ambient and diffuse lights. 
+	//    so if ambient texture is not specified, use diffuse texture instead.
+	//if(!tex_ambient && tex_diffuse)
+		tex_ambient = tex_diffuse;
+
+
 	// load shader
 	if(!shader) {
 		//shader = new Shader("shader/Phong.vert", "shader/Phong.frag");
@@ -91,6 +100,8 @@ Material::~Material() {
 		//delete shader;
 		//shader = nullptr;
 	}
+	// the textures are maintained by class Model as shared resources,
+	// so we don't need to free them here.
 }
 
 void Material::use() {
@@ -126,6 +137,7 @@ void Material::use() {
 		}
 		else {
 			textures[t]->use();
+			//printf("Using texture %s\n", sampler_names[t]);
 			shader->setUniform(sampler_names[t], t);
 		}
 	}

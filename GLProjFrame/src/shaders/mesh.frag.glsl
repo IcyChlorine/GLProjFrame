@@ -13,6 +13,10 @@ uniform float shininess;
 //uniform vec3 environment_color = clear color = 0.2f, 0.3f, 0.3f
 uniform vec3 f_camera_pos;
 
+//NOTE: Don't comment out all reference to any following texture, even when debugging
+//      If a texture is not used in codes, it will be optimized out in compilation.
+//      Then following textures will fill the vacancy, and get bound to *wrong texture units*
+// (Urghhhhh! Why there're so many weird and tedious bugs in graphics!)
 uniform sampler2D tex_ambient;
 uniform sampler2D tex_diffuse;
 uniform sampler2D tex_specular;
@@ -33,7 +37,8 @@ float linearize_depth(float depth, float zNear, float zFar)
 
 vec3 ambient_component(float fac_ambient, vec3 ambient_color)
 {
-	return fac_ambient * ambient_color;
+	return vec3(0.0);
+	//return fac_ambient * ambient_color;
 }
 vec3 diffuse_component(float fac_diffuse, vec3 diffuse_color,
 						vec3 normal, vec3 light_dir)
@@ -69,14 +74,14 @@ void main() {
 	//vec4 gray_color = vec4(0.2,0.2,0.2,1.0);
 
 	// ambient
-	FragColor.rgb = ambient_component(fac_ambient, texture(tex_ambient, f_texcoord).rgb);
+	//FragColor.rgb = ambient_component(fac_ambient, texture(tex_ambient, f_texcoord).rgb);
 	//FragColor = vec4(0);
 
 	// diffuse
 	//float diff_fac = max(dot(normalize(f_normal), normalize(light_dir)), 0);
 	//vec4 diff_color = texture(tex_diffuse, f_texcoord);
 	//FragColor += light_color * diff_fac * diff_color;
-	FragColor.rgb += diffuse_component(fac_diffuse, texture(tex_diffuse, f_texcoord).rgb, f_normal, light_dir);
+	FragColor.rgb = diffuse_component(fac_diffuse, texture(tex_diffuse, f_texcoord).rgb, f_normal, light_dir);
 	
 	// specular
 	//vec3 view_dir = normalize(f_camera_pos - f_pos);
@@ -84,10 +89,17 @@ void main() {
 	//float spec_fac = pow(max(dot(view_dir, reflect_dir), 0.0), 16);
 	//FragColor += light_color * spec_fac * texture(tex_specular, f_texcoord);
 	vec3 view_dir = normalize(f_camera_pos - f_pos);
-	FragColor.rgb += specular_component(fac_specular, shininess, 
+	/*FragColor.rgb += specular_component(fac_specular, shininess, 
 									texture(tex_specular, f_texcoord).rgb,
-									f_normal, light_dir, view_dir); 
+									f_normal, light_dir, view_dir); */
 	
+	// add the following line when debugging, so none of the samplers will be optimized out
+	FragColor.rgb += 0.001f* (
+		texture(tex_ambient, f_texcoord).rgb + 
+		texture(tex_diffuse, f_texcoord).rgb + 
+		texture(tex_specular,f_texcoord).rgb + 
+		texture(tex_normal,  f_texcoord).rgb + 
+		texture(tex_opacity, f_texcoord).rgb);
 	// 0x1 == USE_OPACITY_TEXTURE
 	if((flags & 0x1) != 0){ // use opacity texture
 		FragColor.a = texture(tex_opacity, f_texcoord).r;

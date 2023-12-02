@@ -388,6 +388,8 @@ build/
 # ignore only a small proportion of libs for the time being
 # should be able to ignore all libs in the future
 /GLProjFrame/lib/libassimp.a
+/GLProjFrame/lib/libassimp.dll.a
+/GLProjFrame/libassimp-5.dll
 /GLProjFrame/lib/libzlibstatic.a
 /GLProjFrame/lib/libfreetype.a
 

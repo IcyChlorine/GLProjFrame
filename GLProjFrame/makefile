@@ -93,16 +93,16 @@ dependencies/assimp:
 
 # build of assimp
 .PHONY: assimp_build
-assimp_build: dependencies/assimp/build/lib/libassimp.a
+assimp_build: dependencies/assimp/build/lib/libassimp.dll.a
 
-ASSIMP_CMAKE_ARGS = -B build -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=OFF
+ASSIMP_CMAKE_ARGS = -B build -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON
 dependencies/assimp/build: dependencies/assimp
 	cd dependencies/assimp && \
 	git checkout $(ASSIMP_VER) && \
 	cmake $(ASSIMP_CMAKE_ARGS)
 
 NUM_WORKERS = 12
-dependencies/assimp/build/lib/libassimp.a: dependencies/assimp/build
+dependencies/assimp/build/lib/libassimp.dll.a: dependencies/assimp/build
 	cd dependencies/assimp/build && \
 	make assimp -j $(NUM_WORKERS)
 
@@ -113,11 +113,15 @@ dependencies/assimp/build/lib/libassimp.a: dependencies/assimp/build
 #	rm -rf include/assimp
 #	cp dependencies/assimp/include/assimp include/assimp -r
 # TODO: make this indenpendent of the exact path
+# TODO: how can I get rid of the "-5" in the name of libassimp-5.dll?
+#       That makes the rules dependent on the version of assimp.
 .PHONY: assimp_install
 # depend on assimp_build
-assimp_install: dependencies/assimp/build/lib/libassimp.a
-	rm -f lib/libassimp.a
-	cp dependencies/assimp/build/lib/libassimp.a lib/libassimp.a
+assimp_install: dependencies/assimp/build/lib/libassimp.dll.a
+	rm -f lib/libassimp.dll.a lib/libassimp.a
+	cp dependencies/assimp/build/lib/libassimp.dll.a lib/libassimp.dll.a
+	rm -f libassimp-5.dll
+	cp dependencies/assimp/build/bin/libassimp-5.dll libassimp-5.dll
 	rm -f lib/libzlibstatic.a
 	cp dependencies/assimp/build/contrib/zlib/libzlibstatic.a lib/libzlibstatic.a
 	rm -rf include/assimp

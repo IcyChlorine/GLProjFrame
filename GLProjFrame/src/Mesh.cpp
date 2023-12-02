@@ -208,41 +208,50 @@ Mesh::Mesh(Model* father, aiMesh* ai_mesh) {
 	// load data from ai_mesh, and convert them to fit our format and memory layout
 	nr_vert = ai_mesh->mNumVertices;
 	//TODO: It's bug-proning to use these hard-coded expressions to calculate 
-	// the stride of data of verteces. Replace them when possible.
-	size_t varr_slots = nr_vert*(3+3+2+3+3);
-	vert_data = new float[varr_slots];
-	memset(vert_data, 0, varr_slots*sizeof(float));
+	// the stride of data of vertices. Replace them when possible.
+
+	vector<int> vert_format = {3, 3, 2, 3, 3};//pos, norm, tex, tan, bitan
+	size_t stride = 0;
+	for(int i=0; i<vert_format.size(); i++){
+		stride += vert_format[i];
+	}
+
+	size_t data_len = nr_vert*stride; // total number of float numbers
+	vert_data = new float[data_len];
+	memset(vert_data, 0, data_len*sizeof(float));
 
 	nr_indices = ai_mesh->mNumFaces * VERT_PER_TRIG;
 	indices = new unsigned int[nr_indices];
 	memset(indices, 0, nr_indices*sizeof(unsigned int));
 	
+	// copy vertex data
 	for(int i=0; i<nr_vert; i++) {
-		vert_data[i*14+0] = ai_mesh->mVertices[i].x;
-		vert_data[i*14+1] = ai_mesh->mVertices[i].y;
-		vert_data[i*14+2] = ai_mesh->mVertices[i].z;
+		vert_data[i*stride+0] = ai_mesh->mVertices[i].x;
+		vert_data[i*stride+1] = ai_mesh->mVertices[i].y;
+		vert_data[i*stride+2] = ai_mesh->mVertices[i].z;
 
 		if(ai_mesh->HasNormals()) {
-			vert_data[i*14+3] = ai_mesh->mNormals[i].x;
-			vert_data[i*14+4] = ai_mesh->mNormals[i].y;
-			vert_data[i*14+5] = ai_mesh->mNormals[i].z;
+			vert_data[i*stride+3] = ai_mesh->mNormals[i].x;
+			vert_data[i*stride+4] = ai_mesh->mNormals[i].y;
+			vert_data[i*stride+5] = ai_mesh->mNormals[i].z;
 		}
 		if(ai_mesh->mTextureCoords[0]) {
 			// a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
 			// use models where a vertex can have multiple texture coordinates so we always take the first set (0).
-			vert_data[i*14+6] = ai_mesh->mTextureCoords[0][i].x;
-			vert_data[i*14+7] = ai_mesh->mTextureCoords[0][i].y;
+			vert_data[i*stride+6] = ai_mesh->mTextureCoords[0][i].x;
+			vert_data[i*stride+7] = ai_mesh->mTextureCoords[0][i].y;
 			
-			//vert_data[i*14+8] = ai_mesh->mTangents[i].x;
-			//vert_data[i*14+9] = ai_mesh->mTangents[i].y;
-			//vert_data[i*14+10]= ai_mesh->mTangents[i].z;
+			//vert_data[i*stride+8] = ai_mesh->mTangents[i].x;
+			//vert_data[i*stride+9] = ai_mesh->mTangents[i].y;
+			//vert_data[i*stride+10]= ai_mesh->mTangents[i].z;
 
-			//vert_data[i*14+11]= ai_mesh->mBitangents[i].x;
-			//vert_data[i*14+12]= ai_mesh->mBitangents[i].y;
-			//vert_data[i*14+13]= ai_mesh->mBitangents[i].z;
+			//vert_data[i*stride+11]= ai_mesh->mBitangents[i].x;
+			//vert_data[i*stride+12]= ai_mesh->mBitangents[i].y;
+			//vert_data[i*stride+13]= ai_mesh->mBitangents[i].z;
 		}
 	}
 
+	// copy index data
 	for(int i=0; i<ai_mesh->mNumFaces; i++) {
 		indices[i*VERT_PER_TRIG    ] = ai_mesh->mFaces[i].mIndices[0]; 
 		indices[i*VERT_PER_TRIG + 1] = ai_mesh->mFaces[i].mIndices[1]; 
@@ -255,11 +264,10 @@ Mesh::Mesh(Model* father, aiMesh* ai_mesh) {
 
 	get_and_bind_vbo(&VBO);
 	get_and_bind_ibo(&EBO);	
-	glBufferData(GL_ARRAY_BUFFER, nr_vert*(3+3+2+3+3)*sizeof(float), vert_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, nr_vert*stride*sizeof(float), vert_data, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, nr_indices*sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-	int vert_format[] = {3, 3, 2, 3, 3};//pos, norm, tex, tan, bitan
-	declare_interleaving_vert_data_layout(5, vert_format);
+	declare_interleaving_vert_data_layout(vert_format);
 
 	unbind_vao();
 	unbind_vbo(); unbind_ibo();
@@ -397,11 +405,8 @@ void print_aiScene_basics(ostream& out, const aiScene* scene, unsigned int verbo
 	dfs_print(scene->mRootNode, 0, 0);
 }
 
-static string ai_texture_semantic_to_string(unsigned int mSemantic) {
-	
-}
 
-// Note: size_t extends to unsigned long long. So don't use -1 to initialize it.
+// Note: size_t extends to *unsigned* long long, so don't use -1 to initialize it.
 static size_t max_matkey_len = 0;
 
 void print_aiMaterialProperty(ostream& out, const aiMaterialProperty* prop, unsigned int verbose_level=0) {

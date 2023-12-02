@@ -2,10 +2,13 @@
 #ifndef _GL_UTIL_H
 #define _GL_UTIL_H
 
-#include "glad/glad.h"
-#include "logging.h"
 #include <exception>
 #include <stack>
+#include <vector>
+using std::vector;
+
+#include "glad/glad.h"
+#include "logging.h"
 
 extern std::stack<bool> depth_stack;
 extern std::stack<bool> blend_stack;
@@ -65,10 +68,9 @@ inline int check_gl_err(bool agh_if_no_error=false) {
 	specify vert format
 	Example: suppose your vert data format is [xyz|rgb|uv], with each value being a float
 	         then call the function like this:
-	int format[3] = {3,3,2};
-	declare_interleaving_vert_data_layout(3, format);
+	declare_interleaving_vert_data_layout(vector<int>{3,3,2});
 */
-void declare_interleaving_vert_data_layout(int k, int* p);
+void declare_interleaving_vert_data_layout(vector<int> format);
 
 /* a wrapper that masks out parameters of glTexImage2D that are rarely used */
 inline void simplifid_tex_image_func(

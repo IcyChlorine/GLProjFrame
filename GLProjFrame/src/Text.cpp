@@ -79,7 +79,7 @@ void init_freetype() {
 		glyph_data[c].bearing = glm::ivec2(
 			glyph->bitmap_left, glyph->bitmap_top
 		);
-		// advanceÔ­ÉúµÄµ¥Î»ÊÇ1/64ÏñËØ£¬½«Æä×ª»»ÎªÒÔÏñËØÎªµ¥Î»µÄÖµ
+		// advanceÔ­ï¿½ï¿½ï¿½Äµï¿½Î»ï¿½ï¿½1/64ï¿½ï¿½ï¿½Ø£ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Î»ï¿½ï¿½Öµ
 		glyph_data[c].advance = glyph->advance.x>>6;
 
 		if(glyph_data[c].advance>max_advance)
@@ -142,7 +142,7 @@ Text::Text(string text, glm::ivec2 pos, float scale):
 	}
 	if(!text_shader)
 		text_shader = new Shader("src\\shaders\\text.vert.glsl", "src\\shaders\\text.frag.glsl");
-		//TODO ÕâÃ´¸öshaderÔõÃ´Îö¹¹£¿£¿
+		//TODO ï¿½ï¿½Ã´ï¿½ï¿½shaderï¿½ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	this->scale = scale;
 
@@ -151,8 +151,8 @@ Text::Text(string text, glm::ivec2 pos, float scale):
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4 * 4, vert_data, GL_DYNAMIC_DRAW);
 
-	int format[] = {4};
-	declare_interleaving_vert_data_layout(1, format);
+	vector<int> format = {4};
+	declare_interleaving_vert_data_layout(format);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0); 
@@ -193,13 +193,13 @@ void Text::render() {
 		auto glyph = glyph_data[*it];
 		unsigned char c = *it;
 
-		if(c=='\n'){//ÔÊÐí»»ÐÐ
+		if(c=='\n'){//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			x = pos.x;
 			y += block_height * scale;
 			continue;
 		}
 		
-		//xypos: Ã¿¸ö×Ö·û×óÉÏ½ÇµÄÆðµã
+		//xypos: Ã¿ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ï½Çµï¿½ï¿½ï¿½ï¿½
 		float xpos = x + glyph.bearing.x * scale;
 		// the offset for ypos is a bit tricky, be careful!
 		float ypos = y + (block_height-glyph.bearing.y) * scale;

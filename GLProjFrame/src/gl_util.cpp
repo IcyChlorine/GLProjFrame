@@ -1,20 +1,22 @@
 #include "gl_util.h"
 
-// 不是inline，不能放在头文件里！否则会造成多定义错误。
-void declare_interleaving_vert_data_layout(int k, int* p) {
-	int tot_cnt {0};
-	for(int i=0; i<k; i++){
-		tot_cnt += *(p+i);
+#include <cassert>
+
+void declare_interleaving_vert_data_layout(vector<int> format) {
+	int stride { 0 };
+	for(int i=0; i<format.size(); i++){
+		assert(format[i] > 0);
+		stride += format[i];
 	}
-	int offset{0};
-	for(int i=0; i<k; i++){
+	int offset { 0 };
+	for(int i=0; i<format.size(); i++){
 		glVertexAttribPointer(
-			i, *(p+i), // nr, size
-			GL_FLOAT, GL_FALSE, // some almost fixed parameter
-			tot_cnt * sizeof(float), // stride
-			(void*) (offset * sizeof(float)) // offset
+			i, format[i],                    // slot index, slot size
+			GL_FLOAT, GL_FALSE,              // some almost fixed parameter
+			stride * sizeof(float),          // stride across vertices
+			(void*) (offset * sizeof(float)) // offset of each slot
 		);
-		offset += *(p+i);
+		offset += format[i];
 		glEnableVertexAttribArray(i);
 	}
 }

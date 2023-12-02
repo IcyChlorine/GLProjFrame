@@ -2,6 +2,8 @@
 #include "Application.h"
 #include "Camera.h"
 
+#include <vector>
+
 void Renderable::addSon(Renderable* renderable) {
 	sons.push_back(renderable);
 }
@@ -22,8 +24,8 @@ ColorfulStone::ColorfulStone() {
 
 	// clearify format of vertices array
 	// [xyz|rgb|uv]
-	int format[] = {3,3,2};
-	declare_interleaving_vert_data_layout(3, format);
+	vector<int> format = {3,3,2};
+	declare_interleaving_vert_data_layout(format);
 	
 	get_and_bind_ibo(&EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -73,8 +75,8 @@ Cube::Cube() {
 	get_and_bind_vbo(&VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vert_data), vert_data, GL_STATIC_DRAW);
 
-	int format[] = {3, 2};
-	declare_interleaving_vert_data_layout(2, format);
+	vector<int> format = {3, 2};
+	declare_interleaving_vert_data_layout(format);
 
 	glBindVertexArray(0);
 

@@ -19,7 +19,8 @@ unsigned int font_texture{0};
 unsigned int block_width{0};
 unsigned int block_height{0};
 
-Shader* text_shader{nullptr};
+int Text::nr_instances{0};
+Shader* Text::text_shader{nullptr};
 
 void show_glyph_cli(FT_GlyphSlot& glyph) {
 	auto width = glyph->bitmap.width;
@@ -132,7 +133,6 @@ void init_freetype() {
 	
 	FT_Done_Face(font);
 	FT_Done_FreeType(ft_lib);
-
 }
 
 Text::Text(string text, glm::ivec2 pos, float scale): 
@@ -142,10 +142,9 @@ Text::Text(string text, glm::ivec2 pos, float scale):
 		init_freetype();
 		freetype_initialized = true;
 	}
-	if(!text_shader)
-		text_shader = new Shader("src\\shaders\\text.vert.glsl", "src\\shaders\\text.frag.glsl");
-		//TODO 这么个shader怎么析构？？
-
+	if(!text_shader) {
+		text_shader = new Shader("src/shaders/text.vert.glsl", "src/shaders/text.frag.glsl");
+	}
 	this->scale = scale;
 
 	get_and_bind_vao(&VAO);
@@ -158,11 +157,17 @@ Text::Text(string text, glm::ivec2 pos, float scale):
 	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0); 
+
+	nr_instances++;
 }
 
 Text::~Text()
 {
-
+	if(nr_instances==1 and text_shader) {
+			delete text_shader;
+			text_shader = nullptr;
+	}
+	nr_instances--;
 }
 
 void Text::setText(string text) {
@@ -176,6 +181,7 @@ void Text::setPosition(unsigned int x, unsigned int y) {
 }
 
 void Text::render() {
+	//TODO: protect the context
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

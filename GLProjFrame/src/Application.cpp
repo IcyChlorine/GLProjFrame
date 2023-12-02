@@ -45,8 +45,6 @@ Application::Application()
 		GameCamera* p = (GameCamera*)camera;
 		p->accelerate = !p->accelerate;
 	}, GLFW_KEY_LEFT_SHIFT, InputManager::KEY_PRESS);
-
-	auto t = Text();
 }
 
 

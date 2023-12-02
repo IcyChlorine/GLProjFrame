@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include "Renderable.h"
-#include <ft2build.h>
+#include "ft2build.h"
 #include FT_FREETYPE_H
+
+#include "Renderable.h"
 
 class Text: public Renderable
 {
@@ -31,6 +32,13 @@ private:
 		 1.0f,  1.0f,  1.0f,  1.0f,
 		-1.0f,  1.0f,  0.0f,  1.0f,
 	};
+
+	/* Note: Construct a global variable like "Shader text_shader("...","...");"
+	 *       is NOT reliable, as global variables are constructed when the program starts,
+	 *       by which time OpenGL may not be initialized yet.
+	 */
+	static int nr_instances;
+	static Shader* text_shader;
 };
 
 #endif

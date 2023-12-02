@@ -17,3 +17,5 @@ public:
 	virtual void applyCameraTransform(Shader& shader);
 };
 
+// for debugging
+void print_glm_mat4(std::ostream& out, glm::mat4 mat);

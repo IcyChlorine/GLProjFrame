@@ -79,7 +79,7 @@ void init_freetype() {
 		glyph_data[c].bearing = glm::ivec2(
 			glyph->bitmap_left, glyph->bitmap_top
 		);
-		// advanceԭ���ĵ�λ��1/64���أ�����ת��Ϊ������Ϊ��λ��ֵ
+		// advance原生的单位是1/64像素，将其转换为以像素为单位的值
 		glyph_data[c].advance = glyph->advance.x>>6;
 
 		if(glyph_data[c].advance>max_advance)
@@ -121,10 +121,12 @@ void init_freetype() {
 		GL_UNSIGNED_BYTE,
 		ch_blanket
 	);
-	simplifid_tex_image_func(ch_blanket, GL_RED, blanket_width, blanket_height);
 	// These parameters have to be set, or texture doesn't work in ogl.
 	// Seems there's no "default value" for these.
-	set_texture_param(GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	delete[] ch_blanket;
 	
@@ -142,7 +144,7 @@ Text::Text(string text, glm::ivec2 pos, float scale):
 	}
 	if(!text_shader)
 		text_shader = new Shader("src\\shaders\\text.vert.glsl", "src\\shaders\\text.frag.glsl");
-		//TODO ��ô��shader��ô��������
+		//TODO 这么个shader怎么析构？？
 
 	this->scale = scale;
 
@@ -151,8 +153,8 @@ Text::Text(string text, glm::ivec2 pos, float scale):
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4 * 4, vert_data, GL_DYNAMIC_DRAW);
 
-	vector<int> format = {4};
-	declare_interleaving_vert_data_layout(format);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0); 
@@ -174,7 +176,9 @@ void Text::setPosition(unsigned int x, unsigned int y) {
 }
 
 void Text::render() {
-	set_and_push_depth_test_status(false);	
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	text_shader->use();
 	glBindTexture(GL_TEXTURE_2D, font_texture);
@@ -193,13 +197,13 @@ void Text::render() {
 		auto glyph = glyph_data[*it];
 		unsigned char c = *it;
 
-		if(c=='\n'){//��������
+		if(c=='\n'){//允许换行
 			x = pos.x;
 			y += block_height * scale;
 			continue;
 		}
 		
-		//xypos: ÿ���ַ����Ͻǵ����
+		//xypos: 每个字符左上角的起点
 		float xpos = x + glyph.bearing.x * scale;
 		// the offset for ypos is a bit tricky, be careful!
 		float ypos = y + (block_height-glyph.bearing.y) * scale;
@@ -209,7 +213,7 @@ void Text::render() {
 		// update VBO for each character
 		const float eps = 1e-3;
 		float vertices[4][4] = {
-			//pos from UL in pixel |      col      |      row
+			//pos from UL in pixel  |      col        |      row
 			{ xpos,     ypos,       (c%16  )/16.0f    , (c/16  )/8.0f     },
 			{ xpos,     ypos + h,   (c%16  )/16.0f    , (c/16+1)/8.0f-eps },            
 			{ xpos + w, ypos + h,   (c%16+1)/16.0f-eps, (c/16+1)/8.0f-eps },      
@@ -236,5 +240,6 @@ void Text::render() {
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	pop_and_resume_depth_test_status();
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 }

@@ -22,7 +22,7 @@ Camera::~Camera()
 
 void Camera::applyCameraTransform(Shader& shader)
 {
-	shader.setUniformMatrix("transform", this->transform->getTransformMat());
+	shader.setUniformMatrix("view", this->transform->getTransformMat());
 	shader.setUniformMatrix("proj", this->proj->getTransformMat());
 }
 

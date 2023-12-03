@@ -38,13 +38,16 @@ void ColorfulStone::setShader(Shader* s) {
 	shader = s;
 }
 void ColorfulStone::initShader() {
-	shader = new Shader("src\\shaders\\vertex.glsl", "src\\shaders\\frag.glsl");
+	shader = new Shader("src/shaders/vertex.glsl", "src/shaders/frag.glsl");
 }
 void ColorfulStone::initTexture() {
-	texture = new Texture("texture\\stone.bmp");
+	texture = new Texture("texture/stone.bmp");
 }
 void ColorfulStone::render() {
 	shader->use();
+
+	shader->setUniformMatrix("model", this->getModelMatrix());
+
 	Camera* camera = theApp->getCamera();
 	camera->applyCameraTransform(*shader);
 	texture->use();
@@ -92,6 +95,9 @@ Cube::~Cube() {
 void Cube::render() {
 	texture->use();
 	shader->use();
+	// apply model transform
+	shader->setUniformMatrix("model", this->getModelMatrix());
+	// apply view and proj transform
 	Camera* camera = theApp->getCamera();
 	camera->applyCameraTransform(*shader);
 	

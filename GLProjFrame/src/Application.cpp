@@ -87,12 +87,15 @@ void Application::run() {
 	Cube* cube = new Cube();
 
 	//Model *model = new Model("assets/Lumine.obj");
-	//Model *model = new Model("assets/HuTao/HuTao.pmx");
+	Model *model = new Model("assets/HuTao/HuTao.pmx");
 	//Model *model = new Model("assets/backpack/backpack.obj");
-	Model *model = new Model("assets/nanosuit/nanosuit.obj");
+	//Model *model = new Model("assets/nanosuit/nanosuit.obj");
 	//Model* model = new Model("assets/AstroMC/server_map_base.obj");
-	//Model* model = new Model("assets/AstroMC/server_map_base.obj");
-	//exit(0);
+	//Model* model = new Model("assets/Sponza/SponzaNoFlag.obj");
+	model->scale(0.05f);
+	model->translate(glm::vec3(1.0f, 0.0f, 0.0f));
+	model->rotate(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//Cube* model = new Cube();
 
 	double fps{0.0f};
 	char hud_text[256];

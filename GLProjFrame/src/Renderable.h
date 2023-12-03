@@ -1,19 +1,53 @@
 #ifndef _RENDERABLE_H
 #define _RENDERABLE_H
 
+#pragma once
+
 #include "common_t1.h"
 #include "Shader.h"
 #include "Texture.h"
+
+#include "glm/gtx/quaternion.hpp"
+//#include "glm/gtx/quaternion.inl"
 
 class Renderable: public AbsObject {
 protected:
 	// father already defined in 
 	vector<Renderable*> sons;
+
+	glm::vec3 pos;
+	glm::quat rot;//TODO: try use Pauli matrices(SU(2)) to do the rotation :-)
+	glm::vec3 scl{1.0f};
 public:
 	Renderable() {};
 	~Renderable() {};
 	virtual void render() = 0;
 	void addSon(Renderable* renderable);
+
+	// translate goes in GC units, while rotate and scale applies in local coordinates
+	void translate(glm::vec3 v) { this->pos += v; }
+	void rotate(glm::quat q) { this->rot = q * this->rot; }
+	void rotate(float angle, glm::vec3 axis) { 
+		glm::quat q = glm::angleAxis(angle, axis);
+		this->rot = q * this->rot;
+	}
+	// TODO: only uniform scale is supported now, to prevent troubles with normal mappings
+	void scale(glm::vec3 v) { this->scl *= v[0]; }
+	void scale(float s) { this->scl *= s; }
+	glm::mat4 getModelMatrix() {
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, this->pos);
+		// turn quaternion into rotation matrix
+		model = model * glm::toMat4(this->rot);
+		
+		model = glm::scale(model, this->scl);
+		return model;
+	}
+	// apply model transform to all vertices, and clean the transform
+	void applyModelTransform() {
+		//TODO: not implemented yet
+		throw runtime_error("Not implemented yet!");
+	}
 };
 
 class Node: public Renderable {

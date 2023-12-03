@@ -192,6 +192,11 @@ void Model::bindMeshTexture(Mesh* my_mesh, aiMaterial* mat, const vector<string>
 }
 
 void Model::render() {
+	mesh_shader->use();
+	// apply model transform
+	// only one global model transform is supported for a Model
+	mesh_shader->setUniformMatrix("model", this->getModelMatrix());
+
 	for(auto mesh : sons){
 		mesh->render();
 	}
@@ -203,7 +208,6 @@ Mesh::Mesh(Model* father, aiMesh* ai_mesh) {
 	Model* env = father;
 	// so far, the material index are the same between ai and our objects
 	mat = env->materials[ai_mesh->mMaterialIndex];
-
 
 	// load data from ai_mesh, and convert them to fit our format and memory layout
 	nr_vert = ai_mesh->mNumVertices;
@@ -287,11 +291,10 @@ void Mesh::setTextureIndex(int amb, int diff, int spcl, int norm) {
 }
 
 void Mesh::render() {
-	mesh_shader->use();
+	
 	//Model* model = (Model*)this->father;
 	//printf("%d in %d\n",diffuse_tex_idx, model->textures.size());
 	mat->use(mesh_shader);
-
 
 	Camera* camera = theApp->getCamera();
 	camera->applyCameraTransform(*mesh_shader);

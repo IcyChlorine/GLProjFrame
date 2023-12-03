@@ -37,6 +37,16 @@ Application::Application()
 		show_hud = !show_hud;
 	}, GLFW_KEY_F3, InputManager::KEY_PRESS);	
 
+	// toggle fullscreen
+	inputManager->setKeyCallback([&]() {
+		window->toggleFullscreen();
+	}, GLFW_KEY_F11, InputManager::KEY_PRESS);
+
+	// quit on pressing Q
+	inputManager->setKeyCallback([&]() {
+		glfwSetWindowShouldClose(window->getInternalPointer(), true);
+	}, GLFW_KEY_Q, InputManager::KEY_PRESS);
+
 	inputManager->setKeyCallback([&]() {
 		line_mode = !line_mode;
 	}, GLFW_KEY_L, InputManager::KEY_PRESS);	

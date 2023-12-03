@@ -31,7 +31,7 @@ Window::Window(AbsObject* father):
 
 	//create window via glfw
 	int width{ 800 }, height{ 600 };
-	char* wnd_title = "OpenGL Framework beta";
+	const char* wnd_title = "OpenGL Framework beta";
 	this->internal_wnd_pointer = glfwCreateWindow(width, height, wnd_title, NULL, NULL);
 	if (internal_wnd_pointer == NULL)
 	{

@@ -105,3 +105,73 @@ void Cube::render() {
 	glDrawArrays(GL_TRIANGLES, 0, sizeof(vert_data)/sizeof(float)/5);
 	glBindVertexArray(0);
 }
+
+
+ViewportGrid::ViewportGrid(int span) {
+	this->span = span;
+	float* grid_vert_data = new float[get_nr_vert()*3];
+	float* p = grid_vert_data;
+
+	// construct the lines manually
+	for(int x=-span; x<=span;x++) {
+		p[0] = x;
+		p[1] = 0;
+		p[2] = -span;
+		p += 3;
+		p[0] = x;
+		p[1] = 0;
+		p[2] = span;
+		p += 3;
+	}
+	for(int z=-span; z<=span;z++) {
+		p[0] = -span;
+		p[1] = 0;
+		p[2] = z;
+		p += 3;
+		p[0] = span;
+		p[1] = 0;
+		p[2] = z;
+		p += 3;
+	}
+
+	get_and_bind_vao(&VAO);
+	get_and_bind_vbo(&VBO);
+
+	vector<int> format = {3};
+	declare_interleaving_vert_data_layout(format);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*get_nr_vert()*3, grid_vert_data, GL_STATIC_DRAW);
+	delete grid_vert_data;
+
+	unbind_vao();
+	unbind_vbo();
+
+
+	//this->scale(100.0f);
+
+	shader = new Shader("src/shaders/viewport_grid.vert.glsl", "src/shaders/viewport_grid.frag.glsl");
+	InputManager* input = theApp->getInputManager();
+	input->setKeyCallback([&]() {
+		info("Reloading grid shader...\n");
+		try {
+			Shader* new_shader = new Shader("src/shaders/viewport_grid.vert.glsl","src/shaders/viewport_grid.frag.glsl");
+			if(shader) delete shader;
+			shader = new_shader;      
+		} catch(exception& e) {
+			warning("Shader reloading failed, continue to use old shader.\n");
+			return;
+		}
+	}, GLFW_KEY_R, InputManager::KEY_PRESS);
+}
+
+void ViewportGrid::render() {
+	shader->use();
+
+	shader->setUniformMatrix("model", this->getModelMatrix());
+	Camera* camera = theApp->getCamera();
+	camera->applyCameraTransform(*shader);
+
+	glBindVertexArray(VAO);
+	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_LINES, 0, get_nr_vert());
+	glBindVertexArray(0);
+}

@@ -24,6 +24,9 @@ void Camera::applyCameraTransform(Shader& shader)
 {
 	shader.setUniformMatrix("view", this->transform->getTransformMat());
 	shader.setUniformMatrix("proj", this->proj->getTransformMat());
+	// DEBUG TEMP!
+	shader.setUniform("zNear", 0.1f);
+	shader.setUniform("zFar", 100.0f);
 }
 
 

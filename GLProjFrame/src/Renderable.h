@@ -150,4 +150,21 @@ public:
 	virtual void render();
 };
 
+class ViewportGrid: public Renderable {
+protected:
+	unsigned int VAO, VBO, EBO;
+	Shader* shader {nullptr};
+
+	int span;
+
+	inline int get_nr_vert() {
+		// *2: x and z direction; *2: two vertices per line.
+		return 2*2*(span*2+1);
+	}
+public:
+	ViewportGrid(int span=10);
+
+	virtual void render();
+};
+
 #endif

@@ -7,26 +7,26 @@ Application::Application()
 {
 	this->window = new Window(this);
 
-	//init GLAD
-	//要在创建窗口(glfw init)后再init glad，不然会出bug
+	// init GLAD
+	// 要在创建窗口(glfw init)后再init glad，不然会出bug
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
 		error("Failed to initialize GLAD!\n");
 		throw init_exception("Error: Failed to initialize GLAD");
 	}
 
-	//set viewport with respect to the window
+	// set viewport with respect to the window
 	int width, height;
 	window->getSize(&width, &height);
 	glViewport(0, 0, width, height);
 
-	//setup UserInput
+	// setup input manager
 	this->inputManager = window->getInputManager();
 	//input.init(window);
 
-	//setup camera
+	// setup camera
 	camera = new GameCamera(this);
 
-	//按ESC释放鼠标
+	// 按ESC释放鼠标
 	inputManager->setKeyCallback([&]() {
 		camera->setEnabled(!camera->getEnabled());
 		//cout << "key_released" << endl;
@@ -85,16 +85,20 @@ void Application::run() {
 	ColorfulStone* obj = new ColorfulStone();
 	Text* text = new Text("<unknown>", glm::ivec2(0,0), 0.4f);
 	Cube* cube = new Cube();
+	ViewportGrid* grid = new ViewportGrid();
 
 	//Model *model = new Model("assets/Lumine.obj");
-	Model *model = new Model("assets/HuTao/HuTao.pmx");
+	//Model *model = new Model("assets/HuTao/HuTao.pmx");
 	//Model *model = new Model("assets/backpack/backpack.obj");
 	//Model *model = new Model("assets/nanosuit/nanosuit.obj");
 	//Model* model = new Model("assets/AstroMC/server_map_base.obj");
-	//Model* model = new Model("assets/Sponza/SponzaNoFlag.obj");
+	/*Model* model = new Model("assets/Sponza/SponzaNoFlag.obj");
 	model->scale(0.05f);
-	model->translate(glm::vec3(1.0f, 0.0f, 0.0f));
-	model->rotate(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	model->scale(0.2f);
+	model->translate(glm::vec3(0.0f, -1.0f, 0.0f));*/
+	
+	//model->translate(glm::vec3(1.0f, 0.0f, 0.0f));
+	//model->rotate(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	//Cube* model = new Cube();
 
 	double fps{0.0f};
@@ -105,10 +109,10 @@ void Application::run() {
 	{
 		frame_cnt++;
 		time = glfwGetTime();
-		dt = time - time_prev;//calculate delta t between frames
+		dt = time - time_prev; // Δt between frames
 		time_prev = time;
 		//--------------->Begin of Rendering Codes<----------------//
-		//clearing
+		// clearing
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
@@ -117,8 +121,9 @@ void Application::run() {
 		// RENDER!
 		if(line_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		//cube->render();
-		model->render();
+		//model->render();
 		obj->render();
+		grid->render();
 		if(line_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	

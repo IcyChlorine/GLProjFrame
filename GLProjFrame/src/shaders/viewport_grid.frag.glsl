@@ -14,7 +14,7 @@ uniform float zFar;
  * 
  * Under conventional graphics pipeline, there're several quantities related to depth,
  * which is quite confusing. Next, I first list their definition, before exploring 
- * possible ways to generate linearized depth from them.
+ * possible ways to derive linearized depth from them.
  *
  * 1. vec4 gl_Position, which is essentially v_clip(goto the link below for definition of these coordinate systems).
  *    we have z_clip in [-1, 1], w_clip = -z_eye.
@@ -23,9 +23,9 @@ uniform float zFar;
  *    gl_FragCoord.x = (x_ndc linear mapped from [-1,1] to [0, width-1])
  *    gl_FragCoord.y = (y_ndc linear mapped from [-1,1] to [0, height-1])
  *    gl_FragCoord.z = (z_ndc linear mapped from [-1,1] to [0, 1])
- *    gl_FragCoord.w = (1/w_clip)
+ *    gl_FragCoord.w = (1/w_clip) (see https://registry.khronos.org/OpenGL-Refpages/gl4/html/gl_FragCoord.xhtml)
  *
- * Among 1, 2, and 3, gl_Position.zw, NDC.z, and gl_FragCoord.zx are related to depth, most of them are non-linear.
+ * Among quantumtities above, gl_Position.zw, NDC.z, and gl_FragCoord.zx are related to depth, most of which are non-linear.
  * And note that, only gl_Position(by passing data from vertex shader to fragment shader) and gl_FragCoord are
  * accessible in fragment shader.
  *
@@ -40,7 +40,7 @@ uniform float zFar;
  * 3. Get z_eye from gl_FragCoord
  *    (Step 1) z_ndc = 2*gl_FragCoord.z-1.
  *    (Step 2) z_eye = (z_ndc*(zFar-zNear)-2*zFar*zNear) / (zFar+zNear). To implement:
- *     float z_eye_n = (2.0 * zNear * zFar) / (zFar + zNear + z_ndc * (zNear - zFar)); (LearnOpenGL's method)
+ *     float z_eye_n = (2.0 * zNear * zFar) / (zFar + zNear + z_ndc * (zNear - zFar)); (LearnOpenGL's method, see LearnOpenGL/Advanced-OpenGL/Depth-testing)
  *    Or:  z_clip = z_ndc * w_clip , and go back to method 1 or 2. (this is a bit stupid...)
  * 4. Exploit gl_FragCoord.w = 1/w_clip, and w_clip = -z_eye, we have z_eye = -1/gl_FragCoord.w.
  *    - this should be the most computationally efficient way, given no extra data are passed between vert and frag.
@@ -48,9 +48,10 @@ uniform float zFar;
  * Finally, map z_eye to [0, 1] by (|z_eye|-zNear)/(zFar-zNear) if necessary.
  *
  *
- * (see https://www.songho.ca/opengl/gl_projectionmatrix.html for definitions of different coordinate systems)
+ * (see https://www.songho.ca/opengl/gl_projectionmatrix.html for math details and definitions of different coordinate systems)
  */
 
+/* reference implementation of previous methods. In practice, use the follow ldm() function instead.
 float linearize_depth(float z_clip)
 {
     // Get z_ndc
@@ -78,21 +79,25 @@ float linearize_depth(float z_clip)
     //z_eye_n = (2.0 * zNear * zFar) / (zFar - z_ndc * zFar); // Note: the denominator of this formula is not quite stable... So this approx is poor
     return z_eye_n / zFar;
 }
+*/
 
-// linear depth magic, using the most computationally efficient method
+// linear depth magic, use the most computationally efficient method
 float ldm() {
     // return (1/gl_FragCoord.w-zNear)/(zFar-zNear);
     // approximate as zNear is usually vanishingly small
-    return 1/(gl_FragCoord.w*zFar);
+    float zFade = 15.0f;
+    return 1/(gl_FragCoord.w*zFade);
 }
 
 void main()
 {
-    vec3 n = round(pos);
-    if(abs(pos.x-n.x)<0.05 || abs(pos.z-n.z)<0.05)
-        FragColor = vec4(vec3(1.0), 0.5); 
+    /*vec3 n = round(pos);
+    if(abs(pos.x-n.x)<0.01 || abs(pos.z-n.z)<0.01)
+        FragColor = vec4(vec3(1.0), 1.0); 
     else 
-        discard;
+        discard;*/
+    FragColor = vec4(1.0);
 
-    FragColor = vec4(vec3(ldm()), 1.0);
+    //FragColor = vec4(vec3(1-ldm()), 1.0);
+    FragColor.a *= pow(1-ldm(),1);
 }

@@ -25,6 +25,14 @@ inline void get_and_bind_ibo(unsigned int * pIBO) {
 	glGenBuffers(1, pIBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *pIBO);
 }
+// three in one!
+inline void init_buffers(unsigned int * pVAO, unsigned int * pVBO, unsigned int * pIBO) {
+	get_and_bind_vao(pVAO);
+	get_and_bind_vbo(pVBO);
+	if(pIBO) get_and_bind_ibo(pIBO);
+}
+
+
 /* for GL_TEXTURE_2D only */
 inline void gen_and_bind_texture(unsigned int * pTex) {
 	glGenTextures(1, pTex);

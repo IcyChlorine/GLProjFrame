@@ -14,8 +14,7 @@ GameCamera::GameCamera(AbsObject* father) :Camera{ father } {
 }
 
 GameCamera::~GameCamera()
-{
-}
+{ }
 
 inline float clamp(float x, float min, float max) {
 	if (x < min) return min;
@@ -119,17 +118,16 @@ void GameCamera::update(float dt)
 	transMat = glm::translate(transMat, -this->pos);
 	*/
 	glm::mat4 transMat = glm::lookAt(pos, pos + front, up);
-	transform->setTransformMat(transMat); 
+	view = transMat; 
 
 	glfwSetCursorPos(window, width / 2, height / 2);
 	
 	// 透视投影变换
 	// TODO: make these parameters adjustable
 	float vertical_fov = 45.0f;
-	// set to 10 for debug only!(temporarily)
 	float zNear = 0.1f, zFar = 100.0f;
-	//print_glm_mat4(cout, _proj);
-	proj->setTransformMat(glm::perspective(glm::radians(vertical_fov), (float)width / (float)height, zNear, zFar));
+	proj = glm::perspective(glm::radians(vertical_fov), (float)width / (float)height, zNear, zFar);
+	//print_glm_mat4(cout, proj);
 }
 
 void GameCamera::outputDebugInfo(ostream & out)

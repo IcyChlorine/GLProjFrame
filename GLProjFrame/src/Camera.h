@@ -1,14 +1,15 @@
 #pragma once
 #include "util.h"
 
+#include "glm/mat4x4.hpp"
+
 #include "Shader.h"
-#include "Transform.h"
 class Camera :
 	public AbsObject
 {
 protected:
-	Transform* transform{ nullptr };
-	Transform* proj{ nullptr };
+	glm::mat4 view{ glm::mat4(1.0f) };
+	glm::mat4 proj{ glm::mat4(1.0f) };
 public:
 	Camera();
 	Camera(AbsObject* father);

@@ -1,29 +1,17 @@
 #include "Camera.h"
 
-Camera::Camera()
-{
-	this->transform = new Transform();
-	this->proj = new Transform();
-}
+Camera::Camera() { }
 
 Camera::Camera(AbsObject * father):
-	AbsObject{father}
-{
-	this->transform = new Transform();
-	this->proj = new Transform();
-}
+	AbsObject{father} { }
 
 
-Camera::~Camera()
-{
-	delete this->transform;
-	delete this->proj;
-}
+Camera::~Camera() { }
 
 void Camera::applyCameraTransform(Shader& shader)
 {
-	shader.setUniformMatrix("view", this->transform->getTransformMat());
-	shader.setUniformMatrix("proj", this->proj->getTransformMat());
+	shader.setUniformMatrix("view", this->view);
+	shader.setUniformMatrix("proj", this->proj);
 }
 
 

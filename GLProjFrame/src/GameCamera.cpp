@@ -42,8 +42,9 @@ void GameCamera::update(float dt)
 	if (!enabled) return;
 	cumulated_time += dt;
 	// 只有时间间隔足够大时才更新变换，避免因鼠标只移动了一两个像素造成的不平滑
-	if (cumulated_time < 0.01f)
-		return;
+	// Extra notes: if vsync is turned of, this is not necessay
+	//if (cumulated_time < 0.01f)
+	//	return;
 
 	// get these handy vectors
 	glm::vec3 front, right, up;
@@ -125,9 +126,10 @@ void GameCamera::update(float dt)
 	// 透视投影变换
 	// TODO: make these parameters adjustable
 	float vertical_fov = 45.0f;
+	// set to 10 for debug only!(temporarily)
 	float zNear = 0.1f, zFar = 100.0f;
-	proj->setTransformMat(glm::perspective(
-		glm::radians(vertical_fov), (float)width / (float)height, zNear, zFar));
+	//print_glm_mat4(cout, _proj);
+	proj->setTransformMat(glm::perspective(glm::radians(vertical_fov), (float)width / (float)height, zNear, zFar));
 }
 
 void GameCamera::outputDebugInfo(ostream & out)

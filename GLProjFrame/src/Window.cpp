@@ -43,13 +43,19 @@ Window::Window(AbsObject* father):
 	}
 
 	glfwMakeContextCurrent(internal_wnd_pointer);
-	// Set swap inteval to 0 effectively removes the 60 fps cap,
-	// which is, caused by the limited rate of window repaint
-	// event issued by windows os.
-	// If you want *test performance*, set the inteval to 0.
-	// However, if you want to *keep your GPU quiet*, comment the 
-	// following line out.
-	glfwSwapInterval(1); 
+	/* 
+	 * Swap inteval is the minimal number of screen updates that glfw
+	 * will wait before swapping the buffers. Say your monitor is 120Hz,
+	 * then glfw will wait <swap inteval> monitor refresh before swapping.
+	 * 
+	 * Set the interval to 1 is beneficial at most time, as it will eliminate
+	 * redundant frames that your monitor can't keep up. However, if you
+	 * want to test the performance of your program, you may want to set 
+	 * swap interval to 0, allowing fps to be >= 60(or 120).
+	 * 
+	 * Setting swap interval to 1 is also known as `vsync`, or fps cap.
+	 */
+	glfwSwapInterval(1);
 
 	//register RESIZE listener func
 	glfwSetFramebufferSizeCallback(internal_wnd_pointer, glfw_resize_callback);

@@ -28,6 +28,8 @@ Window::Window(AbsObject* father):
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_SAMPLES, 4); // MSAA
+	
 
 	//create window via glfw
 	int width{ 800 }, height{ 600 };
@@ -47,7 +49,7 @@ Window::Window(AbsObject* father):
 	// If you want *test performance*, set the inteval to 0.
 	// However, if you want to *keep your GPU quiet*, comment the 
 	// following line out.
-	glfwSwapInterval(0); 
+	glfwSwapInterval(1); 
 
 	//register RESIZE listener func
 	glfwSetFramebufferSizeCallback(internal_wnd_pointer, glfw_resize_callback);

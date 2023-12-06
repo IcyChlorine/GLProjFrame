@@ -14,6 +14,8 @@ Application::Application()
 		throw init_exception("Error: Failed to initialize GLAD");
 	}
 
+	glEnable(GL_MULTISAMPLE);
+
 	// set viewport with respect to the window
 	int width, height;
 	window->getSize(&width, &height);

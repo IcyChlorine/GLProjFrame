@@ -10,25 +10,26 @@ Texture::Texture(string filename)
 	set_texture_param(GL_NEAREST);
 
 	// load and generate the texture
-	int width{0}, height{0}, nrChannels{0};
-	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
-	infof("#channel of `%s` is %d.\n",filename.c_str(),nrChannels);
-	if (data == NULL)
+	int width{0}, height{0}, nr_channels{0};
+	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nr_channels, 0);
+	if (data == nullptr)
 	{
 		errorf("Failed to load texture from file `%s`.\n", filename.c_str());
-		// recoverable, so no exception is thrown
+		throw runtime_error("Failed to load texture from file.");
 	}
+	verbosef("#channel of `%s` is %d.\n",filename.c_str(),nr_channels);
+
 	GLenum format;
-	if     (nrChannels==1) format=GL_RED;
-	else if(nrChannels==3) format=GL_RGB;
-	else if(nrChannels==4) format=GL_RGBA;
-	else {error("Unsupported #channel!\n"); throw exception();}
+	if     (nr_channels==1) format=GL_RED;
+	else if(nr_channels==3) format=GL_RGB;
+	else if(nr_channels==4) format=GL_RGBA;
+	else { error("Unsupported #channel!\n"); throw exception(); }
 
 	simplifid_tex_image_func(data, format, width, height);
 	
+	stbi_image_free(data); // data have been copied to OpenGL, so we can free `data` now
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	stbi_image_free(data);
 }
 
 

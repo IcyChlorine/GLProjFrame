@@ -30,7 +30,7 @@ Window::Window(AbsObject* father):
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_SAMPLES, 4); // MSAA
 	
-
+	//TODO: make window width, height, title, nr_sample and vsync configurable
 	//create window via glfw
 	int width{ 800 }, height{ 600 };
 	const char* wnd_title = "OpenGL Framework beta";

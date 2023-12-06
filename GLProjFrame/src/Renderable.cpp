@@ -113,7 +113,7 @@ ViewportGrid::ViewportGrid(int span) {
 	float* p = grid_vert_data;
 
 	// construct the lines manually
-	for(int x=-span; x<=span;x++) {
+	for(int x=-span; x<=span; x++) {
 		p[0] = x;
 		p[1] = 0;
 		p[2] = -span;
@@ -123,7 +123,7 @@ ViewportGrid::ViewportGrid(int span) {
 		p[2] = span;
 		p += 3;
 	}
-	for(int z=-span; z<=span;z++) {
+	for(int z=-span; z<=span; z++) {
 		p[0] = -span;
 		p[1] = 0;
 		p[2] = z;
@@ -144,9 +144,6 @@ ViewportGrid::ViewportGrid(int span) {
 
 	unbind_vao();
 	unbind_vbo();
-
-
-	//this->scale(100.0f);
 
 	shader = new Shader("src/shaders/viewport_grid.vert.glsl", "src/shaders/viewport_grid.frag.glsl");
 	InputManager* input = theApp->getInputManager();
@@ -171,7 +168,6 @@ void ViewportGrid::render() {
 	camera->applyCameraTransform(*shader);
 
 	glBindVertexArray(VAO);
-	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glDrawArrays(GL_LINES, 0, get_nr_vert());
 	glBindVertexArray(0);
 }

@@ -1,7 +1,7 @@
 #version 330 core
 
 in vec3 pos;
-in vec4 pos_clip;
+//in vec4 pos_clip; // should = gl_Position
 
 out vec4 FragColor;
 

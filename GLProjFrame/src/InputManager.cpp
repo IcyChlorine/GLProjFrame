@@ -9,9 +9,9 @@ void InputManager::glfw_key_callback(GLFWwindow * window, int key_num, int scanc
 	}
 	//										判断函数是否为空
 	if (action == GLFW_PRESS && instance->key_callback[key_num][0])
-		instance->key_callback[key_num][0]();
+		instance->key_callback[key_num][KEY_PRESS]();
 	else if (action == GLFW_RELEASE && instance->key_callback[key_num][1])
-		instance->key_callback[key_num][1]();
+		instance->key_callback[key_num][KEY_RELEASE]();
 }
 
 void InputManager::glfw_mouse_button_callback(GLFWwindow * window, int button, int action, int mods)
@@ -70,10 +70,12 @@ void InputManager::setMouseMoveCallback(function<void(float, float)> func) {
 	mouse_move_callback = func;
 }
 void InputManager::setKeyCallback(function<void()> func, int key, int action) {
-	if ((key < 0 || key>=KEY_ARR_CAPACITY) ||
-		(action != 0 && action != 1)) {
+	bool valid = (key >= 0 && key < KEY_ARR_CAPACITY);
+	valid = valid && (action == KEY_PRESS || action == KEY_RELEASE);
+	if (!valid) {
 		error("InputManager.setKeyCallback: Illegal Argument!\n");
 		throw exception();
 	}
+
 	key_callback[key][action] = func;
 }

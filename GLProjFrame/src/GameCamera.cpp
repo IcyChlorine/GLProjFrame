@@ -6,7 +6,7 @@
 
 GameCamera::GameCamera(AbsObject* father) :Camera{ father } {
 	int width, height;
-	auto window = ((Application*)father)->getWindow();
+	auto window = ((GraphicsApplication*)father)->getWindow();
 	window->getSize(&width, &height);
 	window->setCursorPos(width / 2, height / 2);
 	
@@ -50,7 +50,7 @@ void GameCamera::update(float dt)
 	this->getDirectionVectors(front, up, right);
 	
 	// 鼠标控制视角旋转
-	auto window = ((Application*)father)->getWindow()->getInternalPointer();
+	auto window = ((GraphicsApplication*)father)->getWindow()->getInternalPointer();
 	int width, height;
 	double cursor_x, cursor_y;
 	glfwGetWindowSize(window, &width, &height);

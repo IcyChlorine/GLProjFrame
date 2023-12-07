@@ -8,11 +8,11 @@ void handleEvents(GLFWwindow *window)
 }
 
 /* theApp should be accessible from any object, so make it global.*/
-Application* theApp{nullptr};
+DemoApp* theApp{nullptr};
 
 int main() {
 	try {
-		theApp = new Application();
+		theApp = new DemoApp();
 		theApp->run();
 		
 		delete theApp;

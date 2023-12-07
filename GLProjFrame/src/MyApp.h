@@ -1,5 +1,5 @@
 #include "Application.h"
 
-class MyApp: public Application {
+/*class MyApp: public MyApp {
 
-};
+};*/

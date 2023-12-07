@@ -28,7 +28,14 @@ Window::Window(AbsObject* father):
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_SAMPLES, 4); // MSAA
+
+	//TODO: make this an argument
+	int nr_samples = 4;
+	assert(nr_samples >= 1 and nr_samples <= 64); // prevent from wild values
+	if(nr_samples > 1) {
+		glfwWindowHint(GLFW_SAMPLES, 4); // MSAA
+		infof("Window scheduled to do MSAA(#sp=%d), Don't forget to `glEnable(GL_MULTISAMPLE)`, or it won't work.", nr_samples);
+	}
 	
 	//TODO: make window width, height, title, nr_sample and vsync configurable
 	//create window via glfw

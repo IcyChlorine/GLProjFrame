@@ -63,7 +63,6 @@ Application::Application()
 Application::~Application()
 {
 	glfwTerminate();
-	delete shader;
 	delete inputManager;
 	delete camera;
 }

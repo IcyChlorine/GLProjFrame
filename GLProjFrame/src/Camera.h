@@ -1,3 +1,5 @@
+#ifndef _CAMERA_H
+#define _CAMERA_H
 #pragma once
 #include "util.h"
 
@@ -20,3 +22,5 @@ public:
 
 // for debugging
 void print_glm_mat4(std::ostream& out, glm::mat4 mat);
+
+#endif // !_CAMERA_H

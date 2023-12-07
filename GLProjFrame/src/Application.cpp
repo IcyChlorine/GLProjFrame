@@ -79,24 +79,10 @@ void DemoApp::run() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	ColorfulStone* obj = new ColorfulStone();
 	Text* text = new Text("<unknown>", glm::ivec2(0,0), 0.4f);
 	Cube* cube = new Cube();
+	cube->translate(glm::vec3(0.0f, 0.5f, 0.0f));
 	ViewportGrid* grid = new ViewportGrid();
-
-	//Model *model = new Model("assets/Lumine.obj");
-	//Model *model = new Model("assets/HuTao/HuTao.pmx");
-	//Model *model = new Model("assets/backpack/backpack.obj");
-	//Model *model = new Model("assets/nanosuit/nanosuit.obj");
-	//Model* model = new Model("assets/AstroMC/server_map_base.obj");
-	/*Model* model = new Model("assets/Sponza/SponzaNoFlag.obj");
-	model->scale(0.05f);
-	model->scale(0.2f);
-	model->translate(glm::vec3(0.0f, -1.0f, 0.0f));*/
-	
-	//model->translate(glm::vec3(1.0f, 0.0f, 0.0f));
-	//model->rotate(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	//Cube* model = new Cube();
 
 	double fps{0.0f};
 	char hud_text[256];
@@ -104,7 +90,6 @@ void DemoApp::run() {
 	
 	while (!window->shouldClose())
 	{
-		frame_cnt++;
 		time = glfwGetTime();
 		dt = time - time_prev; // Δt between frames
 		time_prev = time;
@@ -116,13 +101,9 @@ void DemoApp::run() {
 		camera->update(dt);
 
 		// RENDER!
-		//cube->render();
-		//model->render();
-		obj->render();
+		cube->render();
 		grid->render();
-	
-		if(show_hud)
-			text->render();
+		if(show_hud) text->render();
 		
 		//---------------->End of Rendering Codes<----------------//
 		glfwSwapBuffers(window->getInternalPointer());
@@ -249,7 +230,6 @@ void MyApp::run() {
 	
 	while (!window->shouldClose())
 	{
-		frame_cnt++;
 		time = glfwGetTime();
 		dt = time - time_prev; // Δt between frames
 		time_prev = time;

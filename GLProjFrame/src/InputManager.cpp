@@ -36,11 +36,19 @@ void InputManager::glfw_mouse_move_callback(GLFWwindow * window, double x, doubl
 		instance->mouse_move_callback(x, y);
 }
 
+void InputManager::glfw_scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
+{
+	if (instance->scroll_callback)
+		instance->scroll_callback(yoffset);
+}
+
 void InputManager::init(GLFWwindow* window)
 {
-	glfwSetKeyCallback(window, glfw_key_callback);
+	glfwSetKeyCallback        (window, glfw_key_callback);
 	glfwSetMouseButtonCallback(window, glfw_mouse_button_callback);
-	glfwSetCursorPosCallback(window, glfw_mouse_move_callback);
+	glfwSetCursorPosCallback  (window, glfw_mouse_move_callback);
+	glfwSetScrollCallback     (window, glfw_scroll_callback);
+	
 }
 
 InputManager::InputManager(GLFWwindow* window)
@@ -78,4 +86,8 @@ void InputManager::setKeyCallback(function<void()> func, int key, int action) {
 	}
 
 	key_callback[key][action] = func;
+}
+
+void InputManager::setMouseScrollCallback(function<void(float)> func) {
+	scroll_callback = func;
 }

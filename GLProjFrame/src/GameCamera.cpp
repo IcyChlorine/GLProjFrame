@@ -161,10 +161,9 @@ InspectCamera::InspectCamera(AbsObject* father) : Camera{ father } {
 	}, 0, 1);
 	
 	// zoom up dist when mousewheel
-	//input_manager->setMouseScrollCallback([&](double xoffset, double yoffset) {
-	//	dist -= yoffset * 0.1f;
-	//	dist = clamp(dist, 0.1f, 100.0f);
-	//}, 0);
+	input_manager->setMouseScrollCallback([&](double yoffset) {
+		dist *= exp(-yoffset*0.1); // scale invariant
+	});
 
 	this->update(0);
 }

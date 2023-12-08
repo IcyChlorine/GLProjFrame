@@ -1,5 +1,10 @@
+#ifndef _MYAPP_H
+#define _MYAPP_H
+
+#pragma once
+
 #include "Application.h"
 
-/*class MyApp: public MyApp {
 
-};*/
+
+#endif // !_MYAPP_H

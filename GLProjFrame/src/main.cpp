@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "MyApp.h"
 using namespace std;
 
 void handleEvents(GLFWwindow *window)
@@ -8,7 +9,7 @@ void handleEvents(GLFWwindow *window)
 }
 
 /* theApp should be accessible from any object, so make it global.*/
-MyApp* theApp{nullptr};
+MyApp* theApp{ nullptr };
 
 int main() {
 	try {

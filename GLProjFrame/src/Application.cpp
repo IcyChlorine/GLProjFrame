@@ -127,7 +127,7 @@ void DemoApp::run() {
 
 MyApp::MyApp()
 {
-	this->window = new Window(this);
+	this->window = new Window((AbsObject*)this);
 
 	// init GLAD
 	// 要在创建窗口(glfw init)后再init glad，不然会出bug
@@ -148,7 +148,7 @@ MyApp::MyApp()
 	//input.init(window);
 
 	// setup camera
-	camera = new GameCamera(this);
+	camera = new GameCamera((AbsObject*)this);
 
 	// 按ESC释放鼠标
 	inputManager->setKeyCallback([&]() {

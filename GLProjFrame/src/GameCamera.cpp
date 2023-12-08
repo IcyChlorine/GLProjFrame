@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-GameCamera::GameCamera(AbsObject* father) :Camera{ father } {
+GameCamera::GameCamera(AbsObject* father) : Camera{ father } {
 	int width, height;
 	auto window = ((GraphicsApplication*)father)->getWindow();
 	window->getSize(&width, &height);

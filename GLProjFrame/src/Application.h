@@ -48,12 +48,13 @@ public:
 	DemoApp();
 	~DemoApp();
 
-	void run();
-	Window* getWindow() { return window; }
-	InputManager* getInputManager() { return inputManager; }
+	void run() override;
+	Window* getWindow() override { return window; }
+	InputManager* getInputManager() override { return inputManager; }
 	Camera* getCamera() { return camera; }
 };
-class MyApp :public AbsObject
+
+class MyApp : public GraphicsApplication
 {
 private:
 	bool show_hud{ false };
@@ -68,11 +69,11 @@ public:
 	MyApp();
 	~MyApp();
 	
-	void run();
-	Window* getWindow() { return window; }
+	void run() override;
+	Window* getWindow() override { return window; }
 	Camera* getCamera() { return camera; }
 
-	InputManager* getInputManager() { return inputManager; }
+	InputManager* getInputManager() override { return inputManager; }
 
 	/*void flushConsoleOutput() { 
 		//cout << consoleOutput.str(); 
@@ -81,6 +82,6 @@ public:
 	}*/
 };
 
-extern DemoApp* theApp;
+extern MyApp* theApp;
 
 #endif

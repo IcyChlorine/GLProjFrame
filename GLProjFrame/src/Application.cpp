@@ -26,13 +26,13 @@ DemoApp::DemoApp()
 	//input.init(window);
 
 	// setup camera
-	camera = new GameCamera((AbsObject*)this);
+	camera = new InspectCamera((AbsObject*)this);
 
 	// 按ESC释放鼠标
-	inputManager->setKeyCallback([&]() {
+	/*inputManager->setKeyCallback([&]() {
 		camera->setEnabled(!camera->getEnabled());
 		//cout << "key_released" << endl;
-	}, GLFW_KEY_ESCAPE, InputManager::KEY_PRESS);
+	}, GLFW_KEY_ESCAPE, InputManager::KEY_PRESS);*/
 	
 	// 显示帧率
 	inputManager->setKeyCallback([&]() {

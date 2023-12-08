@@ -78,7 +78,7 @@ void GameCamera::update(float dt)
 
 	// project to y axis, and xz plane, respectively.
 	glm::vec3 mv_up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 mv_front = glm::normalize(glm::vec3(front.x, 0.0f, front.z));
+	glm::vec3 mv_front = glm::vec3(sin(glm::radians(phi)), 0.0f, cos(glm::radians(phi)));
 
 	this->pos += dr.x*right + dr.y*mv_up + dr.z*mv_front;
 
@@ -142,4 +142,133 @@ int GameCamera::outputDebugInfo(char* buf)
 {
 	return sprintf(buf, "(x,y,z) = (%.2f,%.2f,%.2f)\n(th, phi) = (%.2f,%.2f)\n", 
 		pos.x, pos.y, pos.z, th, phi);
+}
+
+InspectCamera::InspectCamera(AbsObject* father) : Camera{ father } {
+	int width, height;
+	auto window = ((GraphicsApplication*)father)->getWindow();
+	window->getSize(&width, &height);
+	auto input_manager = ((GraphicsApplication*)father)->getInputManager();
+
+	input_manager->setMouseClickCallback([&]() {
+		dragging = true;
+		glfwGetCursorPos(window->getInternalPointer(), &drag_start.x, &drag_start.y);
+		drag_start_th = th;
+		drag_start_phi = phi;
+	}, 0, 0);
+	input_manager->setMouseClickCallback([&]() {
+		dragging = false;
+	}, 0, 1);
+	
+	// zoom up dist when mousewheel
+	//input_manager->setMouseScrollCallback([&](double xoffset, double yoffset) {
+	//	dist -= yoffset * 0.1f;
+	//	dist = clamp(dist, 0.1f, 100.0f);
+	//}, 0);
+
+	this->update(0);
+}
+
+InspectCamera::~InspectCamera()
+{ }
+
+// convert spherical coordinates to cartesian coordinates
+inline glm::vec3 angle2vec(float th, float phi) {
+	return glm::vec3(
+		sin(glm::radians(th)) * sin(glm::radians(phi)),
+		cos(glm::radians(th)),
+		sin(glm::radians(th)) * cos(glm::radians(phi))
+	);
+}
+
+void InspectCamera::getDirectionVectors(glm::vec3& front, glm::vec3& up, glm::vec3& right) {
+	front = glm::vec3(
+		sin(glm::radians(th)) * sin(glm::radians(phi)),
+		cos(glm::radians(th)),
+		sin(glm::radians(th)) * cos(glm::radians(phi))
+	);
+	right = glm::vec3(
+		sin(glm::radians(phi-90)),
+		0,
+		cos(glm::radians(phi-90))
+	);
+	up = glm::cross(right, front);
+}
+
+void InspectCamera::update(float dt)
+{
+
+	// get these handy vectors
+	glm::vec3 front, right, up;
+	this->getDirectionVectors(front, up, right);
+	
+	GLFWwindow* window = ((GraphicsApplication*)father)->getWindow()->getInternalPointer();
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+
+	if(this->dragging) {
+		// 鼠标控制视角旋转
+		
+		double cursor_x, cursor_y;
+		glfwGetCursorPos(window, &cursor_x, &cursor_y);
+	
+		//phi += (time - time_prev)*10;
+		phi = drag_start_phi - (cursor_x - drag_start.x)*phi_rate * 360;
+		th  = drag_start_th  + (cursor_y - drag_start.y)*th_rate * 90;
+		th  = clamp(th, 0.0f, 180.0f);
+	}
+
+	// WASD控制平移
+	glm::vec4 dr = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		dr.x += dt*vx;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		dr.x -= dt*vx;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		dr.z -= dt*vz;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		dr.z += dt*vz;
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		dr.y += dt*vy;
+	if (glfwGetKey(window, GLFW_KEY_CAPS_LOCK) == GLFW_PRESS)
+		dr.y -= dt*vy;
+	if(accelerate) dr *= 3;
+
+	// project to y axis, and xz plane, respectively.
+	glm::vec3 mv_up = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 mv_front = glm::vec3(sin(glm::radians(phi)), 0.0f, cos(glm::radians(phi)));
+
+	this->focus += dr.x*right + dr.y*mv_up + dr.z*mv_front;
+
+	// 计算变换
+	/*
+	auto transMat = glm::mat4(1.0f);
+	transMat = glm::rotate(transMat, glm::radians( th - 90), glm::vec3(1.0f, 0.0f, 0.0f));
+	transMat = glm::rotate(transMat, glm::radians(-phi-180), glm::vec3(0.0f, 1.0f, 0.0f));
+	transMat = glm::translate(transMat, -this->pos);
+	*/
+	glm::mat4 transMat = glm::lookAt(focus-dist*front, focus, up);
+	view = transMat; 
+
+	// 透视投影变换
+	// TODO: make these parameters adjustable
+	float vertical_fov = 45.0f;
+	float zNear = 0.1f, zFar = 100.0f;
+	proj = glm::perspective(glm::radians(vertical_fov), (float)width / (float)height, zNear, zFar);
+	//print_glm_mat4(cout, proj);
+}
+
+void InspectCamera::outputDebugInfo(ostream & out)
+{
+	//TODO
+	char str[100];
+	sprintf(str, "focusing (x, y, z) = (%.2f, %.2f, %.2f)\n(th, phi)=(%.2f, %.2f)\n", 
+		focus.x, focus.y, focus.z, th, phi);
+	out << str;
+}
+
+int InspectCamera::outputDebugInfo(char* buf)
+{
+	return sprintf(buf, "focusing (x,y,z) = (%.2f,%.2f,%.2f)\n(th, phi) = (%.2f,%.2f)\n", 
+		focus.x, focus.y, focus.z, th, phi);
 }

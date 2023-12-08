@@ -42,7 +42,7 @@ private:
 protected:
 	Window* window{ nullptr };
 	InputManager* inputManager{ nullptr };
-	GameCamera* camera{ nullptr };
+	InspectCamera* camera{ nullptr };
 
 public:
 	DemoApp();
@@ -82,6 +82,6 @@ public:
 	}*/
 };
 
-extern MyApp* theApp;
+extern DemoApp* theApp;
 
 #endif

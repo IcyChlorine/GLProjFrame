@@ -14,17 +14,25 @@ class InputManager://not fully implemented.
 	public AbsObject,public Singleton
 {
 public:
-	static constexpr int KEY_ARR_CAPACITY = 512;
-
+	static constexpr int KEY_ARR_CAPACITY = 512; // 384=GLFW_KEY_LAST keys defined by glfw
 	static constexpr int KEY_PRESS = 0;
 	static constexpr int KEY_RELEASE = 1;
+	static constexpr int MOUSE_PRESS = 0;
+	static constexpr int MOUSE_RELEASE = 1;
+	static constexpr int MOUSE_LEFT = 0;
+	static constexpr int MOUSE_RIGHT = 1;
+	static constexpr int MOUSE_MIDDLE = 2;
+	// key press|release
+	// mouse move
+	// mouse click(left, middle, right; press, release)
+	// mouse scroll
 
-	//TODO: make these vectors, allowing multiple registered callbacks
 	//UserInput* input;
-	function<void()> mouse_click_callback[2][2];//[0|1][0|1]表示[左键|右键][按下|抬起]时调用的函数
-	function<void(float, float)> mouse_move_callback;
-	function<void()> key_callback[512][2];//[GLFW_KEY][0|1]表示某个键[按下|抬起]时调用的函数
-	function<void(float)> scroll_callback;
+	vector<function<void()>> mouse_click_callbacks[3][2];//[0|1][0|1]表示[左键|右键|中键][按下|抬起]时调用的函数
+	vector<function<void(float, float)>> mouse_move_callbacks;
+	vector<function<void()>> key_callbacks[KEY_ARR_CAPACITY][2];//[GLFW_KEY][0|1]表示某个键[按下|抬起]时调用的函数
+	vector<function<void(float)>> scroll_callbacks;
+
 
 	static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void glfw_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
@@ -35,9 +43,9 @@ public:
 	InputManager(GLFWwindow* window);
 	~InputManager();
 
-	void setMouseClickCallback(function<void()> func, int key, int action);
-	void setMouseMoveCallback(function<void(float, float)> func);
-	void setKeyCallback(function<void()> func, int key, int action);
-	void setMouseScrollCallback(function<void(float)> func);
+	void addMouseClickCallback(function<void()> func, int key, int action);
+	void addMouseMoveCallback(function<void(float, float)> func);
+	void addKeyCallback(function<void()> func, int key, int action);
+	void addMouseScrollCallback(function<void(float)> func);
 };
 

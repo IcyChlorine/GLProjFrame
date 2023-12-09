@@ -65,7 +65,7 @@ void Model::initShader() {
 		mesh_shader = new Shader("src/shaders/mesh.vert.glsl","src/shaders/mesh.frag.glsl");
 	}
 	InputManager* input = theApp->getInputManager();
-	input->setKeyCallback([&]() {
+	input->addKeyCallback([&]() {
 		info("Reloading mesh shader...\n");
 		try {
 			Shader* new_shader = new Shader("src/shaders/mesh.vert.glsl","src/shaders/mesh.frag.glsl");

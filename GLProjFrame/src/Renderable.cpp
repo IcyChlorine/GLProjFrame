@@ -147,7 +147,7 @@ ViewportGrid::ViewportGrid(int span) {
 
 	shader = new Shader("src/shaders/viewport_grid.vert.glsl", "src/shaders/viewport_grid.frag.glsl");
 	InputManager* input = theApp->getInputManager();
-	input->setKeyCallback([&]() {
+	input->addKeyCallback([&]() {
 		info("Reloading grid shader...\n");
 		try {
 			Shader* new_shader = new Shader("src/shaders/viewport_grid.vert.glsl","src/shaders/viewport_grid.frag.glsl");
@@ -168,6 +168,7 @@ void ViewportGrid::render() {
 	camera->applyCameraTransform(*shader);
 
 	glBindVertexArray(VAO);
+	//glLineWidth(4.0f);
 	glDrawArrays(GL_LINES, 0, get_nr_vert());
 	glBindVertexArray(0);
 }

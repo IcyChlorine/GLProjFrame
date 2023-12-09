@@ -29,27 +29,27 @@ DemoApp::DemoApp()
 	camera = new InspectCamera((AbsObject*)this);
 
 	// 按ESC释放鼠标
-	/*inputManager->setKeyCallback([&]() {
+	/*inputManager->addKeyCallback([&]() {
 		camera->setEnabled(!camera->getEnabled());
 		//cout << "key_released" << endl;
 	}, GLFW_KEY_ESCAPE, InputManager::KEY_PRESS);*/
 	
 	// 显示帧率
-	inputManager->setKeyCallback([&]() {
+	inputManager->addKeyCallback([&]() {
 		show_hud = !show_hud;
 	}, GLFW_KEY_F3, InputManager::KEY_PRESS);	
 
 	// toggle fullscreen
-	inputManager->setKeyCallback([&]() {
+	inputManager->addKeyCallback([&]() {
 		window->toggleFullscreen();
 	}, GLFW_KEY_F11, InputManager::KEY_PRESS);
 
 	// quit on pressing Q
-	inputManager->setKeyCallback([&]() {
+	inputManager->addKeyCallback([&]() {
 		glfwSetWindowShouldClose(window->getInternalPointer(), true);
 	}, GLFW_KEY_Q, InputManager::KEY_PRESS);
 
-	inputManager->setKeyCallback([&]() {
+	inputManager->addKeyCallback([&]() {
 		GameCamera* p = (GameCamera*)camera;
 		p->accelerate = !p->accelerate;
 	}, GLFW_KEY_LEFT_SHIFT, InputManager::KEY_PRESS);
@@ -151,31 +151,31 @@ MyApp::MyApp()
 	camera = new GameCamera((AbsObject*)this);
 
 	// 按ESC释放鼠标
-	inputManager->setKeyCallback([&]() {
+	inputManager->addKeyCallback([&]() {
 		camera->setEnabled(!camera->getEnabled());
 		//cout << "key_released" << endl;
 	}, GLFW_KEY_ESCAPE, InputManager::KEY_PRESS);
 	
 	// 显示帧率
-	inputManager->setKeyCallback([&]() {
+	inputManager->addKeyCallback([&]() {
 		show_hud = !show_hud;
 	}, GLFW_KEY_F3, InputManager::KEY_PRESS);	
 
 	// toggle fullscreen
-	inputManager->setKeyCallback([&]() {
+	inputManager->addKeyCallback([&]() {
 		window->toggleFullscreen();
 	}, GLFW_KEY_F11, InputManager::KEY_PRESS);
 
 	// quit on pressing Q
-	inputManager->setKeyCallback([&]() {
+	inputManager->addKeyCallback([&]() {
 		glfwSetWindowShouldClose(window->getInternalPointer(), true);
 	}, GLFW_KEY_Q, InputManager::KEY_PRESS);
 
-	inputManager->setKeyCallback([&]() {
+	inputManager->addKeyCallback([&]() {
 		line_mode = !line_mode;
 	}, GLFW_KEY_L, InputManager::KEY_PRESS);	
 
-	inputManager->setKeyCallback([&]() {
+	inputManager->addKeyCallback([&]() {
 		GameCamera* p = (GameCamera*)camera;
 		p->accelerate = !p->accelerate;
 	}, GLFW_KEY_LEFT_SHIFT, InputManager::KEY_PRESS);

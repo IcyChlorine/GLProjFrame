@@ -150,18 +150,21 @@ InspectCamera::InspectCamera(AbsObject* father) : Camera{ father } {
 	window->getSize(&width, &height);
 	auto input_manager = ((GraphicsApplication*)father)->getInputManager();
 
-	input_manager->setMouseClickCallback([&]() {
+	input_manager->addMouseClickCallback([&]() {
+		// Note: Don't capture local variables by reference, as this function will
+		// work as callback, and the local variables will be destroyed when called.
 		dragging = true;
+		auto window = ((GraphicsApplication*)this->getFather())->getWindow();
 		glfwGetCursorPos(window->getInternalPointer(), &drag_start.x, &drag_start.y);
 		drag_start_th = th;
 		drag_start_phi = phi;
 	}, 0, 0);
-	input_manager->setMouseClickCallback([&]() {
+	input_manager->addMouseClickCallback([&]() {
 		dragging = false;
 	}, 0, 1);
 	
 	// zoom up dist when mousewheel
-	input_manager->setMouseScrollCallback([&](double yoffset) {
+	input_manager->addMouseScrollCallback([&](double yoffset) {
 		dist *= exp(-yoffset*0.1); // scale invariant
 	});
 

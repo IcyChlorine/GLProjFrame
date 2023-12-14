@@ -8,9 +8,8 @@ GameCamera::GameCamera(AbsObject* father) : Camera{ father } {
 	int width, height;
 	auto window = ((GraphicsApplication*)father)->getWindow();
 	window->getSize(&width, &height);
-	window->setCursorPos(width / 2, height / 2);
-	
-	this->update(0);
+	InputManager* input = window->getInputManager();
+	input->setCursorPos(width / 2, height / 2);
 }
 
 GameCamera::~GameCamera()
@@ -51,10 +50,12 @@ void GameCamera::update(float dt)
 	
 	// 鼠标控制视角旋转
 	auto window = ((GraphicsApplication*)father)->getWindow()->getInternalPointer();
+	InputManager* input = ((GraphicsApplication*)father)->getInputManager();
 	int width, height;
-	double cursor_x, cursor_y;
+	float cursor_x, cursor_y;
 	glfwGetWindowSize(window, &width, &height);
-	glfwGetCursorPos(window, &cursor_x, &cursor_y);
+	input->getCursorPos(cursor_x, cursor_y);
+
 	//phi += (time - time_prev)*10;
 	phi-= (cursor_x - width / 2)*phi_rate * 360;
 	th += (cursor_y - height / 2)*th_rate * 90;
@@ -62,17 +63,17 @@ void GameCamera::update(float dt)
 
 	// WASD控制平移
 	glm::vec4 dr = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_D))
 		dr.x += dt*vx;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_A))
 		dr.x -= dt*vx;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_S))
 		dr.z -= dt*vz;
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_W))
 		dr.z += dt*vz;
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_SPACE))
 		dr.y += dt*vy;
-	if (glfwGetKey(window, GLFW_KEY_CAPS_LOCK) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_CAPS_LOCK))
 		dr.y -= dt*vy;
 	if(accelerate) dr *= 3;
 
@@ -120,7 +121,7 @@ void GameCamera::update(float dt)
 	glm::mat4 transMat = glm::lookAt(pos, pos + front, up);
 	view = transMat; 
 
-	glfwSetCursorPos(window, width / 2, height / 2);
+	input->setCursorPos(width / 2, height / 2);
 	
 	// 透视投影变换
 	// TODO: make these parameters adjustable
@@ -199,20 +200,20 @@ void InspectCamera::getDirectionVectors(glm::vec3& front, glm::vec3& up, glm::ve
 
 void InspectCamera::update(float dt)
 {
-
-	// get these handy vectors
+	// these vectors are handy
 	glm::vec3 front, right, up;
 	this->getDirectionVectors(front, up, right);
 	
 	GLFWwindow* window = ((GraphicsApplication*)father)->getWindow()->getInternalPointer();
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
+	InputManager* input = ((GraphicsApplication*)father)->getInputManager();
 
 	if(this->dragging) {
 		// 鼠标控制视角旋转
 		
-		double cursor_x, cursor_y;
-		glfwGetCursorPos(window, &cursor_x, &cursor_y);
+		float cursor_x, cursor_y;
+		input->getCursorPos(cursor_x, cursor_y);
 	
 		//phi += (time - time_prev)*10;
 		phi = drag_start_phi - (cursor_x - drag_start.x)*phi_rate * 360;
@@ -221,18 +222,18 @@ void InspectCamera::update(float dt)
 	}
 
 	// WASD控制平移
-	glm::vec4 dr = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	glm::vec3 dr = glm::vec4(0.0f);
+	if (input->isKeyPressed(GLFW_KEY_D))
 		dr.x += dt*vx;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_A))
 		dr.x -= dt*vx;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_S))
 		dr.z -= dt*vz;
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_W))
 		dr.z += dt*vz;
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_SPACE))
 		dr.y += dt*vy;
-	if (glfwGetKey(window, GLFW_KEY_CAPS_LOCK) == GLFW_PRESS)
+	if (input->isKeyPressed(GLFW_KEY_CAPS_LOCK))
 		dr.y -= dt*vy;
 	if(accelerate) dr *= 3;
 

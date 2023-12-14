@@ -8,45 +8,58 @@ void InputManager::glfw_key_callback(GLFWwindow * window, int key_num, int scanc
 		return;
 	}
 
-	if (action == GLFW_PRESS)
+	if (action == GLFW_PRESS){
+		instance->keys[key_num] = true;
 		for(auto& func : instance->key_callbacks[key_num][KEY_PRESS])
 			func();
-	else if (action == GLFW_RELEASE)
+	} else if (action == GLFW_RELEASE) {
+		instance->keys[key_num] = false;
 		for(auto& func : instance->key_callbacks[key_num][KEY_RELEASE])
 			func();
+	}		
 }
 
 void InputManager::glfw_mouse_button_callback(GLFWwindow * window, int button, int action, int mods)
 {
 	if (action == GLFW_PRESS) {
-		if (button == GLFW_MOUSE_BUTTON_LEFT)
+		if (button == GLFW_MOUSE_BUTTON_LEFT) {
+			instance->mouse_buttons[MOUSE_LEFT] = true;
 			for(auto& func : instance->mouse_click_callbacks[MOUSE_LEFT][MOUSE_PRESS])
 				func();
-		/*if (button == GLFW_MOUSE_BUTTON_RIGHT)
+		}else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+			instance->mouse_buttons[MOUSE_RIGHT] = true;
 			for(auto& func : instance->mouse_click_callbacks[MOUSE_RIGHT][MOUSE_PRESS])
 				func();
-		else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+		} else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+			instance->mouse_buttons[MOUSE_MIDDLE] = true;
 			for(auto& func : instance->mouse_click_callbacks[MOUSE_MIDDLE][MOUSE_PRESS])
-				func();*/
-		
+				func();
+		}
 	}
 	else if (action == GLFW_RELEASE) {
-		if (button == GLFW_MOUSE_BUTTON_LEFT)
+		if (button == GLFW_MOUSE_BUTTON_LEFT) {
+			instance->mouse_buttons[MOUSE_LEFT] = false;
 			for(auto& func : instance->mouse_click_callbacks[MOUSE_LEFT][MOUSE_RELEASE])
 				func();
-		else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+		} else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+			instance->mouse_buttons[MOUSE_RIGHT] = false;
 			for(auto& func : instance->mouse_click_callbacks[MOUSE_RIGHT][MOUSE_RELEASE])
 				func();
-		else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+		} else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+			instance->mouse_buttons[MOUSE_MIDDLE] = false;
 			for(auto& func : instance->mouse_click_callbacks[MOUSE_MIDDLE][MOUSE_RELEASE])
 				func();
+		}
 	}
 }
 
 void InputManager::glfw_mouse_move_callback(GLFWwindow * window, double x, double y)
 {
+	float fx = (float)x, fy = (float)y;
+	instance->mouse_x = fx;
+	instance->mouse_y = fy;
 	for(auto& func : instance->mouse_move_callbacks)
-		func((float)x, (float)y);
+		func(fx, fy);
 }
 
 void InputManager::glfw_scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
@@ -59,10 +72,15 @@ void InputManager::glfw_scroll_callback(GLFWwindow * window, double xoffset, dou
 
 void InputManager::init(GLFWwindow* window)
 {
+	this->window = window;
 	glfwSetKeyCallback        (window, glfw_key_callback);
 	glfwSetMouseButtonCallback(window, glfw_mouse_button_callback);
 	glfwSetCursorPosCallback  (window, glfw_mouse_move_callback);
 	glfwSetScrollCallback     (window, glfw_scroll_callback);
+
+	double dx, dy;
+	glfwGetCursorPos          (window, &dx, &dy);
+	mouse_x = (float)dx; mouse_y = (float)dy;
 }
 
 InputManager::InputManager(GLFWwindow* window)

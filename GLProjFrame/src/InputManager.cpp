@@ -1,6 +1,15 @@
 #include "InputManager.h"
 InputManager* instance{ nullptr };
 
+void InputManager::glfw_resize_callback(GLFWwindow* window, int width, int height)
+{
+	for(auto& func : instance->frame_resize_callbacks)
+		func(width, height);
+
+	instance->wnd_width = width;
+	instance->wnd_height = height;
+}
+
 void InputManager::glfw_key_callback(GLFWwindow * window, int key_num, int scancode, int action, int mods)
 {
 	if (key_num < 0 || key_num >= KEY_ARR_CAPACITY) {
@@ -77,6 +86,7 @@ void InputManager::init(GLFWwindow* window)
 	glfwSetMouseButtonCallback(window, glfw_mouse_button_callback);
 	glfwSetCursorPosCallback  (window, glfw_mouse_move_callback);
 	glfwSetScrollCallback     (window, glfw_scroll_callback);
+	glfwSetFramebufferSizeCallback(window, glfw_resize_callback);
 
 	double dx, dy;
 	glfwGetCursorPos          (window, &dx, &dy);
@@ -98,6 +108,10 @@ InputManager::~InputManager()
 {
 }
 
+void InputManager::addFrameResizeCallback(function<void(int, int)> func) {
+	frame_resize_callbacks.push_back(func);
+}
+
 void InputManager::addMouseClickCallback(function<void()> func, int key, int action) {
 	if ((key != 0 && key != 1) ||
 		(action !=0 && action!=1)) {
@@ -106,9 +120,11 @@ void InputManager::addMouseClickCallback(function<void()> func, int key, int act
 	}
 	mouse_click_callbacks[key][action].push_back(func);
 }
+
 void InputManager::addMouseMoveCallback(function<void(float, float)> func) {
 	mouse_move_callbacks.push_back(func);
 }
+
 void InputManager::addKeyCallback(function<void()> func, int key, int action) {
 	bool valid = (key >= 0 && key < KEY_ARR_CAPACITY);
 	valid = valid && (action == KEY_PRESS || action == KEY_RELEASE);

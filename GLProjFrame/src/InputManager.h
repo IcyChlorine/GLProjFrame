@@ -57,7 +57,9 @@ public:
 	vector<function<void(float, float)>> mouse_move_callbacks;
 	vector<function<void()>> key_callbacks[KEY_ARR_CAPACITY][2];//[GLFW_KEY][0|1]表示某个键[按下|抬起]时调用的函数
 	vector<function<void(float)>> scroll_callbacks;
+	vector<function<void(int, int)>> frame_resize_callbacks;
 
+	static void glfw_resize_callback(GLFWwindow* window, int width, int height);
 	static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void glfw_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 	static void glfw_mouse_move_callback(GLFWwindow* window, double x, double y);
@@ -72,5 +74,6 @@ public:
 	void addMouseMoveCallback(function<void(float, float)> func);
 	void addKeyCallback(function<void()> func, int key, int action);
 	void addMouseScrollCallback(function<void(float)> func);
+	void addFrameResizeCallback(function<void(int, int)> func);
 };
 

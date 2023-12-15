@@ -1,12 +1,6 @@
 #include "Window.h"
 #include "InputManager.h"
 
-//callback func when window is resized
-void glfw_resize_callback(GLFWwindow* window, int width, int height)
-{
-	glViewport(0, 0, width, height);
-}
-
 void Window::toggleFullscreen() {
 	if (is_fullscreen) {
 		glfwSetWindowMonitor(internal_wnd_pointer, NULL, 100, 100, 800, 600, 0);
@@ -64,10 +58,10 @@ Window::Window(AbsObject* father):
 	 */
 	glfwSwapInterval(1);
 
-	//register RESIZE listener func
-	glfwSetFramebufferSizeCallback(internal_wnd_pointer, glfw_resize_callback);
-
 	this->inputManager = new InputManager(internal_wnd_pointer);
+	this->inputManager->addFrameResizeCallback([&](int width, int height) {
+		glViewport(0, 0, width, height);
+	});
 }
 
 

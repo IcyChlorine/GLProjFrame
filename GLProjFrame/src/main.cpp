@@ -9,7 +9,7 @@ void handleEvents(GLFWwindow *window)
 }
 
 /* theApp should be accessible from any object, so make it global.*/
-DemoApp* theApp{ nullptr };
+GraphicsApplication* theApp{ nullptr };
 
 int main() {
 	try {

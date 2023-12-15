@@ -33,6 +33,7 @@ public:
 
 	virtual Window* getWindow() { return nullptr; }
 	virtual InputManager* getInputManager() { return nullptr; }
+	virtual Camera* getCamera() { return nullptr; }
 };
 
 class DemoApp : public GraphicsApplication {
@@ -51,7 +52,7 @@ public:
 	void run() override;
 	Window* getWindow() override { return window; }
 	InputManager* getInputManager() override { return inputManager; }
-	Camera* getCamera() { return camera; }
+	Camera* getCamera() override { return camera; }
 };
 
 class MyApp : public GraphicsApplication
@@ -71,7 +72,7 @@ public:
 	
 	void run() override;
 	Window* getWindow() override { return window; }
-	Camera* getCamera() { return camera; }
+	Camera* getCamera() override { return camera; }
 
 	InputManager* getInputManager() override { return inputManager; }
 
@@ -82,6 +83,6 @@ public:
 	}*/
 };
 
-extern DemoApp* theApp;
+extern GraphicsApplication* theApp;
 
 #endif

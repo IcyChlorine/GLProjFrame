@@ -5,6 +5,12 @@ const int loglevel{DEFAULT_LOGLEVEL};
 
 DemoApp::DemoApp()
 {
+	if (theApp) {
+		error("Application Instance already exists!\n");
+		throw init_exception();
+	}
+	theApp = this;
+
 	this->window = new Window((AbsObject*)this);
 
 	// init GLAD
@@ -127,6 +133,12 @@ void DemoApp::run() {
 
 MyApp::MyApp()
 {
+	if (theApp) {
+		error("Application Instance already exists!\n");
+		throw init_exception();
+	}
+	theApp = this;
+	
 	this->window = new Window((AbsObject*)this);
 
 	// init GLAD

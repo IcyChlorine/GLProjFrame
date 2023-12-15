@@ -6,7 +6,7 @@
 
 GameCamera::GameCamera(AbsObject* father) : Camera{ father } {
 	int width, height;
-	auto window = ((GraphicsApplication*)father)->getWindow();
+	auto window = theApp->getWindow();
 	window->getSize(&width, &height);
 	InputManager* input = window->getInputManager();
 	input->setCursorPos(width / 2, height / 2);
@@ -22,7 +22,7 @@ inline float clamp(float x, float min, float max) {
 }
 
 void GameCamera::placeCursorAtCenter() {
-	auto input = ((GraphicsApplication*)father)->getInputManager();
+	auto input = theApp->getInputManager();
 	int width, height;
 	input->getWindowSize(width, height);
 	input->setCursorPos(width / 2, height / 2);
@@ -62,7 +62,7 @@ void GameCamera::update(float dt)
 	this->getDirectionVectors(front, up, right);
 	
 	// 鼠标控制视角旋转
-	InputManager* input = ((GraphicsApplication*)father)->getInputManager();
+	InputManager* input = theApp->getInputManager();
 	int width, height;
 	float cursor_x, cursor_y;
 	input->getWindowSize(width, height);
@@ -160,14 +160,14 @@ int GameCamera::outputDebugInfo(char* buf)
 
 InspectCamera::InspectCamera(AbsObject* father) : Camera{ father } {
 	int width, height;
-	auto input_manager = ((GraphicsApplication*)father)->getInputManager();
+	auto input_manager = theApp->getInputManager();
 	input_manager->getWindowSize(width, height);
 
 	input_manager->addMouseClickCallback([&, father]() {
 		// Note: Don't capture local variables by reference, as this function will
 		// work as callback, and the local variables will be destroyed when called.
 		dragging = true;
-		auto input = ((GraphicsApplication*)father)->getInputManager();
+		auto input = theApp->getInputManager();
 		drag_start = input->getCursorPos();
 		drag_start_th = th;
 		drag_start_phi = phi;
@@ -217,7 +217,7 @@ void InspectCamera::update(float dt)
 	this->getDirectionVectors(front, up, right);
 	
 	int width, height;
-	InputManager* input = ((GraphicsApplication*)father)->getInputManager();
+	InputManager* input = theApp->getInputManager();
 	input->getWindowSize(width, height);
 
 	if(this->dragging) {

@@ -6,9 +6,9 @@ class GameCamera :
 	public Camera,public Loopable
 {
 private:
-	const float pi = 3.1415926f;
+	const float pi { 3.1415926f };
 
-	bool enabled = true;
+	bool capture_cursor { true };
 
 	//为了控制变换的时间 单位：秒
 	//与上一次update距离的时间
@@ -38,8 +38,11 @@ public:
 	GameCamera(AbsObject* father);
 	virtual ~GameCamera();
 
-	void setEnabled(bool enabled) { this->enabled = enabled; }
-	bool getEnabled() { return enabled; }
+	void placeCursorAtCenter();
+
+	void setCaptureCursor(bool capture_cursor);
+	bool getCaptureCursor() const { return capture_cursor; }
+	void toggleCaptureCursor() { setCaptureCursor(!capture_cursor); }
 
 	glm::vec3 getPosition() { return pos; }
 

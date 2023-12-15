@@ -30,7 +30,7 @@ DemoApp::DemoApp()
 
 	// 按ESC释放鼠标
 	/*inputManager->addKeyCallback([&]() {
-		camera->setEnabled(!camera->getEnabled());
+		camera->setCaptureCursor(!camera->getCaptureCursor());
 		//cout << "key_released" << endl;
 	}, GLFW_KEY_ESCAPE, InputManager::KEY_PRESS);*/
 	
@@ -152,7 +152,7 @@ MyApp::MyApp()
 
 	// 按ESC释放鼠标
 	inputManager->addKeyCallback([&]() {
-		camera->setEnabled(!camera->getEnabled());
+		camera->toggleCaptureCursor();
 		//cout << "key_released" << endl;
 	}, GLFW_KEY_ESCAPE, InputManager::KEY_PRESS);
 	

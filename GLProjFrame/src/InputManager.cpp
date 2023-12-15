@@ -91,6 +91,7 @@ void InputManager::init(GLFWwindow* window)
 	double dx, dy;
 	glfwGetCursorPos          (window, &dx, &dy);
 	mouse_x = (float)dx; mouse_y = (float)dy;
+	glfwGetWindowSize         (window, &wnd_width, &wnd_height);
 }
 
 InputManager::InputManager(GLFWwindow* window)

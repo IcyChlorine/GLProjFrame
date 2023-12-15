@@ -21,6 +21,13 @@ inline float clamp(float x, float min, float max) {
 	return x;
 }
 
+void GameCamera::placeCursorAtCenter() {
+	auto input = ((GraphicsApplication*)father)->getInputManager();
+	int width, height;
+	input->getWindowSize(width, height);
+	input->setCursorPos(width / 2, height / 2);
+}
+
 void GameCamera::getDirectionVectors(glm::vec3& front, glm::vec3& up, glm::vec3& right) {
 	front = glm::vec3(
 		sin(glm::radians(th)) * sin(glm::radians(phi)),
@@ -35,9 +42,15 @@ void GameCamera::getDirectionVectors(glm::vec3& front, glm::vec3& up, glm::vec3&
 	up = glm::cross(right, front);
 }
 
+void GameCamera::setCaptureCursor(bool capture_cursor) {
+	this->capture_cursor = capture_cursor;
+	if (capture_cursor) {
+		placeCursorAtCenter();
+	}
+}
+
 void GameCamera::update(float dt)
 {
-	if (!enabled) return;
 	cumulated_time += dt;
 	// 只有时间间隔足够大时才更新变换，避免因鼠标只移动了一两个像素造成的不平滑
 	// Extra notes: if vsync is turned of, this is not necessay
@@ -49,17 +62,19 @@ void GameCamera::update(float dt)
 	this->getDirectionVectors(front, up, right);
 	
 	// 鼠标控制视角旋转
-	auto window = ((GraphicsApplication*)father)->getWindow()->getInternalPointer();
 	InputManager* input = ((GraphicsApplication*)father)->getInputManager();
 	int width, height;
 	float cursor_x, cursor_y;
-	glfwGetWindowSize(window, &width, &height);
+	input->getWindowSize(width, height);
 	input->getCursorPos(cursor_x, cursor_y);
 
-	//phi += (time - time_prev)*10;
-	phi-= (cursor_x - width / 2)*phi_rate * 360;
-	th += (cursor_y - height / 2)*th_rate * 90;
-	th  = clamp(th, 0.0f, 180.0f);
+	if(capture_cursor) {
+		phi-= (cursor_x - width / 2)*phi_rate * 360;
+		th += (cursor_y - height / 2)*th_rate * 90;
+		th  = clamp(th, 0.0f, 180.0f);
+
+		input->setCursorPos(width / 2, height / 2);
+	}
 
 	// WASD控制平移
 	glm::vec4 dr = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -121,8 +136,6 @@ void GameCamera::update(float dt)
 	glm::mat4 transMat = glm::lookAt(pos, pos + front, up);
 	view = transMat; 
 
-	input->setCursorPos(width / 2, height / 2);
-	
 	// 透视投影变换
 	// TODO: make these parameters adjustable
 	float vertical_fov = 45.0f;
@@ -147,16 +160,15 @@ int GameCamera::outputDebugInfo(char* buf)
 
 InspectCamera::InspectCamera(AbsObject* father) : Camera{ father } {
 	int width, height;
-	auto window = ((GraphicsApplication*)father)->getWindow();
-	window->getSize(&width, &height);
 	auto input_manager = ((GraphicsApplication*)father)->getInputManager();
+	input_manager->getWindowSize(width, height);
 
-	input_manager->addMouseClickCallback([&]() {
+	input_manager->addMouseClickCallback([&, father]() {
 		// Note: Don't capture local variables by reference, as this function will
 		// work as callback, and the local variables will be destroyed when called.
 		dragging = true;
-		auto window = ((GraphicsApplication*)this->getFather())->getWindow();
-		glfwGetCursorPos(window->getInternalPointer(), &drag_start.x, &drag_start.y);
+		auto input = ((GraphicsApplication*)father)->getInputManager();
+		drag_start = input->getCursorPos();
 		drag_start_th = th;
 		drag_start_phi = phi;
 	}, 0, 0);
@@ -204,10 +216,9 @@ void InspectCamera::update(float dt)
 	glm::vec3 front, right, up;
 	this->getDirectionVectors(front, up, right);
 	
-	GLFWwindow* window = ((GraphicsApplication*)father)->getWindow()->getInternalPointer();
 	int width, height;
-	glfwGetWindowSize(window, &width, &height);
 	InputManager* input = ((GraphicsApplication*)father)->getInputManager();
+	input->getWindowSize(width, height);
 
 	if(this->dragging) {
 		// 鼠标控制视角旋转

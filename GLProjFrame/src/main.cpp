@@ -2,12 +2,6 @@
 #include "MyApp.h"
 using namespace std;
 
-void handleEvents(GLFWwindow *window)
-{
-	//if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-	//	glfwSetWindowShouldClose(window, true);
-}
-
 /* theApp should be accessible from any object, so make it global.*/
 GraphicsApplication* theApp{ nullptr };
 

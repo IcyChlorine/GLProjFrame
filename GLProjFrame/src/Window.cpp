@@ -34,7 +34,7 @@ Window::Window(AbsObject* father):
 	//TODO: make window width, height, title, nr_sample and vsync configurable
 	//create window via glfw
 	int width{ 800 }, height{ 600 };
-	const char* wnd_title = "OpenGL Framework beta";
+	const char* wnd_title = "OpenGL Framework v0.3.0";
 	this->internal_wnd_pointer = glfwCreateWindow(width, height, wnd_title, NULL, NULL);
 	if (internal_wnd_pointer == NULL)
 	{

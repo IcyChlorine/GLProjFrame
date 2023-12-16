@@ -66,10 +66,12 @@ private:
 	glm::dvec2 drag_start;
 	float drag_start_th{ 90.0f }, drag_start_phi{ 180.0f };
 
-	//当前摄像机的位置(in WC) 单位：GL标准坐标系
+	// current focus point of camera
 	glm::vec3 focus = glm::vec3(0.0f);
-	float dist = 3.0f;
-	float th{ 90.0f }, phi{ 180.0f };
+	float dist{ 4.0f };
+	//float th{ 90.0f }, phi{ 180.0f };
+	// 一开始初始化在斜上方的视角，避免看到物体的“大头照”
+	float th{ 135.0f }, phi{ 135.0f };
 	// 相机移动的速度 单位：WC unit/s
 	float vx{ 1.0f }, vy{ 1.0f }, vz{ 1.0f };
 	

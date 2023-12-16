@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++11
-DEBUG = false
+DEBUG = true
 
 SRC_PATH = ./src
 LIB_PATH = ./lib

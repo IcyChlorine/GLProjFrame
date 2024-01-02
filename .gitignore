@@ -395,6 +395,9 @@ build/
 
 /GLProjFrame/assets/
 
+/GLProjFrame/imgui.ini
+
 /freetype-2.13.0
+
 
 *.zip

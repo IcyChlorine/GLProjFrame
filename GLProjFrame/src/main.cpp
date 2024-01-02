@@ -7,7 +7,7 @@ GraphicsApplication* theApp{ nullptr };
 
 int main() {
 	try {
-		theApp = new DemoApp();
+		theApp = new MyApp();
 		theApp->run();
 		
 		delete theApp;

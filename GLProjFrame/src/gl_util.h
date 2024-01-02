@@ -32,6 +32,12 @@ inline void init_buffers(unsigned int * pVAO, unsigned int * pVBO, unsigned int 
 	if(pIBO) get_and_bind_ibo(pIBO);
 }
 
+inline void set_vbo_data(const void* data, size_t size, GLenum usage=GL_STATIC_DRAW) {
+	glBufferData(GL_ARRAY_BUFFER, size, data, usage);
+}
+inline void set_ibo_data(const void* data, size_t size, GLenum usage=GL_STATIC_DRAW) {
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, usage);
+}
 
 /* for GL_TEXTURE_2D only */
 inline void gen_and_bind_texture(unsigned int * pTex) {
@@ -47,6 +53,12 @@ inline void unbind_vbo() {
 }
 inline void unbind_ibo() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+// three in one.
+inline void unbind_buffers() {
+	unbind_vao();
+	unbind_vbo();
+	unbind_ibo();
 }
 inline void unbind_texture() {
 	glBindTexture(GL_TEXTURE_2D, 0);

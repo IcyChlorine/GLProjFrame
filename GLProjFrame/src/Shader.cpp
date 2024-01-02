@@ -98,6 +98,22 @@ void Shader::setUniform(const string &varName, float value)
 	auto uniform_loc = glGetUniformLocation(m_shaderID, varName.c_str());
 	glUniform1f(uniform_loc, value);
 }
+void Shader::setUniform(const string &varName, const glm::vec2 &value)
+{
+	auto uniform_loc = glGetUniformLocation(m_shaderID, varName.c_str());
+	glUniform2fv(uniform_loc, 1, &value[0]);
+}
+void Shader::setUniform(const string &varName, const glm::vec3 &value)
+{
+	auto uniform_loc = glGetUniformLocation(m_shaderID, varName.c_str());
+	glUniform3fv(uniform_loc, 1, &value[0]);
+}
+void Shader::setUniform(const string &varName, const glm::vec4 &value)
+{
+	auto uniform_loc = glGetUniformLocation(m_shaderID, varName.c_str());
+	glUniform4fv(uniform_loc, 1, &value[0]);
+}
+
 
 void Shader::setUniformMatrix(const string & varName, const glm::mat4& mat) {
 	auto uniform_loc = glGetUniformLocation(m_shaderID, varName.c_str());

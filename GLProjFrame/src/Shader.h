@@ -24,11 +24,14 @@ public:
 	// use/activate the shader
 	void use();
 	// utility uniform functions
-	void setUniform(const std::string &name, bool value);
-	void setUniform(const std::string &name, int value);
-	void setUniform(const std::string &name, float value);
-	void setUniformMatrix(const std::string &name, const glm::mat3& mat);
-	void setUniformMatrix(const std::string &name, const glm::mat4& mat);
+	void setUniform(const string &name, bool value);
+	void setUniform(const string &name, int  value);
+	void setUniform(const string &name, float value);
+	void setUniform(const string &name, const glm::vec2 &value);
+	void setUniform(const string &name, const glm::vec3 &value);
+	void setUniform(const string &name, const glm::vec4 &value);
+	void setUniformMatrix(const string &name, const glm::mat3& mat);
+	void setUniformMatrix(const string &name, const glm::mat4& mat);
 };
 
 #endif

@@ -150,6 +150,30 @@ public:
 	virtual void render();
 };
 
+class LightCube: public Renderable {
+private:
+	Shader* shader{nullptr};
+	float vertices[8*3]; // generate dynamically
+	unsigned int indices[6*2*3]; // render using GL_QUAD
+
+	unsigned int VAO, VBO, EBO;
+
+	glm::vec3 lightPos{1.2f, 1.0f, 2.0f};
+	glm::vec3 lightColor{1.0f, 1.0f, 1.0f};
+	float viewport_size{0.2f};
+
+	void initShader();
+public:
+	LightCube();
+	~LightCube();
+	virtual void render();
+
+	void setLightPos(glm::vec3 pos);
+	void setLightColor(glm::vec3 color);
+	void setLightUniform(Shader& shader);
+	void setViewportSize(float size);
+};
+
 class ViewportGrid: public Renderable {
 protected:
 	unsigned int VAO, VBO, EBO;

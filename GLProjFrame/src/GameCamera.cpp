@@ -2,7 +2,7 @@
 #include "Window.h"
 #include "Application.h"
 
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
 
 GameCamera::GameCamera(AbsObject* father) : Camera{ father } {
 	int width, height;
